@@ -1,0 +1,116 @@
+import { useEffect, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
+import { supabase } from '../lib/supabaseClient'
+
+export default function Categories() {
+  const { entityId } = useOutletContext()
+  const [categories, setCategories] = useState(null)
+  const [name, setName] = useState('')
+  const [categoryType, setCategoryType] = useState('expense')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function loadCategories() {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('entity_id', entityId)
+      .eq('is_archived', false)
+      .order('category_type')
+      .order('name')
+    if (error) setError(error.message)
+    else setCategories(data)
+  }
+
+  useEffect(() => {
+    loadCategories()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entityId])
+
+  async function handleCreate(e) {
+    e.preventDefault()
+    if (!name.trim()) return
+    setBusy(true)
+    setError('')
+    const { error } = await supabase
+      .from('categories')
+      .insert({ entity_id: entityId, name: name.trim(), category_type: categoryType })
+    setBusy(false)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setName('')
+    loadCategories()
+  }
+
+  async function handleArchive(id) {
+    if (!confirm('Archive this category? Past transactions keep it, it just stops showing for new ones.')) return
+    await supabase.from('categories').update({ is_archived: true }).eq('id', id)
+    loadCategories()
+  }
+
+  const income = categories?.filter((c) => c.category_type === 'income') ?? []
+  const expense = categories?.filter((c) => c.category_type === 'expense') ?? []
+
+  return (
+    <div className="page">
+      <h1>Categories</h1>
+      <p className="page-subtitle">These drive your Profit &amp; Loss statement.</p>
+
+      {categories === null && <p>Loading…</p>}
+
+      {categories && (
+        <div className="category-columns">
+          <div>
+            <h3>Income</h3>
+            <ul className="simple-list">
+              {income.map((c) => (
+                <li key={c.id}>
+                  {c.name}
+                  <button className="link-button" onClick={() => handleArchive(c.id)}>
+                    Archive
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3>Expense</h3>
+            <ul className="simple-list">
+              {expense.map((c) => (
+                <li key={c.id}>
+                  {c.name}
+                  <button className="link-button" onClick={() => handleArchive(c.id)}>
+                    Archive
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      <form className="inline-form" onSubmit={handleCreate}>
+        <h2>Add a category</h2>
+        <div className="form-row">
+          <label>
+            Name
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Egg Sales" required />
+          </label>
+          <label>
+            Type
+            <select value={categoryType} onChange={(e) => setCategoryType(e.target.value)}>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </label>
+          <button type="submit" disabled={busy}>
+            {busy ? 'Adding…' : 'Add category'}
+          </button>
+        </div>
+        {error && <p className="form-error">{error}</p>}
+      </form>
+    </div>
+  )
+}
