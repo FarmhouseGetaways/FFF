@@ -122,7 +122,7 @@ export default function ImportCsv() {
       const categoryType = row.amount >= 0 ? 'income' : 'expense'
       const guessedId = guessCategory(row.description, categories, categoryType)
       const fallbackId = categoryType === 'income' ? defaultIncomeCategory : defaultExpenseCategory
-      const isDuplicate = existingKeys.has(`${row.date}|${Math.abs(row.amount).toFixed(2)}`)
+      const isDuplicate = existingKeys.has(`${row.date}|${row.amount.toFixed(2)}`)
       const override = rowOverrides[index] ?? {}
       return {
         ...row,
