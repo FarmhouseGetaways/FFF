@@ -37,6 +37,37 @@ assets vs. liabilities, with Owner's Equity calculated as Assets − Liabilities
    `supabase/migrations/0001_init.sql` once against your project.
 5. `npm run dev`
 
+## Payments (Stripe)
+
+Access to `/entities` is gated on having a row in the `subscriptions` table
+with `status = 'active'`. That table is written only by the webhook handler
+(via the service role key) — never by the client, never by RLS-permitted
+writes — so the only way in is a real Stripe event.
+
+- `netlify/functions/create-checkout-session.js` — authenticates the caller
+  against Supabase, creates a Stripe Checkout session for the subscription
+  price, returns its URL for the frontend to redirect to.
+- `netlify/functions/stripe-webhook.js` — verifies Stripe's signature by hand
+  (HMAC-SHA256, no SDK dependency) against the raw request body, then upserts
+  `subscriptions` keyed on `user_id` for `checkout.session.completed` and
+  `customer.subscription.*` events. Idempotent by design since Stripe doesn't
+  guarantee exactly-once delivery.
+
+Both functions read these Netlify environment variables (server-side only —
+none of these are `VITE_`-prefixed, so they never reach the browser bundle):
+
+| Variable | Where it comes from |
+|---|---|
+| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API keys |
+| `STRIPE_PRICE_ID` | The recurring Price object for the $27/mo plan |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret from the webhook endpoint registered at `<site>/.netlify/functions/stripe-webhook` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API (bypasses RLS — never expose client-side) |
+
+Always develop and test against **Stripe test mode** keys first. Switching to
+live keys later is just swapping these same env vars — do that directly in
+the Netlify dashboard when the time comes, not by pasting live secret keys
+into chat.
+
 ## Deploying
 
 The site is built on Netlify from this repo (`netlify.toml` sets the build command
@@ -54,8 +85,5 @@ is safe to expose client-side, it's what RLS is for.
    and it bills per connected account, not per user. Multi-entity users will likely
    connect multiple accounts, so this needs real usage data before committing to it at
    a $27/mo price point.
-3. **Subscription billing (Stripe)** — needed once this moves beyond a single
-   internal user. Netlify Functions will handle the checkout session + webhook (must
-   be server-side to verify Stripe's signature).
-4. **Multi-user per entity** — currently one owner per entity. Sharing an entity with
+3. **Multi-user per entity** — currently one owner per entity. Sharing an entity with
    a bookkeeper/co-owner would need a membership table and updated RLS policies.

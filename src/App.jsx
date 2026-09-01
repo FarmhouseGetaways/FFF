@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { useAuth } from './lib/AuthContext.jsx'
 import { useSubscription } from './lib/SubscriptionContext.jsx'
 import Login from './pages/Login.jsx'
@@ -22,9 +23,35 @@ function RequireAuth({ children }) {
 // unsubscribed user has to be able to land there or they're stuck bouncing.
 function RequireSubscription({ children }) {
   const { user, loading: authLoading } = useAuth()
-  const { isActive, loading: subLoading } = useSubscription()
+  const { isActive, loading: subLoading, refresh } = useSubscription()
+  const [searchParams] = useSearchParams()
+  const justCheckedOut = searchParams.get('checkout') === 'success'
+
+  // Stripe's webhook can land a couple seconds after the browser redirect
+  // back from Checkout. Rather than bounce a just-paid user straight to
+  // /subscribe, poll briefly for the webhook to catch up.
+  const [polling, setPolling] = useState(justCheckedOut)
+  useEffect(() => {
+    if (!justCheckedOut || isActive) {
+      setPolling(false)
+      return
+    }
+    let attempts = 0
+    const id = setInterval(async () => {
+      attempts += 1
+      await refresh()
+      if (attempts >= 8) {
+        clearInterval(id)
+        setPolling(false)
+      }
+    }, 1500)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [justCheckedOut, isActive])
+
   if (authLoading || subLoading) return <div className="page-loading">Loading…</div>
   if (!user) return <Navigate to="/login" replace />
+  if (!isActive && polling) return <div className="page-loading">Confirming your subscription…</div>
   if (!isActive) return <Navigate to="/subscribe" replace />
   return children
 }
