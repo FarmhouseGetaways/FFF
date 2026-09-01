@@ -14,6 +14,8 @@ import Accounts from './pages/Accounts.jsx'
 import Categories from './pages/Categories.jsx'
 import ProfitLoss from './pages/ProfitLoss.jsx'
 import BalanceSheet from './pages/BalanceSheet.jsx'
+import EntitySettings from './pages/EntitySettings.jsx'
+import ImportCsv from './pages/ImportCsv.jsx'
 
 function RequireAuth({ children }) {
   const { user, loading } = useAuth()
@@ -113,6 +115,8 @@ export default function App() {
         <Route path="categories" element={<Categories />} />
         <Route path="profit-loss" element={<ProfitLoss />} />
         <Route path="balance-sheet" element={<BalanceSheet />} />
+        <Route path="settings" element={<EntitySettings />} />
+        <Route path="import" element={<ImportCsv />} />
       </Route>
       <Route path="*" element={<Navigate to="/entities" replace />} />
     </Routes>

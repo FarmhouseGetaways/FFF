@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { formatMoney, todayISO } from '../lib/money'
@@ -8,6 +8,14 @@ const SOURCE_LABELS = {
   csv_import: 'CSV import',
   venmo_csv: 'Venmo CSV',
   plaid: 'Bank sync',
+}
+
+async function uploadAttachment(entityId, file) {
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+  const path = `${entityId}/${crypto.randomUUID()}-${safeName}`
+  const { error } = await supabase.storage.from('transaction-attachments').upload(path, file)
+  if (error) throw error
+  return path
 }
 
 export default function Transactions() {
@@ -25,6 +33,8 @@ export default function Transactions() {
   const [date, setDate] = useState(todayISO())
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
+  const [file, setFile] = useState(null)
+  const fileInputRef = useRef(null)
 
   async function loadLookups() {
     const [{ data: accts }, { data: cats }] = await Promise.all([
@@ -49,7 +59,7 @@ export default function Transactions() {
     const { data, error } = await supabase
       .from('transactions')
       .select(
-        `id, txn_date, description, amount, source, transfer_group_id,
+        `id, txn_date, description, amount, source, transfer_group_id, attachment_path,
          financial_account:financial_accounts(name),
          category:categories(name, category_type)`
       )
@@ -90,58 +100,60 @@ export default function Transactions() {
     }
     setBusy(true)
 
-    let insertError
-    if (kind === 'transfer') {
-      if (!toAccountId || toAccountId === accountId) {
-        setBusy(false)
-        setError('Choose a different destination account for the transfer.')
-        return
-      }
-      const transferGroupId = crypto.randomUUID()
-      const { error } = await supabase.from('transactions').insert([
-        {
+    try {
+      if (kind === 'transfer') {
+        if (!toAccountId || toAccountId === accountId) {
+          setError('Choose a different destination account for the transfer.')
+          return
+        }
+        const transferGroupId = crypto.randomUUID()
+        const { error } = await supabase.from('transactions').insert([
+          {
+            entity_id: entityId,
+            financial_account_id: accountId,
+            txn_date: date,
+            description: description || 'Transfer',
+            amount: -numericAmount,
+            transfer_group_id: transferGroupId,
+          },
+          {
+            entity_id: entityId,
+            financial_account_id: toAccountId,
+            txn_date: date,
+            description: description || 'Transfer',
+            amount: numericAmount,
+            transfer_group_id: transferGroupId,
+          },
+        ])
+        if (error) throw error
+      } else {
+        if (!categoryId) {
+          setError('Choose a category.')
+          return
+        }
+        const attachmentPath = file ? await uploadAttachment(entityId, file) : null
+        const { error } = await supabase.from('transactions').insert({
           entity_id: entityId,
           financial_account_id: accountId,
+          category_id: categoryId,
           txn_date: date,
-          description: description || 'Transfer',
-          amount: -numericAmount,
-          transfer_group_id: transferGroupId,
-        },
-        {
-          entity_id: entityId,
-          financial_account_id: toAccountId,
-          txn_date: date,
-          description: description || 'Transfer',
-          amount: numericAmount,
-          transfer_group_id: transferGroupId,
-        },
-      ])
-      insertError = error
-    } else {
-      if (!categoryId) {
-        setBusy(false)
-        setError('Choose a category.')
-        return
+          description,
+          amount: kind === 'income' ? numericAmount : -numericAmount,
+          attachment_path: attachmentPath,
+        })
+        if (error) throw error
       }
-      const { error } = await supabase.from('transactions').insert({
-        entity_id: entityId,
-        financial_account_id: accountId,
-        category_id: categoryId,
-        txn_date: date,
-        description,
-        amount: kind === 'income' ? numericAmount : -numericAmount,
-      })
-      insertError = error
-    }
 
-    setBusy(false)
-    if (insertError) {
-      setError(insertError.message)
-      return
+      setDescription('')
+      setAmount('')
+      setFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      loadTransactions()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setBusy(false)
     }
-    setDescription('')
-    setAmount('')
-    loadTransactions()
   }
 
   async function handleDelete(txn) {
@@ -152,6 +164,17 @@ export default function Transactions() {
       await supabase.from('transactions').delete().eq('id', txn.id)
     }
     loadTransactions()
+  }
+
+  async function handleViewAttachment(path) {
+    const { data, error } = await supabase.storage
+      .from('transaction-attachments')
+      .createSignedUrl(path, 60)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    window.open(data.signedUrl, '_blank', 'noopener')
   }
 
   return (
@@ -240,6 +263,18 @@ export default function Transactions() {
             <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Optional" />
           </label>
 
+          {kind !== 'transfer' && (
+            <label>
+              Receipt
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
+            </label>
+          )}
+
           <button type="submit" disabled={busy}>
             {busy ? 'Saving…' : 'Add'}
           </button>
@@ -260,6 +295,7 @@ export default function Transactions() {
               <th>Source</th>
               <th className="num">Amount</th>
               <th />
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -274,6 +310,13 @@ export default function Transactions() {
                   {formatMoney(t.amount)}
                 </td>
                 <td>
+                  {t.attachment_path && (
+                    <button className="link-button" onClick={() => handleViewAttachment(t.attachment_path)}>
+                      Receipt
+                    </button>
+                  )}
+                </td>
+                <td>
                   <button className="link-button" onClick={() => handleDelete(t)}>
                     Delete
                   </button>
@@ -282,7 +325,7 @@ export default function Transactions() {
             ))}
             {transactions.length === 0 && (
               <tr>
-                <td colSpan={7} className="empty-state">
+                <td colSpan={8} className="empty-state">
                   No transactions yet — add your first one above.
                 </td>
               </tr>

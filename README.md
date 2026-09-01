@@ -75,15 +75,30 @@ and publish directory). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as
 Netlify environment variables (Site settings → Environment variables) — the anon key
 is safe to expose client-side, it's what RLS is for.
 
+## CSV import
+
+`/entities/:id/import` ([src/pages/ImportCsv.jsx](src/pages/ImportCsv.jsx)) — upload any
+bank or Venmo CSV export. Column mapping (date/description/amount, or separate
+debit/credit columns) is auto-guessed from the header row via
+[src/lib/csvImport.js](src/lib/csvImport.js), same file that suggests a category per row
+by matching the description against a merchant/keyword dictionary and this entity's
+actual category names. All rule-based, not a model call — free, instant, but review the
+suggestions before importing. Rows matching an existing transaction's date+amount on the
+same account are flagged as likely duplicates and unchecked by default.
+
+## Receipt attachments
+
+Transactions (income/expense, not transfers) can carry a photo or PDF, uploaded to a
+private Supabase Storage bucket (`transaction-attachments`) and served only via
+short-lived signed URLs — see migration `0004_attachments.sql`. On mobile the file input
+opens the camera or photo library.
+
 ## Roadmap (not built yet, staged deliberately)
 
-1. **CSV import** — upload a bank/Venmo export and map rows into transactions, with a
-   review step for miscategorized/unmatched rows. Works for any bank, no per-institution
-   integration needed.
-2. **Live bank connections (Plaid)** — deferred until there are paying users, because
+1. **Live bank connections (Plaid)** — deferred until there are paying users, because
    Plaid's actual per-account cost isn't knowable until you apply for production access,
    and it bills per connected account, not per user. Multi-entity users will likely
    connect multiple accounts, so this needs real usage data before committing to it at
    a $27/mo price point.
-3. **Multi-user per entity** — currently one owner per entity. Sharing an entity with
+2. **Multi-user per entity** — currently one owner per entity. Sharing an entity with
    a bookkeeper/co-owner would need a membership table and updated RLS policies.

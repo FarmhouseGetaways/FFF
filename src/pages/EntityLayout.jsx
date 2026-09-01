@@ -23,10 +23,12 @@ export default function EntityLayout() {
 
   const navItems = [
     { to: 'transactions', label: 'Transactions' },
+    { to: 'import', label: 'Import CSV' },
     { to: 'profit-loss', label: 'Profit & Loss' },
     { to: 'balance-sheet', label: 'Balance Sheet' },
     { to: 'accounts', label: 'Accounts' },
     { to: 'categories', label: 'Categories' },
+    { to: 'settings', label: 'Settings' },
   ]
 
   return (
@@ -49,7 +51,7 @@ export default function EntityLayout() {
         </nav>
       </aside>
       <main className="entity-main">
-        <Outlet context={{ entityId, entity }} />
+        <Outlet context={{ entityId, entity, onEntityUpdated: setEntity }} />
       </main>
     </div>
   )
