@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
 import { useAuth } from './lib/AuthContext.jsx'
 import { useSubscription } from './lib/SubscriptionContext.jsx'
 import { useIsAdmin } from './lib/useIsAdmin.js'
@@ -72,6 +72,17 @@ function RequireAdmin({ children }) {
   return children
 }
 
+// TEMP diagnostic: confirms whether the catch-all is actually what's firing
+// for a given path, and shows the raw pathname it failed to match.
+function NotFoundDebug() {
+  const location = useLocation()
+  return (
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      No route matched: {location.pathname}
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <Routes>
@@ -118,7 +129,7 @@ export default function App() {
         <Route path="settings" element={<EntitySettings />} />
         <Route path="import" element={<ImportCsv />} />
       </Route>
-      <Route path="*" element={<Navigate to="/entities" replace />} />
+      <Route path="*" element={<NotFoundDebug />} />
     </Routes>
   )
 }
