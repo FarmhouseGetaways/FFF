@@ -1,13 +1,25 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { useSubscription } from '../lib/SubscriptionContext.jsx'
 import { supabase } from '../lib/supabaseClient'
 
 export default function Subscribe() {
   const { user, signOut } = useAuth()
-  const { subscription } = useSubscription()
+  const { subscription, isActive, refresh } = useSubscription()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+
+  // Self-healing: if this page was reached on a stale/racy read (or the
+  // status flips active while sitting here - e.g. an admin just activated
+  // the account), don't strand the user - re-check once on mount and bounce
+  // to the app the moment it's actually active.
+  useEffect(() => {
+    refresh()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (isActive) return <Navigate to="/entities" replace />
 
   async function handleSubscribe() {
     setBusy(true)

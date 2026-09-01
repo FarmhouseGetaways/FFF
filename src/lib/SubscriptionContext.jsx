@@ -24,8 +24,13 @@ export function SubscriptionProvider({ children }) {
   useEffect(() => {
     setSubscription(undefined)
     refresh()
+    // Keyed on user?.id, not the user object itself: Supabase fires both an
+    // initial getSession() resolution and an onAuthStateChange event on
+    // load, each handing AuthContext a distinct session object for the same
+    // logical user. Keying on the object reference re-triggers this fetch
+    // redundantly and can flash a stale "loading" render in between.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [user?.id])
 
   const isActive = subscription?.status === 'active'
 
