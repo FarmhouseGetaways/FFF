@@ -81,6 +81,14 @@ export default function Landing() {
 
       <footer className="landing-footer">
         <span>Farmgirl Books — part of the Financial Freedom Farmgirl program</span>
+        <a
+          href="https://www.instagram.com/financialfreedomfarmgirl/"
+          target="_blank"
+          rel="noreferrer"
+          className="landing-footer-link"
+        >
+          @financialfreedomfarmgirl
+        </a>
       </footer>
     </div>
   )
