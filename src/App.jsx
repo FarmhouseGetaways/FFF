@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { useAuth } from './lib/AuthContext.jsx'
 import { useSubscription } from './lib/SubscriptionContext.jsx'
 import { useIsAdmin } from './lib/useIsAdmin.js'
+import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
 import Subscribe from './pages/Subscribe.jsx'
 import Admin from './pages/Admin.jsx'
@@ -72,6 +73,7 @@ function RequireAdmin({ children }) {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route
         path="/subscribe"
