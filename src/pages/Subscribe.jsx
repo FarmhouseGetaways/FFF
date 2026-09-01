@@ -42,7 +42,7 @@ export default function Subscribe() {
         <p className="auth-subtitle">{message}</p>
         <p>Signed in as {user?.email}.</p>
 
-        <button type="button" onClick={handleSubscribe} disabled={busy}>
+        <button type="button" className="btn-primary" onClick={handleSubscribe} disabled={busy}>
           {busy ? 'Redirecting…' : 'Subscribe — $27/mo'}
         </button>
 
