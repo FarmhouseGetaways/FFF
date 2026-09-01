@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { useAuth } from './lib/AuthContext.jsx'
 import { useSubscription } from './lib/SubscriptionContext.jsx'
+import { useIsAdmin } from './lib/useIsAdmin.js'
 import Login from './pages/Login.jsx'
 import Subscribe from './pages/Subscribe.jsx'
+import Admin from './pages/Admin.jsx'
 import EntityPicker from './pages/EntityPicker.jsx'
 import EntityLayout from './pages/EntityLayout.jsx'
 import Transactions from './pages/Transactions.jsx'
@@ -56,6 +58,17 @@ function RequireSubscription({ children }) {
   return children
 }
 
+// Admin does NOT require an active subscription - the person managing
+// everyone else's subscription can't be locked out by their own.
+function RequireAdmin({ children }) {
+  const { user, loading: authLoading } = useAuth()
+  const { isAdmin, loading: adminLoading } = useIsAdmin()
+  if (authLoading || adminLoading) return <div className="page-loading">Loading…</div>
+  if (!user) return <Navigate to="/login" replace />
+  if (!isAdmin) return <Navigate to="/entities" replace />
+  return children
+}
+
 export default function App() {
   return (
     <Routes>
@@ -66,6 +79,14 @@ export default function App() {
           <RequireAuth>
             <Subscribe />
           </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <RequireAdmin>
+            <Admin />
+          </RequireAdmin>
         }
       />
       <Route

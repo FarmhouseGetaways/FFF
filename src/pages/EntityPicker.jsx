@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext.jsx'
+import { useIsAdmin } from '../lib/useIsAdmin.js'
 
 const ENTITY_TYPES = [
   { value: 'property', label: 'Rental Property' },
@@ -11,6 +12,7 @@ const ENTITY_TYPES = [
 
 export default function EntityPicker() {
   const { signOut } = useAuth()
+  const { isAdmin } = useIsAdmin()
   const [entities, setEntities] = useState(null)
   const [name, setName] = useState('')
   const [entityType, setEntityType] = useState('property')
@@ -52,9 +54,16 @@ export default function EntityPicker() {
     <div className="page">
       <header className="page-header">
         <h1>Your Entities</h1>
-        <button className="link-button" onClick={signOut}>
-          Sign out
-        </button>
+        <div>
+          {isAdmin && (
+            <Link to="/admin" className="link-button" style={{ marginRight: '1rem' }}>
+              Admin
+            </Link>
+          )}
+          <button className="link-button" onClick={signOut}>
+            Sign out
+          </button>
+        </div>
       </header>
 
       {entities === null && <p>Loading…</p>}
