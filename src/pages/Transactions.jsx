@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { formatMoney, todayISO } from '../lib/money'
+import { guessCategory } from '../lib/csvImport'
 
 const SOURCE_LABELS = {
   manual: 'Manual',
@@ -16,6 +17,15 @@ async function uploadAttachment(entityId, file) {
   const { error } = await supabase.storage.from('transaction-attachments').upload(path, file)
   if (error) throw error
   return path
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result).split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
 
 export default function Transactions() {
@@ -34,6 +44,8 @@ export default function Transactions() {
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
   const [file, setFile] = useState(null)
+  const [scanning, setScanning] = useState(false)
+  const [scanNote, setScanNote] = useState('')
   const fileInputRef = useRef(null)
 
   async function loadLookups() {
@@ -147,12 +159,47 @@ export default function Transactions() {
       setDescription('')
       setAmount('')
       setFile(null)
+      setScanNote('')
       if (fileInputRef.current) fileInputRef.current.value = ''
       loadTransactions()
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function handleFileChange(e) {
+    const selected = e.target.files?.[0] ?? null
+    setFile(selected)
+    setScanNote('')
+    if (!selected || !selected.type.startsWith('image/')) return
+
+    setScanning(true)
+    try {
+      const base64 = await fileToBase64(selected)
+      const { data: sessionData } = await supabase.auth.getSession()
+      const token = sessionData.session?.access_token
+      const res = await fetch('/.netlify/functions/scan-receipt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ image: base64, mimeType: selected.type }),
+      })
+      if (!res.ok) throw new Error('scan failed')
+      const extracted = await res.json()
+
+      if (extracted.date) setDate(extracted.date)
+      if (extracted.total) setAmount(String(extracted.total))
+      if (extracted.merchant) setDescription(extracted.merchant)
+      if (extracted.category_hint) {
+        const guessedId = guessCategory(extracted.category_hint, categories, kind === 'income' ? 'income' : 'expense')
+        if (guessedId) setCategoryId(guessedId)
+      }
+      setScanNote('Filled in from the receipt — double-check before saving.')
+    } catch {
+      setScanNote("Couldn't read the receipt automatically — fill in the details below.")
+    } finally {
+      setScanning(false)
     }
   }
 
@@ -270,7 +317,7 @@ export default function Transactions() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*,application/pdf"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={handleFileChange}
               />
             </label>
           )}
@@ -279,6 +326,8 @@ export default function Transactions() {
             {busy ? 'Saving…' : 'Add'}
           </button>
         </div>
+        {scanning && <p className="form-info">Reading receipt…</p>}
+        {!scanning && scanNote && <p className="form-info">{scanNote}</p>}
         {error && <p className="form-error">{error}</p>}
       </form>
 

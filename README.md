@@ -93,6 +93,12 @@ private Supabase Storage bucket (`transaction-attachments`) and served only via
 short-lived signed URLs — see migration `0004_attachments.sql`. On mobile the file input
 opens the camera or photo library.
 
+When the attached file is a photo, `netlify/functions/scan-receipt.js` sends it to
+Claude's vision API and prefills date/amount/vendor/category from what it reads —
+always a suggestion the user reviews before saving, never applied silently. Needs
+`ANTHROPIC_API_KEY` as a Netlify environment variable (server-side only). Uses
+`claude-haiku-4-5` — cheap and fast, which is what OCR-style extraction calls for.
+
 ## Roadmap (not built yet, staged deliberately)
 
 1. **Live bank connections (Plaid)** — deferred until there are paying users, because
