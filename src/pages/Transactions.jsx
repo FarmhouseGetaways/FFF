@@ -96,6 +96,44 @@ export default function Transactions() {
     [categories, kind]
   )
 
+  // A transfer is stored as two rows (money out of one account, into
+  // another) so each account's own balance stays correct - but shown as
+  // two separate lines it read as a confusing double entry. Collapse each
+  // pair into one neutral "From -> To" row here, display-only; the two
+  // real rows underneath (and handleDelete's transfer_group_id delete)
+  // are unchanged.
+  const displayRows = useMemo(() => {
+    if (!transactions) return []
+    const byGroup = new Map()
+    for (const t of transactions) {
+      if (!t.transfer_group_id) continue
+      const arr = byGroup.get(t.transfer_group_id) ?? []
+      arr.push(t)
+      byGroup.set(t.transfer_group_id, arr)
+    }
+    const seen = new Set()
+    const rows = []
+    for (const t of transactions) {
+      if (!t.transfer_group_id) {
+        rows.push(t)
+        continue
+      }
+      if (seen.has(t.transfer_group_id)) continue
+      seen.add(t.transfer_group_id)
+      const pair = byGroup.get(t.transfer_group_id)
+      const from = pair.find((p) => Number(p.amount) < 0) ?? pair[0]
+      const to = pair.find((p) => Number(p.amount) > 0) ?? pair[1]
+      rows.push({
+        ...t,
+        isTransfer: true,
+        fromAccountName: from?.financial_account?.name,
+        toAccountName: to?.financial_account?.name,
+        amount: Math.abs(Number(to?.amount ?? from?.amount ?? 0)),
+      })
+    }
+    return rows
+  }, [transactions])
+
   useEffect(() => {
     setCategoryId('')
   }, [kind])
@@ -391,22 +429,22 @@ export default function Transactions() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => (
+            {displayRows.map((t) => (
               // Money in and money out get different row shading, not just a
               // minus sign - the sign alone is easy to miss when scanning.
-              // Transfers are neither, so they stay neutral.
+              // A transfer is neither, so it stays neutral - one row, no
+              // sign, "From account -> To account" instead of an account
+              // name, since it never left the business.
               <tr
                 key={t.id}
-                className={
-                  !t.category ? 'row-transfer' : t.amount < 0 ? 'row-out' : 'row-in'
-                }
+                className={t.isTransfer ? 'row-transfer' : t.amount < 0 ? 'row-out' : 'row-in'}
               >
                 <td>{t.txn_date}</td>
-                <td>{t.financial_account?.name}</td>
-                <td>{t.category ? t.category.name : 'Transfer'}</td>
+                <td>{t.isTransfer ? `${t.fromAccountName} → ${t.toAccountName}` : t.financial_account?.name}</td>
+                <td>{t.isTransfer ? 'Transfer' : t.category?.name}</td>
                 <td>{t.description}</td>
                 <td>{SOURCE_LABELS[t.source] ?? t.source}</td>
-                <td className={'num' + (t.amount < 0 ? ' negative' : ' positive')}>
+                <td className={'num' + (t.isTransfer ? '' : t.amount < 0 ? ' negative' : ' positive')}>
                   {formatMoney(t.amount)}
                 </td>
                 <td>
@@ -423,7 +461,7 @@ export default function Transactions() {
                 </td>
               </tr>
             ))}
-            {transactions.length === 0 && (
+            {displayRows.length === 0 && (
               <tr>
                 <td colSpan={8} className="empty-state">
                   No transactions yet — add your first one above.
