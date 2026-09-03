@@ -10,6 +10,26 @@ const ENTITY_TYPES = [
   { value: 'other', label: 'Other' },
 ]
 
+function csvCell(value) {
+  const s = value === null || value === undefined ? '' : String(value)
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+}
+
+function downloadCsv(filename, rows) {
+  const header = ['Name', 'Type']
+  const lines = [header.join(',')]
+  for (const r of rows) lines.push([r.name, r.entity_type].map(csvCell).join(','))
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export default function EntityPicker() {
   const { signOut } = useAuth()
   const { isAdmin } = useIsAdmin()
@@ -18,11 +38,12 @@ export default function EntityPicker() {
   const [entityType, setEntityType] = useState('property')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [showArchived, setShowArchived] = useState(false)
 
   async function loadEntities() {
     const { data, error } = await supabase
       .from('entities')
-      .select('id, name, entity_type')
+      .select('id, name, entity_type, is_archived')
       .order('created_at', { ascending: true })
     if (error) setError(error.message)
     else setEntities(data)
@@ -50,6 +71,15 @@ export default function EntityPicker() {
     loadEntities()
   }
 
+  async function setArchived(id, archived) {
+    setBusy(true)
+    await supabase.from('entities').update({ is_archived: archived }).eq('id', id)
+    await loadEntities()
+    setBusy(false)
+  }
+
+  const visibleEntities = entities ? entities.filter((e) => (showArchived ? e.is_archived : !e.is_archived)) : null
+
   return (
     <div className="page">
       <header className="page-header">
@@ -66,51 +96,96 @@ export default function EntityPicker() {
         </div>
       </header>
 
-      {entities === null && <p>Loading…</p>}
+      <p>
+        <button className="link-button" onClick={() => setShowArchived((v) => !v)}>
+          {showArchived ? '← Back to active entities' : 'View archived entities'}
+        </button>
+        {!showArchived && visibleEntities && visibleEntities.length > 0 && (
+          <button
+            className="link-button"
+            style={{ marginLeft: '1rem' }}
+            onClick={() => downloadCsv('entities.csv', visibleEntities)}
+          >
+            Download CSV
+          </button>
+        )}
+      </p>
 
-      {entities && entities.length === 0 && (
-        <p className="empty-state">No entities yet — add your first property or farmstand below.</p>
+      {error && <p className="form-error">{error}</p>}
+      {visibleEntities === null && <p>Loading…</p>}
+
+      {visibleEntities && visibleEntities.length === 0 && (
+        <p className="empty-state">
+          {showArchived ? 'No archived entities.' : 'No entities yet — add your first property or farmstand below.'}
+        </p>
       )}
 
       <ul className="entity-list">
-        {entities?.map((entity) => (
-          <li key={entity.id}>
-            <Link to={`/entities/${entity.id}`} className="entity-card">
-              <span className="entity-name">{entity.name}</span>
-              <span className="entity-type">{entity.entity_type}</span>
-            </Link>
+        {visibleEntities?.map((entity) => (
+          <li key={entity.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {showArchived ? (
+              <div className="entity-card" style={{ flex: 1 }}>
+                <span className="entity-name">{entity.name}</span>
+                <span className="entity-type">{entity.entity_type}</span>
+              </div>
+            ) : (
+              <Link to={`/entities/${entity.id}`} className="entity-card" style={{ flex: 1 }}>
+                <span className="entity-name">{entity.name}</span>
+                <span className="entity-type">{entity.entity_type}</span>
+              </Link>
+            )}
+            {showArchived ? (
+              <>
+                <button
+                  className="link-button"
+                  disabled={busy}
+                  onClick={() => downloadCsv(`${entity.name}.csv`, [entity])}
+                >
+                  Download
+                </button>
+                <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, false)}>
+                  Reinstate
+                </button>
+              </>
+            ) : (
+              <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true)}>
+                Archive
+              </button>
+            )}
           </li>
         ))}
       </ul>
 
-      <form className="inline-form" onSubmit={handleCreate}>
-        <h2>Add an entity</h2>
-        <div className="form-row">
-          <label>
-            Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Red Barn Ranch"
-              required
-            />
-          </label>
-          <label>
-            Type
-            <select value={entityType} onChange={(e) => setEntityType(e.target.value)}>
-              {ENTITY_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button type="submit" disabled={busy}>
-            {busy ? 'Adding…' : 'Add entity'}
-          </button>
-        </div>
-        {error && <p className="form-error">{error}</p>}
-      </form>
+      {!showArchived && (
+        <form className="inline-form" onSubmit={handleCreate}>
+          <h2>Add an entity</h2>
+          <div className="form-row">
+            <label>
+              Name
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Red Barn Ranch"
+                required
+              />
+            </label>
+            <label>
+              Type
+              <select value={entityType} onChange={(e) => setEntityType(e.target.value)}>
+                {ENTITY_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" disabled={busy}>
+              {busy ? 'Adding…' : 'Add entity'}
+            </button>
+          </div>
+          {error && <p className="form-error">{error}</p>}
+        </form>
+      )}
     </div>
   )
 }

@@ -2,15 +2,49 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
+function csvCell(value) {
+  const s = value === null || value === undefined ? '' : String(value)
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+}
+
+function downloadCsv(filename, rows) {
+  const header = ['Email', 'Signed up', 'Status', 'Provider', 'Cancels']
+  const lines = [header.join(',')]
+  for (const r of rows) {
+    const sub = r.subscription
+    lines.push(
+      [
+        r.email,
+        new Date(r.created_at).toLocaleDateString(),
+        sub?.status ?? 'none',
+        sub?.provider ?? '',
+        sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '',
+      ]
+        .map(csvCell)
+        .join(',')
+    )
+  }
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export default function Admin() {
   const [rows, setRows] = useState(null)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(null)
+  const [showArchived, setShowArchived] = useState(false)
 
   async function load() {
     setError('')
     const [{ data: profiles, error: pErr }, { data: subs, error: sErr }] = await Promise.all([
-      supabase.from('profiles').select('id, email, full_name, created_at, is_admin').order('created_at'),
+      supabase.from('profiles').select('id, email, full_name, created_at, is_admin, is_archived').order('created_at'),
       supabase
         .from('subscriptions')
         .select('user_id, status, provider, provider_subscription_id, cancel_at, updated_at'),
@@ -39,6 +73,13 @@ export default function Admin() {
     setBusyId(null)
   }
 
+  async function setArchived(userId, archived) {
+    setBusyId(userId)
+    await supabase.from('profiles').update({ is_archived: archived }).eq('id', userId)
+    await load()
+    setBusyId(null)
+  }
+
   async function scheduleCancellation(userId, action) {
     setBusyId(userId)
     setError('')
@@ -58,6 +99,8 @@ export default function Admin() {
     setBusyId(null)
   }
 
+  const visibleRows = rows ? rows.filter((r) => (showArchived ? r.is_archived : !r.is_archived)) : null
+
   return (
     <div className="page">
       <p>
@@ -73,10 +116,25 @@ export default function Admin() {
         entities or transactions.
       </p>
 
+      <p>
+        <button className="link-button" onClick={() => setShowArchived((v) => !v)}>
+          {showArchived ? '← Back to active members' : 'View archived members'}
+        </button>
+        {!showArchived && visibleRows && visibleRows.length > 0 && (
+          <button
+            className="link-button"
+            style={{ marginLeft: '1rem' }}
+            onClick={() => downloadCsv('members.csv', visibleRows)}
+          >
+            Download CSV
+          </button>
+        )}
+      </p>
+
       {error && <p className="form-error">{error}</p>}
       {rows === null && !error && <p>Loading…</p>}
 
-      {rows && (
+      {visibleRows && (
         <table className="data-table">
           <thead>
             <tr>
@@ -89,9 +147,10 @@ export default function Admin() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => {
+            {visibleRows.map((r) => {
               const sub = r.subscription
               const isStripe = sub?.provider === 'stripe' && sub?.provider_subscription_id
+              const isActive = sub?.status === 'active'
               return (
                 <tr key={r.id}>
                   <td>
@@ -103,7 +162,25 @@ export default function Admin() {
                   <td>{sub?.provider ?? '—'}</td>
                   <td>{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
                   <td>
-                    {isStripe && sub?.status === 'active' ? (
+                    {showArchived ? (
+                      <>
+                        <button
+                          className="link-button"
+                          disabled={busyId === r.id}
+                          onClick={() => downloadCsv(`${r.email}.csv`, [r])}
+                        >
+                          Download
+                        </button>
+                        <button
+                          className="link-button"
+                          style={{ marginLeft: '0.75rem' }}
+                          disabled={busyId === r.id}
+                          onClick={() => setArchived(r.id, false)}
+                        >
+                          Reinstate
+                        </button>
+                      </>
+                    ) : isStripe && isActive ? (
                       sub.cancel_at ? (
                         <button
                           className="link-button"
@@ -121,31 +198,33 @@ export default function Admin() {
                           Schedule cancellation
                         </button>
                       )
-                    ) : sub?.status === 'active' ? (
-                      <button
-                        className="link-button"
-                        disabled={busyId === r.id}
-                        onClick={() => setStatus(r.id, 'canceled')}
-                      >
+                    ) : isActive ? (
+                      <button className="link-button" disabled={busyId === r.id} onClick={() => setStatus(r.id, 'canceled')}>
                         Deactivate
                       </button>
                     ) : (
-                      <button
-                        className="link-button"
-                        disabled={busyId === r.id}
-                        onClick={() => setStatus(r.id, 'active')}
-                      >
-                        Activate
-                      </button>
+                      <>
+                        <button className="link-button" disabled={busyId === r.id} onClick={() => setStatus(r.id, 'active')}>
+                          Activate
+                        </button>
+                        <button
+                          className="link-button"
+                          style={{ marginLeft: '0.75rem' }}
+                          disabled={busyId === r.id}
+                          onClick={() => setArchived(r.id, true)}
+                        >
+                          Archive
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>
               )
             })}
-            {rows.length === 0 && (
+            {visibleRows.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty-state">
-                  No members yet.
+                  {showArchived ? 'No archived members.' : 'No members yet.'}
                 </td>
               </tr>
             )}
