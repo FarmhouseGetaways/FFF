@@ -160,7 +160,37 @@ export default function EntityPicker() {
       ? 'Start by adding your first business below.'
       : "Here's where your money stands today."
 
+  const activeEntities = entities ? entities.filter((e) => !e.is_archived) : null
+
   return (
+    // Same left column as every page inside a business, for two reasons.
+    // One, the layout stops jumping when you click into a business and back.
+    // Two, and the real point: the businesses are now permanent navigation
+    // instead of a list buried under a screen of numbers, so "pick a
+    // business to see its own numbers" is visible without reading anything.
+    <div className="entity-shell">
+      <aside className="sidebar">
+        <Link to="/" className="sidebar-home">
+          <Logo size={20} />
+          Farmgirl Finance
+        </Link>
+        <h2 className="sidebar-title">Your businesses</h2>
+        <nav>
+          <div className="sidebar-group">
+            {activeEntities === null && <span className="sidebar-empty">Loading…</span>}
+            {activeEntities?.length === 0 && (
+              <span className="sidebar-empty">None yet — add one on the right.</span>
+            )}
+            {activeEntities?.map((e) => (
+              <Link key={e.id} to={`/entities/${e.id}`} className="sidebar-link">
+                {e.name}
+              </Link>
+            ))}
+          </div>
+        </nav>
+      </aside>
+
+      <main className="entity-main">
     <div className="page">
       <header className="page-header">
         <h1 className="brand-lockup">
@@ -199,11 +229,13 @@ export default function EntityPicker() {
         </>
       )}
 
-      <h2 className="section-title">{showArchived ? 'Archived businesses' : 'Your businesses'}</h2>
+      <h2 className="section-title section-title--lead">
+        {showArchived ? 'Archived businesses' : 'Your businesses — pick one'}
+      </h2>
       <p className="page-subtitle">
         {showArchived
           ? 'Businesses you’ve put away. Reinstate one anytime to bring it back.'
-          : 'These are the businesses earning you money. Pick one to see its transactions, its money summary and its inventory.'}
+          : 'The numbers above are all your businesses added together. Open one below to see that business on its own — its transactions, its money summary and its inventory.'}
       </p>
 
       <div className="page-actions">
@@ -269,6 +301,11 @@ export default function EntityPicker() {
                   <Link to={`/entities/${entity.id}`} className="entity-card" draggable={false} style={{ flex: 1 }}>
                     <span className="entity-name">{entity.name}</span>
                     <span className="entity-type">{labelForType(entity.entity_type)}</span>
+                    {/* Says out loud what clicking does. Without it the row
+                        looked like a label, not a way in - which is exactly
+                        how people got stuck on the summary above thinking
+                        that was all there was. */}
+                    <span className="entity-card-cta">View its numbers →</span>
                   </Link>
                 )}
                 {showArchived ? (
@@ -327,6 +364,8 @@ export default function EntityPicker() {
           {error && <p className="form-error">{error}</p>}
         </form>
       )}
+    </div>
+      </main>
     </div>
   )
 }

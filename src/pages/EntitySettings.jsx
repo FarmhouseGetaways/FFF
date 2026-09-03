@@ -80,9 +80,11 @@ export default function EntitySettings() {
           The income and expense buckets this entity&apos;s transactions get sorted into. Set them up once;
           they&apos;re what breaks the Money page down by category instead of one big number.
         </p>
-        <Link to="../categories" className="link-button">
-          Manage categories →
-        </Link>
+        <div className="page-actions">
+          <Link to="../categories" className="header-btn">
+            Manage categories →
+          </Link>
+        </div>
       </section>
     </div>
   )

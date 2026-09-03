@@ -792,9 +792,43 @@ button[type='submit']:disabled,
   box-shadow: var(--shadow-md);
 }
 
+/* Name takes the slack so the type pill and the "view" cue sit together on
+   the right, rather than space-between spreading three items across the
+   whole row and leaving the type stranded in the middle. */
 .entity-name {
   font-weight: 700;
   font-size: 1.05rem;
+  flex: 1;
+}
+
+/* The click affordance. Visible at rest (a hover-only cue is invisible on a
+   phone, which is where this was confusing people) and stronger on hover. */
+.entity-card-cta {
+  color: var(--green-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0.75;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.entity-card:hover .entity-card-cta {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+.sidebar-empty {
+  color: #bcd8bc;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.85rem;
+}
+
+/* The one section people have to act on to get anywhere. It sits under a
+   wall of summary numbers, so it needs to read as the next thing to do
+   rather than another block of text. */
+.section-title--lead {
+  font-size: 1.35rem;
+  margin-top: 2.25rem;
 }
 
 .entity-type {

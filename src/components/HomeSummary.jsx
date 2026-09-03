@@ -19,7 +19,12 @@ function monthName() {
 // month, what went out, what that leaves, and what's in the bank right now.
 // Deliberately month-to-date rather than year - "how am I doing" is a
 // this-month question, and the P&L page already covers any date range.
-export default function HomeSummary() {
+//
+// Pass an entityId to scope it to one business; leave it off for the
+// everything-added-up view on the home page. Same component both places on
+// purpose - the four numbers mean the same thing whichever scope you're in,
+// and two implementations would be two places for them to drift apart.
+export default function HomeSummary({ entityId = null }) {
   const [totals, setTotals] = useState(null)
   const [error, setError] = useState('')
 
@@ -27,14 +32,22 @@ export default function HomeSummary() {
     let active = true
 
     async function load() {
+      let txnQuery = supabase
+        .from('transactions')
+        .select('amount')
+        .not('category_id', 'is', null)
+        .gte('txn_date', startOfMonth())
+        .lte('txn_date', today())
+      let balanceQuery = supabase.from('account_balances').select('balance, account_type, is_archived')
+
+      if (entityId) {
+        txnQuery = txnQuery.eq('entity_id', entityId)
+        balanceQuery = balanceQuery.eq('entity_id', entityId)
+      }
+
       const [{ data: txns, error: tErr }, { data: balances, error: bErr }] = await Promise.all([
-        supabase
-          .from('transactions')
-          .select('amount')
-          .not('category_id', 'is', null)
-          .gte('txn_date', startOfMonth())
-          .lte('txn_date', today()),
-        supabase.from('account_balances').select('balance, account_type, is_archived'),
+        txnQuery,
+        balanceQuery,
       ])
 
       if (!active) return
@@ -66,7 +79,7 @@ export default function HomeSummary() {
     return () => {
       active = false
     }
-  }, [])
+  }, [entityId])
 
   if (error) return <p className="form-error">{error}</p>
   if (!totals) return <div className="summary-grid summary-grid--loading">Loading your numbers…</div>
@@ -82,17 +95,22 @@ export default function HomeSummary() {
   // next to them, so the label now says "right now" out loud instead of
   // leaving the reader to infer a different time scale from a two-word
   // banking term.
+  // Say which scope the number covers right in the note - the same card on
+  // the home page and inside a business would otherwise look identical
+  // while meaning very different things.
+  const scope = entityId ? 'for this business' : 'across every business you run'
+
   const cards = [
     {
       label: `Incoming money — ${monthName()}`,
       value: totals.inn,
-      note: 'Everything you took in this month, across every entity.',
+      note: `Everything you took in this month, ${scope}.`,
       tone: 'in',
     },
     {
       label: `Outgoing money — ${monthName()}`,
       value: totals.out,
-      note: 'Everything you spent this month, across every entity.',
+      note: `Everything you spent this month, ${scope}.`,
       tone: 'out',
     },
     {

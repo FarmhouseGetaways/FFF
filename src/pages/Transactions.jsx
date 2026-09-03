@@ -3,6 +3,7 @@ import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { formatMoney, todayISO } from '../lib/money'
 import { guessCategory } from '../lib/csvImport'
+import HomeSummary from '../components/HomeSummary.jsx'
 
 const SOURCE_LABELS = {
   manual: 'Manual',
@@ -29,7 +30,7 @@ function fileToBase64(file) {
 }
 
 export default function Transactions() {
-  const { entityId } = useOutletContext()
+  const { entityId, entity } = useOutletContext()
   const [accounts, setAccounts] = useState([])
   const [categories, setCategories] = useState([])
   const [transactions, setTransactions] = useState(null)
@@ -271,6 +272,17 @@ export default function Transactions() {
         Every dollar that&apos;s moved for this business — money you took in, money you spent, or money you
         moved between your own accounts.
       </p>
+
+      {/* This is the first page you land on inside a business, so it has to
+          answer "how is THIS one doing" without another click. Same four
+          cards as the home page, scoped to this business only - see
+          components/HomeSummary.jsx. */}
+      <h2 className="section-title">This business at a glance</h2>
+      <p className="page-subtitle">
+        {entity?.name ? `Just ${entity.name}` : 'Just this business'} — not your other businesses. Use
+        Home for everything added together.
+      </p>
+      <HomeSummary entityId={entityId} />
 
       {/* Every transaction has to land in an account, and a brand-new entity
           has none - without this the form just renders an empty dropdown and
