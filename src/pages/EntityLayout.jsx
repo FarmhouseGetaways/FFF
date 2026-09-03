@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, NavLink, Outlet, useParams } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 export default function EntityLayout() {
   const { entityId } = useParams()
+  const location = useLocation()
   const [entity, setEntity] = useState(null)
 
   useEffect(() => {
@@ -33,7 +34,10 @@ export default function EntityLayout() {
     [
       { to: 'accounts', label: 'Accounts' },
       { to: 'import', label: 'Import CSV' },
-      { to: 'settings', label: 'Settings' },
+      // Categories lives under Settings now, so keep Settings lit while
+      // you're in there - otherwise nothing in the sidebar is active and
+      // you lose your place.
+      { to: 'settings', label: 'Settings', alsoActiveOn: ['categories'] },
     ],
   ]
 
@@ -52,7 +56,12 @@ export default function EntityLayout() {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  className={({ isActive }) => 'sidebar-link' + (isActive ? ' active' : '')}
+                  className={({ isActive }) =>
+                    'sidebar-link' +
+                    (isActive || item.alsoActiveOn?.some((p) => location.pathname.endsWith(`/${p}`))
+                      ? ' active'
+                      : '')
+                  }
                 >
                   {item.label}
                 </NavLink>

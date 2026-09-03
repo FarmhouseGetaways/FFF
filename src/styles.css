@@ -672,6 +672,19 @@ button[type='submit']:disabled,
   transform: translateX(2px);
 }
 
+.breadcrumb-back {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.breadcrumb-back:hover {
+  color: var(--green-dark);
+}
+
 /* Shown when a page can't work yet because a prerequisite is missing -
    e.g. Transactions before any account exists. */
 .setup-callout {

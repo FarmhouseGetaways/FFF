@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 export default function Categories() {
@@ -55,6 +55,11 @@ export default function Categories() {
 
   return (
     <div className="page">
+      {/* Categories left the sidebar to live under Settings, so this is the
+          only way back up - without it the page is a one-way door. */}
+      <Link to="../settings" className="breadcrumb-back">
+        ← Settings
+      </Link>
       <h1>Categories</h1>
       <p className="page-subtitle">These drive your Profit &amp; Loss statement.</p>
 
