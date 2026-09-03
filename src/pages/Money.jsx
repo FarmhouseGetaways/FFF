@@ -98,16 +98,32 @@ export default function Money() {
 
   const loading = txnRows === null || balanceRows === null
 
+  // Same wording as the home page's summary cards (components/HomeSummary.jsx)
+  // on purpose - these are the same four ideas, and calling them different
+  // things on two screens is how "money in" starts meaning two things.
+  // Keep the two in step when either changes.
   const cards = [
-    { label: 'Money in', value: totalIncome, note: 'Everything you took in during this range.', tone: 'in' },
-    { label: 'Money out', value: totalExpense, note: 'Everything you spent during this range.', tone: 'out' },
+    { label: 'Incoming money', value: totalIncome, note: 'Everything you took in during this date range.', tone: 'in' },
+    { label: 'Outgoing money', value: totalExpense, note: 'Everything you spent during this date range.', tone: 'out' },
     {
-      label: 'Left over',
+      label: 'Profit',
       value: netIncome,
-      note: netIncome >= 0 ? 'What you kept. In is beating out.' : 'You spent more than you took in.',
-      tone: netIncome >= 0 ? 'in' : 'out',
+      note:
+        totalIncome === 0 && totalExpense === 0
+          ? 'Nothing recorded in this date range.'
+          : netIncome > 0
+            ? 'Incoming minus outgoing. You took in more than you spent.'
+            : netIncome < 0
+              ? 'Incoming minus outgoing. You spent more than you took in.'
+              : 'Incoming and outgoing came out exactly even.',
+      tone: netIncome > 0 ? 'in' : netIncome < 0 ? 'out' : 'neutral',
     },
-    { label: "What it's worth", value: equity, note: 'What you own minus what you owe, right now.', tone: 'neutral' },
+    {
+      label: 'What this business is worth',
+      value: equity,
+      note: 'Everything you own minus everything you owe — today, not just this date range.',
+      tone: 'neutral',
+    },
   ]
 
   return (
@@ -266,7 +282,7 @@ export default function Money() {
               </section>
 
               <div className={'net-income' + (equity < 0 ? ' negative' : '')}>
-                <span>What it&apos;s worth (Owner&apos;s Equity)</span>
+                <span>What this business is worth (Owner&apos;s Equity)</span>
                 <span>{formatMoney(equity)}</span>
               </div>
             </div>

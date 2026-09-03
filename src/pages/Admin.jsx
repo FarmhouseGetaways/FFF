@@ -40,6 +40,8 @@ export default function Admin() {
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [showArchived, setShowArchived] = useState(false)
+  // A browser download gives no feedback of its own - say where the file went.
+  const [notice, setNotice] = useState('')
 
   async function load() {
     setError('')
@@ -116,21 +118,27 @@ export default function Admin() {
         entities or transactions.
       </p>
 
-      <p>
-        <button className="link-button" onClick={() => setShowArchived((v) => !v)}>
+      {/* Same pill-button action row as the entity list - see .page-actions
+          in styles.css. A page-level action shouldn't look like one thing
+          here and another thing there. */}
+      <div className="page-actions">
+        <button className="header-btn" onClick={() => setShowArchived((v) => !v)}>
           {showArchived ? '← Back to active members' : 'View archived members'}
         </button>
         {!showArchived && visibleRows && visibleRows.length > 0 && (
           <button
-            className="link-button"
-            style={{ marginLeft: '1rem' }}
-            onClick={() => downloadCsv('members.csv', visibleRows)}
+            className="header-btn"
+            onClick={() => {
+              downloadCsv('members.csv', visibleRows)
+              setNotice('CSV downloaded — check your browser’s Downloads folder for members.csv.')
+            }}
           >
             Download CSV
           </button>
         )}
-      </p>
+      </div>
 
+      {notice && <p className="form-notice">{notice}</p>}
       {error && <p className="form-error">{error}</p>}
       {rows === null && !error && <p>Loading…</p>}
 

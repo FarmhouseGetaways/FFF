@@ -634,6 +634,30 @@ button[type='submit']:disabled,
   margin: 0;
 }
 
+/* Confirmation that something worked - same shape as .form-error so the
+   two read as one family, green instead of red. Used where an action has
+   no visible result of its own, like a file download. */
+.form-notice {
+  color: var(--green-dark);
+  background: var(--green-light);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+}
+
+/* A row of pill buttons sitting in the body of a page rather than its
+   header - "View archived", "Download CSV" and friends. Same .header-btn
+   pills, so an action looks the same wherever it appears in the app. */
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0 0 1rem;
+}
+
 .form-info {
   color: var(--green-dark);
   background: var(--green-light);

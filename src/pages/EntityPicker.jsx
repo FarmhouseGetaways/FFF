@@ -69,6 +69,9 @@ export default function EntityPicker() {
   const [entityType, setEntityType] = useState('property')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  // A browser download gives no visible feedback of its own - the file just
+  // appears somewhere you aren't looking. Say where it went.
+  const [notice, setNotice] = useState('')
   const [showArchived, setShowArchived] = useState(false)
   const [dragId, setDragId] = useState(null)
 
@@ -149,10 +152,13 @@ export default function EntityPicker() {
     'there'
   ).split(' ')[0]
 
+  // The old line said "start by picking one of your businesses below" - but
+  // what's immediately below is the summary, not the business list. Point at
+  // what's actually next.
   const startByText =
     entities && entities.length === 0
       ? 'Start by adding your first business below.'
-      : 'Start by picking one of your businesses below.'
+      : "Here's where your money stands today."
 
   return (
     <div className="page">
@@ -183,26 +189,41 @@ export default function EntityPicker() {
         </div>
       )}
 
-      {!showArchived && <HomeSummary />}
+      {!showArchived && (
+        <>
+          <h2 className="section-title">Your money at a glance</h2>
+          <p className="page-subtitle">
+            Everything added together, across every business you run.
+          </p>
+          <HomeSummary />
+        </>
+      )}
 
-      <h2 className="section-title">Your Entities</h2>
-      <p className="page-subtitle">These are the businesses that are earning you money.</p>
+      <h2 className="section-title">{showArchived ? 'Archived businesses' : 'Your businesses'}</h2>
+      <p className="page-subtitle">
+        {showArchived
+          ? 'Businesses you’ve put away. Reinstate one anytime to bring it back.'
+          : 'These are the businesses earning you money. Pick one to see its transactions, its money summary and its inventory.'}
+      </p>
 
-      <p>
-        <button className="link-button" onClick={() => setShowArchived((v) => !v)}>
-          {showArchived ? '← Back to active entities' : 'View archived entities'}
+      <div className="page-actions">
+        <button className="header-btn" onClick={() => setShowArchived((v) => !v)}>
+          {showArchived ? '← Back to active businesses' : 'View archived businesses'}
         </button>
         {!showArchived && visibleEntities && visibleEntities.length > 0 && (
           <button
-            className="link-button"
-            style={{ marginLeft: '1rem' }}
-            onClick={() => downloadCsv('entities.csv', visibleEntities)}
+            className="header-btn"
+            onClick={() => {
+              downloadCsv('entities.csv', visibleEntities)
+              setNotice('CSV downloaded — check your browser’s Downloads folder for entities.csv.')
+            }}
           >
             Download CSV
           </button>
         )}
-      </p>
+      </div>
 
+      {notice && <p className="form-notice">{notice}</p>}
       {error && <p className="form-error">{error}</p>}
       {visibleEntities === null && <p>Loading…</p>}
 
