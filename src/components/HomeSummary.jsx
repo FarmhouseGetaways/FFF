@@ -71,29 +71,43 @@ export default function HomeSummary() {
   if (error) return <p className="form-error">{error}</p>
   if (!totals) return <div className="summary-grid summary-grid--loading">Loading your numbers…</div>
 
+  // Labels say the DIRECTION of the money and then the period, in that
+  // order - "Money in, September" was read as "money that went out in
+  // September", because "in/out" sitting next to a month name reads as
+  // part of the date, not as the direction. "Incoming"/"Outgoing" can't be
+  // misread that way.
+  //
+  // The first three are this month only; the fourth is a right-now
+  // balance. That difference is the whole reason "On hand" was confusing
+  // next to them, so the label now says "right now" out loud instead of
+  // leaving the reader to infer a different time scale from a two-word
+  // banking term.
   const cards = [
     {
-      label: `Money in, ${monthName()}`,
+      label: `Incoming money — ${monthName()}`,
       value: totals.inn,
       note: 'Everything you took in this month, across every entity.',
       tone: 'in',
     },
     {
-      label: `Money out, ${monthName()}`,
+      label: `Outgoing money — ${monthName()}`,
       value: totals.out,
       note: 'Everything you spent this month, across every entity.',
       tone: 'out',
     },
     {
-      label: 'Left over',
+      label: `Profit — ${monthName()}`,
       value: totals.net,
-      note: totals.net >= 0 ? 'What you kept. In is beating out.' : 'You spent more than you took in this month.',
+      note:
+        totals.net >= 0
+          ? 'Incoming minus outgoing. You took in more than you spent.'
+          : 'Incoming minus outgoing. You spent more than you took in.',
       tone: totals.net >= 0 ? 'in' : 'out',
     },
     {
-      label: 'On hand',
+      label: 'Money you have right now',
       value: totals.onHand,
-      note: 'Cash, checking, savings and Venmo added up, right now.',
+      note: 'Cash, checking, savings and Venmo added up — today, not just this month.',
       tone: 'neutral',
     },
   ]
