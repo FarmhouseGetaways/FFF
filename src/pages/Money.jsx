@@ -141,7 +141,7 @@ export default function Money() {
             ))}
           </div>
 
-          <details className="statement-detail" open>
+          <details className="statement-detail">
             <summary>Where it came from and went ({from} to {to})</summary>
             <div className="statement">
               <section>
