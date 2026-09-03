@@ -7,15 +7,15 @@ const FEATURES = [
   },
   {
     title: 'Profit & Loss, done right',
-    body: 'Every dollar in and out, categorized and rolled up into a clean P&L for any date range — no spreadsheet required.',
+    body: 'Every dollar in and out, categorized and rolled up into a clean P&L for any date range. No spreadsheet required — but export one the moment you need it.',
   },
   {
     title: 'Balance Sheet at a glance',
-    body: 'See what every account is actually worth — checking, savings, cash box, Venmo — assets against liabilities, always current.',
+    body: 'See what every account is actually worth — checking, savings, cash box, Venmo — assets against liabilities, always current, always easy.',
   },
   {
     title: 'Built for multiple entities',
-    body: 'Running a rental property and a farmstand? Track each one separately, with its own accounts, categories, and statements.',
+    body: 'Running a rental property and a farmstand, or even more? Track each one separately, with its own accounts, categories, statements and inventories.',
   },
   {
     title: 'Cash, card, or Venmo',
