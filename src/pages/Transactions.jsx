@@ -229,6 +229,10 @@ export default function Transactions() {
   return (
     <div className="page">
       <h1>Transactions</h1>
+      <p className="page-subtitle">
+        Every dollar that&apos;s moved for this business — money you took in, money you spent, or money you
+        moved between your own accounts.
+      </p>
 
       {/* Every transaction has to land in an account, and a brand-new entity
           has none - without this the form just renders an empty dropdown and
@@ -248,6 +252,13 @@ export default function Transactions() {
 
       {lookupsLoaded && accounts.length > 0 && (
       <form className="txn-form" onSubmit={handleSubmit}>
+        <h2 className="txn-form-title">Add a transaction</h2>
+        <p className="txn-form-hint">
+          Pick which kind this is: <strong>Expense</strong> is money going out (a purchase, a bill),{' '}
+          <strong>Income</strong> is money coming in (a sale, a payment), and <strong>Transfer</strong> is
+          just moving money between two of your own accounts — like taking cash to the bank. A transfer
+          isn&apos;t income or an expense, so it never shows up on your Money page totals.
+        </p>
         <div className="kind-toggle">
           {['expense', 'income', 'transfer'].map((k) => (
             <button
@@ -354,6 +365,13 @@ export default function Transactions() {
       {transactions === null && <p>Loading…</p>}
 
       {transactions && (
+        <>
+        <h2 className="section-title">Recent transactions</h2>
+        <p className="page-subtitle legend">
+          <span className="legend-item"><span className="legend-dot legend-dot--in" /> Green = money in</span>
+          <span className="legend-item"><span className="legend-dot legend-dot--out" /> Red = money out</span>
+          <span className="legend-item"><span className="legend-dot legend-dot--transfer" /> Gray = moved between your own accounts</span>
+        </p>
         <table className="data-table">
           <thead>
             <tr>
@@ -409,6 +427,7 @@ export default function Transactions() {
             )}
           </tbody>
         </table>
+        </>
       )}
     </div>
   )

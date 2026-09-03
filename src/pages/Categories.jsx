@@ -61,7 +61,11 @@ export default function Categories() {
         ← Settings
       </Link>
       <h1>Categories</h1>
-      <p className="page-subtitle">These drive your Profit &amp; Loss statement.</p>
+      <p className="page-subtitle">
+        The labels you pick when you log a transaction — like &quot;Egg Sales&quot; or &quot;Feed &amp;
+        Supplies.&quot; They&apos;re what breaks the Money page down by where money actually came from and
+        went, instead of just one big number.
+      </p>
 
       {categories === null && <p>Loading…</p>}
 

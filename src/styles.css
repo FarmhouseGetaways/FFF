@@ -956,10 +956,53 @@ button[type='submit']:disabled,
   margin: 1.5rem 0;
 }
 
+.txn-form-title {
+  font-size: 0.95rem;
+  margin: 0 0 0.35rem;
+}
+
+.txn-form-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0 0 1.1rem;
+}
+
 .kind-toggle {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.25rem;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-dot--in {
+  background: var(--green);
+}
+
+.legend-dot--out {
+  background: var(--red);
+}
+
+.legend-dot--transfer {
+  background: var(--border);
 }
 
 .kind-btn {

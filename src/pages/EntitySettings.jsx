@@ -77,8 +77,8 @@ export default function EntitySettings() {
       <section className="settings-section">
         <h2>Categories</h2>
         <p className="page-subtitle">
-          The income and expense buckets this entity's transactions get sorted into. Set them up
-          once; they drive your Profit &amp; Loss.
+          The income and expense buckets this entity&apos;s transactions get sorted into. Set them up once;
+          they&apos;re what breaks the Money page down by category instead of one big number.
         </p>
         <Link to="../categories" className="link-button">
           Manage categories →

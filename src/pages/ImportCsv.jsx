@@ -219,6 +219,11 @@ export default function ImportCsv() {
       {headers.length > 0 && (
         <div className="inline-form">
           <h2>Which columns are which?</h2>
+          <p className="page-subtitle">
+            We took a guess based on your file&apos;s column names — check that these are right before
+            moving on. Most bank exports use one Amount column (negative for money out); Venmo and some
+            cards split it into separate Debit and Credit columns instead.
+          </p>
           <div className="form-row">
             <label>
               Date column
@@ -337,7 +342,15 @@ export default function ImportCsv() {
 
       {previewRows.length > 0 && (
         <>
-          <table className="data-table" style={{ marginTop: '1.5rem' }}>
+          <h2 className="section-title" style={{ marginTop: '1.5rem' }}>
+            Review before importing
+          </h2>
+          <p className="page-subtitle">
+            Nothing&apos;s saved yet. Uncheck any row you don&apos;t want, fix a category if we guessed
+            wrong, and rows flagged &quot;possible duplicate&quot; are already unchecked for you — we found
+            a transaction on that account with the same date and amount.
+          </p>
+          <table className="data-table">
             <thead>
               <tr>
                 <th />

@@ -71,7 +71,11 @@ export default function Accounts() {
   return (
     <div className="page">
       <h1>Accounts</h1>
-      <p className="page-subtitle">Bank, cash, Venmo, and credit accounts for this entity.</p>
+      <p className="page-subtitle">
+        Every place money can sit or be owed for this business — a checking account, a cash box, Venmo, or a
+        credit card. These balances are what your Money page&apos;s &quot;What it&apos;s worth&quot; number is
+        built from.
+      </p>
 
       {accounts === null && <p>Loading…</p>}
 
@@ -111,6 +115,11 @@ export default function Accounts() {
 
       <form className="inline-form" onSubmit={handleCreate}>
         <h2>Add an account</h2>
+        <p className="page-subtitle">
+          <strong>Asset</strong> is money you have — checking, savings, cash, Venmo.{' '}
+          <strong>Liability</strong> is money you owe — a credit card balance or a loan. Both matter: what
+          this business is worth is what it has minus what it owes.
+        </p>
         <div className="form-row">
           <label>
             Name
