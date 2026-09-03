@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 const FEATURES = [
   {
     title: 'Not another QuickBooks',
-    body: 'No modules to learn, no chart-of-accounts rabbit holes, no bloat. Farmgirl Finance is lean, bespoke, and built for exactly what you need — real accounting for people who hate software.',
+    body: 'No setup wizards, no accountant-speak, no forty menus you will never touch. Enter what came in and what went out — that is it. Real accounting for people who hate software.',
   },
   {
     title: 'Profit & Loss, done right',

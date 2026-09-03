@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext.jsx'
 
@@ -53,6 +53,9 @@ export default function Login() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
+        <Link to="/" className="auth-back-link">
+          ← Back to home
+        </Link>
         <h1>Farmgirl Finance</h1>
         <p className="auth-subtitle">
           {mode === 'signin' ? 'Sign in to your books' : 'Create your account'}

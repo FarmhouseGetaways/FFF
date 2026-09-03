@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { useSubscription } from '../lib/SubscriptionContext.jsx'
 import { supabase } from '../lib/supabaseClient'
@@ -50,6 +50,9 @@ export default function Subscribe() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <Link to="/" className="auth-back-link">
+          ← Back to home
+        </Link>
         <h1>Farmgirl Finance</h1>
         <p className="auth-subtitle">{message}</p>
         <p>Signed in as {user?.email}.</p>

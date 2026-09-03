@@ -429,6 +429,20 @@ button[type='submit']:disabled,
   color: var(--muted);
 }
 
+/* Without this, /login and /subscribe are dead ends - there's no way back
+   out to the marketing page short of editing the URL by hand. */
+.auth-back-link {
+  align-self: flex-start;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  color: var(--green-dark);
+}
+
 .subscribe-benefits {
   list-style: none;
   padding: 0;
