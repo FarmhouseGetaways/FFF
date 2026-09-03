@@ -251,14 +251,17 @@ export default function Transactions() {
       )}
 
       {lookupsLoaded && accounts.length > 0 && (
-      <form className="txn-form" onSubmit={handleSubmit}>
-        <h2 className="txn-form-title">Add a transaction</h2>
-        <p className="txn-form-hint">
-          Pick which kind this is: <strong>Expense</strong> is money going out (a purchase, a bill),{' '}
-          <strong>Income</strong> is money coming in (a sale, a payment), and <strong>Transfer</strong> is
-          just moving money between two of your own accounts — like taking cash to the bank. A transfer
-          isn&apos;t income or an expense, so it never shows up on your Money page totals.
-        </p>
+      <details className="txn-form">
+        <summary className="txn-form-summary">Add a transaction</summary>
+        <form className="txn-form-body" onSubmit={handleSubmit}>
+        <div className="txn-kind-explain">
+          <p><strong>Expense</strong> — money going out. A purchase, a bill.</p>
+          <p><strong>Income</strong> — money coming in. A sale, a payment.</p>
+          <p>
+            <strong>Transfer</strong> — moving money between two of your own accounts, like taking cash
+            to the bank. Not income or an expense — it never shows up in your Money page totals.
+          </p>
+        </div>
         <div className="kind-toggle">
           {['expense', 'income', 'transfer'].map((k) => (
             <button
@@ -359,7 +362,8 @@ export default function Transactions() {
         {scanning && <p className="form-info">Reading receipt…</p>}
         {!scanning && scanNote && <p className="form-info">{scanNote}</p>}
         {error && <p className="form-error">{error}</p>}
-      </form>
+        </form>
+      </details>
       )}
 
       {transactions === null && <p>Loading…</p>}

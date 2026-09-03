@@ -1059,26 +1059,68 @@ button[type='submit']:disabled,
   min-width: 170px;
 }
 
-/* Transaction form */
+/* Transaction form - a <details> now, collapsed by default, per Cory:
+   "compress this form and allow it to be expanded." Closed, it's just
+   the summary row; open, it's the same card as before. */
 .txn-form {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
-  padding: 1.5rem;
+  padding: 1.1rem 1.5rem;
   margin: 1.5rem 0;
 }
 
-.txn-form-title {
-  font-size: 0.95rem;
-  margin: 0 0 0.35rem;
+.txn-form[open] {
+  padding-bottom: 1.5rem;
 }
 
-.txn-form-hint {
+.txn-form-summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--green-dark);
+  list-style: none;
+}
+
+.txn-form-summary::-webkit-details-marker {
+  display: none;
+}
+
+.txn-form-summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.15s ease;
+}
+
+.txn-form[open] .txn-form-summary::before {
+  transform: rotate(90deg);
+}
+
+.txn-form-body {
+  margin-top: 1.25rem;
+}
+
+/* Each kind's explanation gets its own line with real space around it,
+   instead of one dense run-on paragraph - easier to scan for the one
+   you actually need. */
+.txn-kind-explain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin: 0 0 1.25rem;
+}
+
+.txn-kind-explain p {
+  margin: 0;
   color: var(--muted);
   font-size: 0.85rem;
   line-height: 1.5;
-  margin: 0 0 1.1rem;
+}
+
+.txn-kind-explain strong {
+  color: var(--green-dark);
 }
 
 .kind-toggle {
