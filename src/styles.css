@@ -706,6 +706,122 @@ button[type='submit']:disabled,
   transform: translateX(2px);
 }
 
+/* Wordmark + mark, used on the landing nav, auth cards and home header. */
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  --logo-accent: var(--gold);
+}
+
+.landing-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  --logo-accent: var(--gold);
+}
+
+.sidebar-home {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #eef3ea;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  --logo-accent: var(--gold);
+  transition: background 0.15s ease;
+}
+
+.sidebar-home:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Home summary: the four numbers worth seeing before anything else. */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.summary-grid--loading {
+  display: block;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.35rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border-top: 5px solid var(--border);
+}
+
+.summary-card--in {
+  border-top-color: var(--green);
+}
+
+.summary-card--out {
+  border-top-color: var(--red);
+}
+
+.summary-card--neutral {
+  border-top-color: var(--gold);
+}
+
+.summary-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.summary-value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--green-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-card--out .summary-value {
+  color: var(--red);
+}
+
+.summary-note {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  color: var(--green-dark);
+  margin: 0 0 0.5rem;
+}
+
 .breadcrumb-back {
   display: inline-block;
   margin-bottom: 0.6rem;

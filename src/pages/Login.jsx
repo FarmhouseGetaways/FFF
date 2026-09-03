@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
+import Logo from '../components/Logo.jsx'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext.jsx'
 
@@ -56,7 +57,10 @@ export default function Login() {
         <Link to="/" className="auth-back-link">
           ← Back to home
         </Link>
-        <h1>Farmgirl Finance</h1>
+        <h1 className="brand-lockup">
+          <Logo size={34} />
+          Farmgirl Finance
+        </h1>
         <p className="auth-subtitle">
           {mode === 'signin' ? 'Sign in to your books' : 'Create your account'}
         </p>

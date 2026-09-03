@@ -5,6 +5,8 @@ import { useAuth } from '../lib/AuthContext.jsx'
 import { useIsAdmin } from '../lib/useIsAdmin.js'
 import { labelForType, BUILT_IN_TYPES } from '../lib/entityTypes'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
+import HomeSummary from '../components/HomeSummary.jsx'
+import Logo from '../components/Logo.jsx'
 
 function csvCell(value) {
   const s = value === null || value === undefined ? '' : String(value)
@@ -140,7 +142,10 @@ export default function EntityPicker() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>Your Entities</h1>
+        <h1 className="brand-lockup">
+          <Logo size={32} />
+          Farmgirl Finance
+        </h1>
         <div>
           {isAdmin && (
             <Link to="/admin" className="link-button" style={{ marginRight: '1rem' }}>
@@ -152,6 +157,10 @@ export default function EntityPicker() {
           </button>
         </div>
       </header>
+
+      {!showArchived && <HomeSummary />}
+
+      <h2 className="section-title">Your Entities</h2>
 
       <p>
         <button className="link-button" onClick={() => setShowArchived((v) => !v)}>

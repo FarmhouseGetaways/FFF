@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import Logo from '../components/Logo.jsx'
 
 export default function EntityLayout() {
   const { entityId } = useParams()
@@ -44,8 +45,11 @@ export default function EntityLayout() {
   return (
     <div className="entity-shell">
       <aside className="sidebar">
-        <Link to="/entities" className="sidebar-back">
-          ← All entities
+        {/* The only way back to the summary from inside an entity, so it
+            reads as a real Home button rather than a faint text link. */}
+        <Link to="/entities" className="sidebar-home">
+          <Logo size={20} />
+          Home
         </Link>
         <h2 className="sidebar-title">{entity?.name ?? '…'}</h2>
         <nav>

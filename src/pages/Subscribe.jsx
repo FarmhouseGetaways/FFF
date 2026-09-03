@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
+import Logo from '../components/Logo.jsx'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { useSubscription } from '../lib/SubscriptionContext.jsx'
 import { supabase } from '../lib/supabaseClient'
@@ -53,7 +54,10 @@ export default function Subscribe() {
         <Link to="/" className="auth-back-link">
           ← Back to home
         </Link>
-        <h1>Farmgirl Finance</h1>
+        <h1 className="brand-lockup">
+          <Logo size={34} />
+          Farmgirl Finance
+        </h1>
         <p className="auth-subtitle">{message}</p>
         <p>Signed in as {user?.email}.</p>
 

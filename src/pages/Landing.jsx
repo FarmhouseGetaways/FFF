@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Logo from '../components/Logo.jsx'
 
 // Each card gets its own glyph rather than a colored bar on top - five
 // near-identical text blocks read as one grey wall, and the bar colors
@@ -95,7 +96,10 @@ export default function Landing() {
   return (
     <div className="landing">
       <header className="landing-nav">
-        <span className="landing-logo">Farmgirl Finance</span>
+        <span className="landing-logo">
+          <Logo size={30} />
+          Farmgirl Finance
+        </span>
         <Link to="/login" className="landing-nav-cta">
           Log in
         </Link>
