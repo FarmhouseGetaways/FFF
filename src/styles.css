@@ -672,6 +672,39 @@ button[type='submit']:disabled,
   transform: translateX(2px);
 }
 
+/* Shown when a page can't work yet because a prerequisite is missing -
+   e.g. Transactions before any account exists. */
+.setup-callout {
+  background: var(--gold-light);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.setup-callout h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--green-dark);
+}
+
+.setup-callout p {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--text);
+}
+
+.setup-callout .btn-primary {
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
 .settings-section {
   margin-top: 2.5rem;
   padding-top: 1.75rem;

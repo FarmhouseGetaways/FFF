@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { formatMoney, todayISO } from '../lib/money'
 import { guessCategory } from '../lib/csvImport'
@@ -33,6 +33,7 @@ export default function Transactions() {
   const [accounts, setAccounts] = useState([])
   const [categories, setCategories] = useState([])
   const [transactions, setTransactions] = useState(null)
+  const [lookupsLoaded, setLookupsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -65,6 +66,7 @@ export default function Transactions() {
     ])
     setAccounts(accts ?? [])
     setCategories(cats ?? [])
+    setLookupsLoaded(true)
   }
 
   async function loadTransactions() {
@@ -228,6 +230,23 @@ export default function Transactions() {
     <div className="page">
       <h1>Transactions</h1>
 
+      {/* Every transaction has to land in an account, and a brand-new entity
+          has none - without this the form just renders an empty dropdown and
+          refuses to submit, with nothing telling you why. */}
+      {lookupsLoaded && accounts.length === 0 && (
+        <div className="setup-callout">
+          <h2>Add an account first</h2>
+          <p>
+            Every transaction has to land somewhere — a checking account, a cash box, Venmo,
+            a credit card. Add at least one and this form will be ready to use.
+          </p>
+          <Link to="../accounts" className="btn-primary">
+            Add an account
+          </Link>
+        </div>
+      )}
+
+      {lookupsLoaded && accounts.length > 0 && (
       <form className="txn-form" onSubmit={handleSubmit}>
         <div className="kind-toggle">
           {['expense', 'income', 'transfer'].map((k) => (
@@ -330,6 +349,7 @@ export default function Transactions() {
         {!scanning && scanNote && <p className="form-info">{scanNote}</p>}
         {error && <p className="form-error">{error}</p>}
       </form>
+      )}
 
       {transactions === null && <p>Loading…</p>}
 
