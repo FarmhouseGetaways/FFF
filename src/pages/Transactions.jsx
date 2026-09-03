@@ -369,7 +369,15 @@ export default function Transactions() {
           </thead>
           <tbody>
             {transactions.map((t) => (
-              <tr key={t.id}>
+              // Money in and money out get different row shading, not just a
+              // minus sign - the sign alone is easy to miss when scanning.
+              // Transfers are neither, so they stay neutral.
+              <tr
+                key={t.id}
+                className={
+                  !t.category ? 'row-transfer' : t.amount < 0 ? 'row-out' : 'row-in'
+                }
+              >
                 <td>{t.txn_date}</td>
                 <td>{t.financial_account?.name}</td>
                 <td>{t.category ? t.category.name : 'Transfer'}</td>

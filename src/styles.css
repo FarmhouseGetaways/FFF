@@ -893,6 +893,30 @@ button[type='submit']:disabled,
   font-weight: 700;
 }
 
+/* Money in vs money out, told two ways beyond the sign: a tinted row and a
+   colored stripe down the left edge, so direction reads while scanning. */
+.data-table tbody tr.row-in {
+  background: var(--green-light);
+  box-shadow: inset 3px 0 0 var(--green);
+}
+
+.data-table tbody tr.row-out {
+  background: var(--red-light);
+  box-shadow: inset 3px 0 0 var(--red);
+}
+
+.data-table tbody tr.row-transfer {
+  box-shadow: inset 3px 0 0 var(--border);
+}
+
+.data-table tbody tr.row-in:hover {
+  background: #dcecd9;
+}
+
+.data-table tbody tr.row-out:hover {
+  background: #f7dbd3;
+}
+
 .negative {
   color: var(--red);
   font-weight: 700;
