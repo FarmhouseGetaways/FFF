@@ -718,16 +718,26 @@ button[type='submit']:disabled,
   display: inline-block;
 }
 
+/* Same white card as .inline-form above it - a settings block shouldn't
+   look like loose text just because it links out instead of saving here. */
 .settings-section {
-  margin-top: 2.5rem;
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .settings-section h2 {
   margin: 0 0 0.35rem;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: var(--green-dark);
+}
+
+.settings-section .page-subtitle {
+  margin: 0 0 0.9rem;
+  max-width: 60ch;
 }
 
 /* Separates the day-to-day views from the setup ones. */
