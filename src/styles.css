@@ -429,6 +429,41 @@ button[type='submit']:disabled,
   color: var(--muted);
 }
 
+.subscribe-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.subscribe-benefits li {
+  font-size: 0.92rem;
+  padding-left: 1.5rem;
+  position: relative;
+  color: var(--text);
+}
+
+.subscribe-benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.fine-print {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.fine-print a {
+  color: var(--green-dark);
+}
+
 .google-button {
   display: flex;
   align-items: center;

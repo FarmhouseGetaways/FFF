@@ -53,7 +53,7 @@ export default function Login() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Farmgirl Books</h1>
+        <h1>Farmgirl Finance</h1>
         <p className="auth-subtitle">
           {mode === 'signin' ? 'Sign in to your books' : 'Create your account'}
         </p>

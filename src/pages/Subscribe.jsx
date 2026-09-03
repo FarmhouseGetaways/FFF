@@ -50,13 +50,29 @@ export default function Subscribe() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Farmgirl Books</h1>
+        <h1>Farmgirl Finance</h1>
         <p className="auth-subtitle">{message}</p>
         <p>Signed in as {user?.email}.</p>
+
+        <ul className="subscribe-benefits">
+          <li>Profit &amp; Loss and Balance Sheet, any date range</li>
+          <li>Unlimited entities — properties, farmstands, anything you run</li>
+          <li>Snap a photo of a receipt and it's logged for you</li>
+          <li>Import bank or card statements from a CSV in seconds</li>
+          <li>Access your books from any device, anywhere</li>
+        </ul>
 
         <button type="button" className="btn-primary" onClick={handleSubscribe} disabled={busy}>
           {busy ? 'Redirecting…' : 'Subscribe — $27/mo'}
         </button>
+
+        <p className="fine-print">
+          $27/month, billed automatically until you cancel. To cancel, email{' '}
+          <a href="mailto:financialfreedomfarmgirl@gmail.com">financialfreedomfarmgirl@gmail.com</a>{' '}
+          at least 30 days before your renewal date — if your request comes in with less notice,
+          you may be billed for one more month before your subscription ends. No refunds are
+          issued for partial months.
+        </p>
 
         {error && <p className="form-error">{error}</p>}
 

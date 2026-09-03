@@ -101,6 +101,7 @@ export default async (request) => {
           current_period_end: obj.current_period_end
             ? new Date(obj.current_period_end * 1000).toISOString()
             : null,
+          cancel_at: obj.cancel_at ? new Date(obj.cancel_at * 1000).toISOString() : null,
           updated_at: new Date().toISOString(),
         })
       }

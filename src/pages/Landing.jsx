@@ -23,7 +23,7 @@ export default function Landing() {
   return (
     <div className="landing">
       <header className="landing-nav">
-        <span className="landing-logo">Farmgirl Books</span>
+        <span className="landing-logo">Farmgirl Finance</span>
         <Link to="/login" className="landing-nav-cta">
           Log in
         </Link>
@@ -32,12 +32,9 @@ export default function Landing() {
       <section className="landing-hero">
         <div className="landing-hero-glow" aria-hidden="true" />
         <p className="landing-eyebrow">Financial Freedom Farmgirl</p>
-        <h1>
-          Know your numbers,
-          <br />
-          run your farmstand.
-        </h1>
+        <h1>Welcome to Farmgirl Finance</h1>
         <p className="landing-subhead">
+          This software can be accessed anywhere — from the farmstand, the road, or the couch.
           Profit &amp; Loss and Balance Sheet statements for your properties and farmstand — built
           from real transactions, not guesswork. One place for every entity you run.
         </p>
@@ -80,7 +77,7 @@ export default function Landing() {
       </section>
 
       <footer className="landing-footer">
-        <span>Farmgirl Books — part of the Financial Freedom Farmgirl program</span>
+        <span>Farmgirl Finance — part of the Financial Freedom Farmgirl program</span>
         <a
           href="https://www.instagram.com/financialfreedomfarmgirl/"
           target="_blank"
