@@ -201,7 +201,10 @@ button[type='submit']:disabled,
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 600;
-  max-width: 22ch;
+  /* No fixed cap - a truncated address ("minibarnmarke…") can't tell you
+     which account you're in, which is the entire reason this is here. It
+     shrinks only if the nav actually runs out of room. */
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
