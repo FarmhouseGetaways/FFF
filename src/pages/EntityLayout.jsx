@@ -21,14 +21,20 @@ export default function EntityLayout() {
     }
   }, [entityId])
 
-  const navItems = [
-    { to: 'transactions', label: 'Transactions' },
-    { to: 'import', label: 'Import CSV' },
-    { to: 'profit-loss', label: 'Profit & Loss' },
-    { to: 'balance-sheet', label: 'Balance Sheet' },
-    { to: 'accounts', label: 'Accounts' },
-    { to: 'categories', label: 'Categories' },
-    { to: 'settings', label: 'Settings' },
+  // Two groups: what you came to find out, then the plumbing you set up
+  // once and rarely touch. Categories moved under Settings - it's
+  // configuration, not something you visit while doing the books.
+  const navGroups = [
+    [
+      { to: 'transactions', label: 'Transactions' },
+      { to: 'profit-loss', label: 'Profit & Loss' },
+      { to: 'balance-sheet', label: 'Balance Sheet' },
+    ],
+    [
+      { to: 'accounts', label: 'Accounts' },
+      { to: 'import', label: 'Import CSV' },
+      { to: 'settings', label: 'Settings' },
+    ],
   ]
 
   return (
@@ -39,14 +45,19 @@ export default function EntityLayout() {
         </Link>
         <h2 className="sidebar-title">{entity?.name ?? '…'}</h2>
         <nav>
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => 'sidebar-link' + (isActive ? ' active' : '')}
-            >
-              {item.label}
-            </NavLink>
+          {navGroups.map((group, i) => (
+            <div className="sidebar-group" key={i}>
+              {i > 0 && <hr className="sidebar-divider" />}
+              {group.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => 'sidebar-link' + (isActive ? ' active' : '')}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
       </aside>

@@ -672,6 +672,31 @@ button[type='submit']:disabled,
   transform: translateX(2px);
 }
 
+.settings-section {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.settings-section h2 {
+  margin: 0 0 0.35rem;
+  font-size: 1.15rem;
+  color: var(--green-dark);
+}
+
+/* Separates the day-to-day views from the setup ones. */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-divider {
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  margin: 0.75rem 0.85rem;
+}
+
 .entity-main {
   flex: 1;
 }
@@ -702,6 +727,17 @@ button[type='submit']:disabled,
 .form-row .grow {
   flex: 1;
   min-width: 160px;
+}
+
+/* Shown in place of the type dropdown while naming a new entity type. */
+.type-add-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.type-add-row input {
+  min-width: 170px;
 }
 
 /* Transaction form */

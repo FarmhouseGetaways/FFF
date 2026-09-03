@@ -3,12 +3,8 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { useIsAdmin } from '../lib/useIsAdmin.js'
-
-const ENTITY_TYPES = [
-  { value: 'property', label: 'Rental Property' },
-  { value: 'farmstand', label: 'Farmstand' },
-  { value: 'other', label: 'Other' },
-]
+import { labelForType } from '../lib/entityTypes'
+import EntityTypePicker from '../components/EntityTypePicker.jsx'
 
 function csvCell(value) {
   const s = value === null || value === undefined ? '' : String(value)
@@ -126,12 +122,12 @@ export default function EntityPicker() {
             {showArchived ? (
               <div className="entity-card" style={{ flex: 1 }}>
                 <span className="entity-name">{entity.name}</span>
-                <span className="entity-type">{entity.entity_type}</span>
+                <span className="entity-type">{labelForType(entity.entity_type)}</span>
               </div>
             ) : (
               <Link to={`/entities/${entity.id}`} className="entity-card" style={{ flex: 1 }}>
                 <span className="entity-name">{entity.name}</span>
-                <span className="entity-type">{entity.entity_type}</span>
+                <span className="entity-type">{labelForType(entity.entity_type)}</span>
               </Link>
             )}
             {showArchived ? (
@@ -171,13 +167,7 @@ export default function EntityPicker() {
             </label>
             <label>
               Type
-              <select value={entityType} onChange={(e) => setEntityType(e.target.value)}>
-                {ENTITY_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+              <EntityTypePicker value={entityType} onChange={setEntityType} />
             </label>
             <button type="submit" disabled={busy}>
               {busy ? 'Adding…' : 'Add entity'}

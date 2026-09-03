@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-
-const ENTITY_TYPES = [
-  { value: 'property', label: 'Rental Property' },
-  { value: 'farmstand', label: 'Farmstand' },
-  { value: 'other', label: 'Other' },
-]
+import EntityTypePicker from '../components/EntityTypePicker.jsx'
 
 export default function EntitySettings() {
   const { entityId, onEntityUpdated } = useOutletContext()
@@ -69,13 +64,7 @@ export default function EntitySettings() {
           </label>
           <label>
             Type
-            <select value={entityType} onChange={(e) => setEntityType(e.target.value)}>
-              {ENTITY_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+            <EntityTypePicker value={entityType} onChange={setEntityType} />
           </label>
           <button type="submit" disabled={busy}>
             {busy ? 'Saving…' : 'Save changes'}
@@ -84,6 +73,17 @@ export default function EntitySettings() {
         {error && <p className="form-error">{error}</p>}
         {saved && <p className="form-info">Saved.</p>}
       </form>
+
+      <section className="settings-section">
+        <h2>Categories</h2>
+        <p className="page-subtitle">
+          The income and expense buckets this entity's transactions get sorted into. Set them up
+          once; they drive your Profit &amp; Loss.
+        </p>
+        <Link to="../categories" className="link-button">
+          Manage categories →
+        </Link>
+      </section>
     </div>
   )
 }
