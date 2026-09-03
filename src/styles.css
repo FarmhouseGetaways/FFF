@@ -662,6 +662,26 @@ button[type='submit']:disabled,
   margin: 0;
 }
 
+.scan-product-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.visually-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .home-greeting {
   margin: 1.75rem 0 2rem;
 }

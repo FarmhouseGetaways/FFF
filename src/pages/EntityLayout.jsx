@@ -33,6 +33,7 @@ export default function EntityLayout() {
     [
       { to: 'transactions', label: 'Transactions' },
       { to: 'money', label: 'Money', alsoActiveOn: ['profit-loss', 'balance-sheet'] },
+      { to: 'inventory', label: 'Inventory' },
     ],
     [
       { to: 'accounts', label: 'Accounts' },
