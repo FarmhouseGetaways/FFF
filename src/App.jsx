@@ -12,8 +12,7 @@ import EntityLayout from './pages/EntityLayout.jsx'
 import Transactions from './pages/Transactions.jsx'
 import Accounts from './pages/Accounts.jsx'
 import Categories from './pages/Categories.jsx'
-import ProfitLoss from './pages/ProfitLoss.jsx'
-import BalanceSheet from './pages/BalanceSheet.jsx'
+import Money from './pages/Money.jsx'
 import EntitySettings from './pages/EntitySettings.jsx'
 import ImportCsv from './pages/ImportCsv.jsx'
 
@@ -113,8 +112,10 @@ export default function App() {
         <Route path="transactions" element={<Transactions />} />
         <Route path="accounts" element={<Accounts />} />
         <Route path="categories" element={<Categories />} />
-        <Route path="profit-loss" element={<ProfitLoss />} />
-        <Route path="balance-sheet" element={<BalanceSheet />} />
+        <Route path="money" element={<Money />} />
+        {/* Old separate statement pages - kept as redirects so a bookmark or open tab still lands somewhere real. */}
+        <Route path="profit-loss" element={<Navigate to="../money" replace />} />
+        <Route path="balance-sheet" element={<Navigate to="../money" replace />} />
         <Route path="settings" element={<EntitySettings />} />
         <Route path="import" element={<ImportCsv />} />
       </Route>

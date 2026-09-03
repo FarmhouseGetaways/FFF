@@ -26,11 +26,13 @@ export default function EntityLayout() {
   // Two groups: what you came to find out, then the plumbing you set up
   // once and rarely touch. Categories moved under Settings - it's
   // configuration, not something you visit while doing the books.
+  // Profit & Loss and Balance Sheet merged into one "Money" page, 3 Sep
+  // 2026 (Cory: not an accountant, two separate statements for related
+  // numbers was confusing) - see Money.jsx.
   const navGroups = [
     [
       { to: 'transactions', label: 'Transactions' },
-      { to: 'profit-loss', label: 'Profit & Loss' },
-      { to: 'balance-sheet', label: 'Balance Sheet' },
+      { to: 'money', label: 'Money', alsoActiveOn: ['profit-loss', 'balance-sheet'] },
     ],
     [
       { to: 'accounts', label: 'Accounts' },

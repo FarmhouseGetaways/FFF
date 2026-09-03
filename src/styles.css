@@ -1113,6 +1113,41 @@ button[type='submit']:disabled,
   background: linear-gradient(135deg, var(--red-light), white);
 }
 
+.statement-detail {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.statement-detail summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--green-dark);
+  list-style: none;
+}
+
+.statement-detail summary::-webkit-details-marker {
+  display: none;
+}
+
+.statement-detail summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.15s ease;
+}
+
+.statement-detail[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.statement-detail .statement {
+  margin-top: 1.25rem;
+}
+
 /* Categories */
 .category-columns {
   display: grid;
