@@ -188,6 +188,31 @@ button[type='submit']:disabled,
   margin: 0 auto;
 }
 
+/* Who you're signed in as, sitting next to the way back in. Collapses to
+   just the button on a phone rather than squeezing the email onto the
+   wordmark's line. */
+.landing-nav-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.landing-nav-email {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 620px) {
+  .landing-nav-email {
+    display: none;
+  }
+}
+
 .landing-logo {
   font-family: 'Fredoka', sans-serif;
   font-weight: 700;
@@ -709,6 +734,14 @@ button[type='submit']:disabled,
   max-width: 960px;
 }
 
+/* 960px is a good width for reading a page of text. It is not a good width
+   for a seven-column dashboard table, which was overflowing by ~50px and
+   showing a scrollbar with well over a thousand pixels of empty space
+   beside it. Only the home dashboard opts into this. */
+.page--wide {
+  max-width: 1200px;
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -756,6 +789,12 @@ button[type='submit']:disabled,
   color: var(--muted);
   font-size: 1.05rem;
   margin: 0;
+}
+
+.home-greeting-account {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.4rem 0 0;
 }
 
 .page-header-actions {

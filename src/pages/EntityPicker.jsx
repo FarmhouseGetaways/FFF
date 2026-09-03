@@ -274,7 +274,7 @@ export default function EntityPicker() {
       </aside>
 
       <main className="entity-main">
-    <div className="page">
+    <div className="page page--wide">
       <header className="page-header">
         <h1 className="brand-lockup">
           <Logo size={32} />
@@ -299,6 +299,11 @@ export default function EntityPicker() {
         <div className="home-greeting">
           <h2 className="home-greeting-title">Hello, {firstName}.</h2>
           <p className="home-greeting-subtitle">{startByText}</p>
+          {/* Same reason as the landing page: the greeting name comes from
+              Google profile metadata and several accounts share this
+              browser, so it can say the right-sounding name while you're in
+              the wrong account's books. The email can't. */}
+          {user?.email && <p className="home-greeting-account">Signed in as {user.email}</p>}
         </div>
       )}
 

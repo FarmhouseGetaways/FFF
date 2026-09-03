@@ -107,9 +107,17 @@ export default function Landing() {
           Farmgirl Finance
         </span>
         {loading ? null : user ? (
-          <Link to="/entities" className="landing-nav-cta">
-            Go to my dashboard →
-          </Link>
+          // The account is spelled out, not just implied by "you're signed
+          // in". Several Google accounts share this browser, and landing in
+          // the wrong one's books looks exactly like your data vanishing.
+          <span className="landing-nav-account">
+            <span className="landing-nav-email" title={user.email}>
+              Signed in as {user.email}
+            </span>
+            <Link to="/entities" className="landing-nav-cta">
+              Go to my dashboard →
+            </Link>
+          </span>
         ) : (
           <Link to="/login" className="landing-nav-cta">
             Log in
