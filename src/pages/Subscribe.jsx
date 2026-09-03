@@ -63,7 +63,7 @@ export default function Subscribe() {
 
         <ul className="subscribe-benefits">
           <li>Profit &amp; Loss and Balance Sheet, any date range</li>
-          <li>Unlimited entities — properties, farmstands, anything you run</li>
+          <li>Unlimited businesses — properties, farmstands, anything you run</li>
           <li>Snap a photo of a receipt and it's logged for you</li>
           <li>Import bank or card statements from a CSV in seconds</li>
           <li>Access your books from any device, anywhere</li>

@@ -81,8 +81,8 @@ const FEATURES = [
   {
     icon: 'entities',
     accent: 'gold',
-    title: 'Built for multiple entities',
-    body: 'Running a rental property and a farmstand, or even more? Track each one separately, with its own accounts, categories, statements and inventories.',
+    title: 'Built for more than one business',
+    body: 'Running a rental property and a farmstand, or even more? Track each one separately, with its own accounts, categories, statements and inventories — then see them all added together on one screen.',
   },
   {
     icon: 'wallet',
@@ -116,7 +116,7 @@ export default function Landing() {
         <p className="landing-subhead">
           Profit &amp; Loss and Balance Sheet statements, available anywhere, on demand, from your
           computer or your phone — built from real transactions, not guesswork. One place for every
-          entity you run.
+          business you run.
         </p>
         <div className="landing-cta-row">
           <Link to="/login" className="landing-cta-primary">
@@ -170,7 +170,7 @@ export default function Landing() {
           </div>
           <ul className="landing-price-list">
             <li>Camera-based self-checkout — hold it up, it&apos;s priced and logged automatically</li>
-            <li>Unlimited entities — properties, farmstands, anything you run</li>
+            <li>Unlimited businesses — properties, farmstands, anything you run</li>
             <li>Profit &amp; Loss and Balance Sheet, any date range</li>
             <li>Manual, cash, and Venmo transaction entry</li>
             <li>Cancel anytime</li>

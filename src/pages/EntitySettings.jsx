@@ -54,7 +54,7 @@ export default function EntitySettings() {
   return (
     <div className="page">
       <h1>Settings</h1>
-      <p className="page-subtitle">Rename this entity or change its type.</p>
+      <p className="page-subtitle">Rename this business or change what kind it is.</p>
 
       <form className="inline-form" onSubmit={handleSubmit} style={{ marginTop: '1.5rem' }}>
         <div className="form-row">
@@ -77,7 +77,7 @@ export default function EntitySettings() {
       <section className="settings-section">
         <h2>Categories</h2>
         <p className="page-subtitle">
-          The income and expense buckets this entity&apos;s transactions get sorted into. Set them up once;
+          The income and expense buckets this business&apos;s transactions get sorted into. Set them up once;
           they&apos;re what breaks the Money page down by category instead of one big number.
         </p>
         <div className="page-actions">

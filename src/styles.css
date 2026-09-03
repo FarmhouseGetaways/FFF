@@ -819,6 +819,35 @@ button[type='submit']:disabled,
   transform: translateX(2px);
 }
 
+/* The row while you're renaming it. Keeps the card's footprint so the list
+   doesn't jump when you click Rename. */
+.entity-card--editing {
+  border-left-color: var(--gold);
+  cursor: default;
+}
+
+.entity-card--editing:hover {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.entity-rename-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.5rem 0.7rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  color: var(--text);
+}
+
+.entity-rename-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
 .sidebar-empty {
   color: #bcd8bc;
   font-size: 0.8rem;

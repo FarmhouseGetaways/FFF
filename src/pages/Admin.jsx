@@ -115,7 +115,7 @@ export default function Admin() {
         Manually activate or deactivate a comped/manual member's subscription, or schedule a real
         Stripe member's cancellation (per the 30-day email notice policy — this sets the
         cancellation in Stripe itself, so billing stays correct). This does not show any member's
-        entities or transactions.
+        businesses or transactions.
       </p>
 
       {/* Same pill-button action row as the entity list - see .page-actions

@@ -72,6 +72,10 @@ export default function EntityPicker() {
   // A browser download gives no visible feedback of its own - the file just
   // appears somewhere you aren't looking. Say where it went.
   const [notice, setNotice] = useState('')
+  // Renaming was only possible from a business's own Settings page, which
+  // nobody found - "Settings" doesn't say "rename". It lives on the row now.
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameDraft, setRenameDraft] = useState('')
   const [showArchived, setShowArchived] = useState(false)
   const [dragId, setDragId] = useState(null)
 
@@ -106,8 +110,33 @@ export default function EntityPicker() {
     loadEntities()
   }
 
+  function startRename(entity) {
+    setRenamingId(entity.id)
+    setRenameDraft(entity.name)
+    setError('')
+  }
+
+  async function saveRename(id) {
+    const next = renameDraft.trim()
+    if (!next) {
+      setError('A business needs a name.')
+      return
+    }
+    setBusy(true)
+    const { error } = await supabase.from('entities').update({ name: next }).eq('id', id)
+    setBusy(false)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    setRenamingId(null)
+    setRenameDraft('')
+    setNotice(`Renamed to “${next}”.`)
+    loadEntities()
+  }
+
   async function setArchived(id, archived, name) {
-    if (archived && !window.confirm(`Archive ${name}? It'll drop off this list, but you can reinstate it anytime from "View archived entities."`)) {
+    if (archived && !window.confirm(`Archive ${name}? It'll drop off this list, but you can reinstate it anytime from "View archived businesses."`)) {
       return
     }
     setBusy(true)
@@ -297,6 +326,28 @@ export default function EntityPicker() {
                     <span className="entity-name">{entity.name}</span>
                     <span className="entity-type">{labelForType(entity.entity_type)}</span>
                   </div>
+                ) : renamingId === entity.id ? (
+                  // Edits in place rather than sending you to another page -
+                  // you're looking right at the name you want to change.
+                  <div className="entity-card entity-card--editing" style={{ flex: 1 }}>
+                    <input
+                      className="entity-rename-input"
+                      value={renameDraft}
+                      onChange={(e) => setRenameDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveRename(entity.id)
+                        if (e.key === 'Escape') setRenamingId(null)
+                      }}
+                      aria-label="Business name"
+                      autoFocus
+                    />
+                    <button className="header-btn" disabled={busy} onClick={() => saveRename(entity.id)}>
+                      Save
+                    </button>
+                    <button className="header-btn" disabled={busy} onClick={() => setRenamingId(null)}>
+                      Cancel
+                    </button>
+                  </div>
                 ) : (
                   <Link to={`/entities/${entity.id}`} className="entity-card" draggable={false} style={{ flex: 1 }}>
                     <span className="entity-name">{entity.name}</span>
@@ -321,10 +372,15 @@ export default function EntityPicker() {
                       Reinstate
                     </button>
                   </>
-                ) : (
-                  <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true, entity.name)}>
-                    Archive
-                  </button>
+                ) : renamingId === entity.id ? null : (
+                  <>
+                    <button className="link-button" disabled={busy} onClick={() => startRename(entity)}>
+                      Rename
+                    </button>
+                    <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true, entity.name)}>
+                      Archive
+                    </button>
+                  </>
                 )}
               </li>
             ))}
