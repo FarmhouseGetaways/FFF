@@ -236,34 +236,68 @@ button[type='submit']:disabled,
   text-decoration: underline;
 }
 
+/* Fixed 3 columns rather than auto-fit: with six cards that's an even
+   3x2 block. auto-fit was producing a 4 + 1 orphan row. */
 .landing-features {
   max-width: 1040px;
   margin: 2rem auto 5rem;
   padding: 0 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.4rem;
+}
+
+@media (max-width: 880px) {
+  .landing-features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .landing-features {
+    grid-template-columns: 1fr;
+  }
 }
 
 .landing-feature-card {
   background: white;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1.85rem 1.6rem;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-.landing-feature-card:nth-child(4n + 1) {
-  border-top: 4px solid var(--green);
+.feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.25rem;
 }
-.landing-feature-card:nth-child(4n + 2) {
-  border-top: 4px solid var(--gold);
+
+.feature-icon svg {
+  width: 22px;
+  height: 22px;
 }
-.landing-feature-card:nth-child(4n + 3) {
-  border-top: 4px solid var(--red);
+
+.feature-icon--green {
+  background: var(--green-light);
 }
-.landing-feature-card:nth-child(4n + 4) {
-  border-top: 4px solid var(--green-dark);
+
+.feature-icon--green svg {
+  stroke: var(--green-dark);
+}
+
+.feature-icon--gold {
+  background: var(--gold-light);
+}
+
+.feature-icon--gold svg {
+  stroke: var(--gold-dark);
 }
 
 .landing-feature-card:hover {
@@ -855,13 +889,16 @@ button[type='submit']:disabled,
   font-size: 0.9rem;
 }
 
+/* Solid, not a tint: the old pale green was within a shade of the
+   income-row shading, so the header stopped reading as a header. */
 .data-table th {
-  background: var(--green-light);
-  color: var(--green-dark);
+  background: var(--green-dark);
+  color: #f3efe2;
   font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  border-bottom: 3px solid var(--gold);
 }
 
 .data-table tbody tr {
