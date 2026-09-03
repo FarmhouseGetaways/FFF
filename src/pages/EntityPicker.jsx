@@ -253,9 +253,14 @@ export default function EntityPicker() {
     // business to see its own numbers" is visible without reading anything.
     <div className="entity-shell">
       <aside className="sidebar">
-        <Link to="/" className="sidebar-home">
+        {/* Identical to EntityLayout's, deliberately: "Home" has to mean
+            the same place from every screen. It used to say the wordmark
+            here and go to the marketing site, while the same-looking
+            button inside a business said Home and came back HERE - two
+            different destinations wearing the same hat. */}
+        <Link to="/entities" className="sidebar-home">
           <Logo size={20} />
-          Farmgirl Finance
+          Home
         </Link>
         <h2 className="sidebar-title">Your businesses</h2>
         <nav>
@@ -281,8 +286,10 @@ export default function EntityPicker() {
           Farmgirl Finance
         </h1>
         <div className="page-header-actions">
+          {/* Was "← Back to home", which is what made Home ambiguous -
+              this one goes to the public marketing page, not your books. */}
           <Link to="/" className="header-btn">
-            ← Back to home
+            Public site
           </Link>
           {isAdmin && (
             <Link to="/admin" className="header-btn">
