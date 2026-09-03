@@ -1,0 +1,11 @@
+{
+  "name": "Farmgirl Finance",
+  "short_name": "Farmgirl Finance",
+  "start_url": "/entities",
+  "display": "standalone",
+  "background_color": "#fdf9f0",
+  "theme_color": "#fdf9f0",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

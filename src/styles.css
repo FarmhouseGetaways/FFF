@@ -662,6 +662,23 @@ button[type='submit']:disabled,
   margin: 0;
 }
 
+.home-greeting {
+  margin: 1.75rem 0 2rem;
+}
+
+.home-greeting-title {
+  font-size: 1.75rem;
+  color: var(--green-dark);
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.01em;
+}
+
+.home-greeting-subtitle {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
 .page-header-actions {
   display: flex;
   align-items: center;

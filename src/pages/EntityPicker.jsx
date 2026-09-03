@@ -62,7 +62,7 @@ function groupEntities(list) {
 }
 
 export default function EntityPicker() {
-  const { signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const { isAdmin } = useIsAdmin()
   const [entities, setEntities] = useState(null)
   const [name, setName] = useState('')
@@ -142,6 +142,18 @@ export default function EntityPicker() {
   const visibleEntities = entities ? entities.filter((e) => (showArchived ? e.is_archived : !e.is_archived)) : null
   const groups = visibleEntities ? groupEntities(visibleEntities) : []
 
+  const firstName = (
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    user?.email?.split('@')[0] ||
+    'there'
+  ).split(' ')[0]
+
+  const startByText =
+    entities && entities.length === 0
+      ? 'Start by adding your first business below.'
+      : 'Start by picking one of your businesses below.'
+
   return (
     <div className="page">
       <header className="page-header">
@@ -163,6 +175,13 @@ export default function EntityPicker() {
           </button>
         </div>
       </header>
+
+      {!showArchived && (
+        <div className="home-greeting">
+          <h2 className="home-greeting-title">Hello, {firstName}.</h2>
+          <p className="home-greeting-subtitle">{startByText}</p>
+        </div>
+      )}
 
       {!showArchived && <HomeSummary />}
 
