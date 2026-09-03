@@ -98,11 +98,19 @@ export default function HomeSummary() {
     {
       label: `Profit — ${monthName()}`,
       value: totals.net,
+      // Zero is its own case, not a small win - on a fresh month (or a
+      // fresh account) this card was claiming "you took in more than you
+      // spent" over $0.00, which is a false statement in the one place
+      // the numbers are supposed to be trustworthy.
       note:
-        totals.net >= 0
-          ? 'Incoming minus outgoing. You took in more than you spent.'
-          : 'Incoming minus outgoing. You spent more than you took in.',
-      tone: totals.net >= 0 ? 'in' : 'out',
+        totals.inn === 0 && totals.out === 0
+          ? 'Nothing recorded yet this month.'
+          : totals.net > 0
+            ? 'Incoming minus outgoing. You took in more than you spent.'
+            : totals.net < 0
+              ? 'Incoming minus outgoing. You spent more than you took in.'
+              : 'Incoming and outgoing came out exactly even.',
+      tone: totals.net > 0 ? 'in' : totals.net < 0 ? 'out' : 'neutral',
     },
     {
       label: 'Money you have right now',
