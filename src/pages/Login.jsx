@@ -131,7 +131,7 @@ export default function Login() {
 
         <button
           type="button"
-          className="link-button"
+          className="header-btn"
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
         >
           {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}

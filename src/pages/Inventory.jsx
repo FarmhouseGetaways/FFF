@@ -177,7 +177,10 @@ export default function Inventory() {
                 <td className="num">{formatMoney(p.price)}</td>
                 <td className="num">{p.cost != null ? formatMoney(p.cost) : '—'}</td>
                 <td>
-                  <button className="link-button" onClick={() => handleArchive(p.id)}>
+                  <button
+                    className="header-btn header-btn--sm header-btn--danger"
+                    onClick={() => handleArchive(p.id)}
+                  >
                     Archive
                   </button>
                 </td>

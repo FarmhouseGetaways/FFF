@@ -171,61 +171,69 @@ export default function Admin() {
                   <td>{sub?.provider ?? '—'}</td>
                   <td>{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
                   <td>
-                    {showArchived ? (
-                      <>
+                    <div className="row-actions">
+                      {showArchived ? (
+                        <>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busyId === r.id}
+                            onClick={() => downloadCsv(`${r.email}.csv`, [r])}
+                          >
+                            Download
+                          </button>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busyId === r.id}
+                            onClick={() => setArchived(r.id, false)}
+                          >
+                            Reinstate
+                          </button>
+                        </>
+                      ) : isStripe && isActive ? (
+                        sub.cancel_at ? (
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busyId === r.id}
+                            onClick={() => scheduleCancellation(r.id, 'undo')}
+                          >
+                            Undo cancellation
+                          </button>
+                        ) : (
+                          <button
+                            className="header-btn header-btn--sm header-btn--danger"
+                            disabled={busyId === r.id}
+                            onClick={() => scheduleCancellation(r.id, 'schedule')}
+                          >
+                            Schedule cancellation
+                          </button>
+                        )
+                      ) : isActive ? (
                         <button
-                          className="link-button"
+                          className="header-btn header-btn--sm header-btn--danger"
                           disabled={busyId === r.id}
-                          onClick={() => downloadCsv(`${r.email}.csv`, [r])}
+                          onClick={() => setStatus(r.id, 'canceled')}
                         >
-                          Download
-                        </button>
-                        <button
-                          className="link-button"
-                          style={{ marginLeft: '0.75rem' }}
-                          disabled={busyId === r.id}
-                          onClick={() => setArchived(r.id, false)}
-                        >
-                          Reinstate
-                        </button>
-                      </>
-                    ) : isStripe && isActive ? (
-                      sub.cancel_at ? (
-                        <button
-                          className="link-button"
-                          disabled={busyId === r.id}
-                          onClick={() => scheduleCancellation(r.id, 'undo')}
-                        >
-                          Undo cancellation
+                          Deactivate
                         </button>
                       ) : (
-                        <button
-                          className="link-button"
-                          disabled={busyId === r.id}
-                          onClick={() => scheduleCancellation(r.id, 'schedule')}
-                        >
-                          Schedule cancellation
-                        </button>
-                      )
-                    ) : isActive ? (
-                      <button className="link-button" disabled={busyId === r.id} onClick={() => setStatus(r.id, 'canceled')}>
-                        Deactivate
-                      </button>
-                    ) : (
-                      <>
-                        <button className="link-button" disabled={busyId === r.id} onClick={() => setStatus(r.id, 'active')}>
-                          Activate
-                        </button>
-                        <button
-                          className="link-button"
-                          style={{ marginLeft: '0.75rem' }}
-                          disabled={busyId === r.id}
-                          onClick={() => setArchived(r.id, true)}
-                        >
-                          Archive
-                        </button>
-                      </>
-                    )}
+                        <>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busyId === r.id}
+                            onClick={() => setStatus(r.id, 'active')}
+                          >
+                            Activate
+                          </button>
+                          <button
+                            className="header-btn header-btn--sm header-btn--danger"
+                            disabled={busyId === r.id}
+                            onClick={() => setArchived(r.id, true)}
+                          >
+                            Archive
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )

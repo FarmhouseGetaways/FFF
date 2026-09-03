@@ -50,10 +50,10 @@ export default function EntityTypePicker({ value, onChange, id }) {
             if (e.key === 'Escape') setAdding(false)
           }}
         />
-        <button type="button" className="link-button" onClick={commitDraft}>
+        <button type="button" className="header-btn header-btn--sm" onClick={commitDraft}>
           Use it
         </button>
-        <button type="button" className="link-button" onClick={() => setAdding(false)}>
+        <button type="button" className="header-btn header-btn--sm" onClick={() => setAdding(false)}>
           Cancel
         </button>
       </div>

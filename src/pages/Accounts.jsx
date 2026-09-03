@@ -97,7 +97,10 @@ export default function Accounts() {
                 <td>{ACCOUNT_TYPES.find((t) => t.value === a.account_type)?.label ?? a.account_type}</td>
                 <td className="num">{formatMoney(a.balance)}</td>
                 <td>
-                  <button className="link-button" onClick={() => handleArchive(a.financial_account_id)}>
+                  <button
+                    className="header-btn header-btn--sm header-btn--danger"
+                    onClick={() => handleArchive(a.financial_account_id)}
+                  >
                     Archive
                   </button>
                 </td>

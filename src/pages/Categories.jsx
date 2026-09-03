@@ -78,7 +78,10 @@ export default function Categories() {
               {income.map((c) => (
                 <li key={c.id}>
                   {c.name}
-                  <button className="link-button" onClick={() => handleArchive(c.id)}>
+                  <button
+                    className="header-btn header-btn--sm header-btn--danger"
+                    onClick={() => handleArchive(c.id)}
+                  >
                     Archive
                   </button>
                 </li>
@@ -92,7 +95,10 @@ export default function Categories() {
               {expense.map((c) => (
                 <li key={c.id}>
                   {c.name}
-                  <button className="link-button" onClick={() => handleArchive(c.id)}>
+                  <button
+                    className="header-btn header-btn--sm header-btn--danger"
+                    onClick={() => handleArchive(c.id)}
+                  >
                     Archive
                   </button>
                 </li>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import Logo from '../components/Logo.jsx'
+import { useAuth } from '../lib/AuthContext.jsx'
 
 // Each card gets its own glyph rather than a colored bar on top - five
 // near-identical text blocks read as one grey wall, and the bar colors
@@ -93,6 +94,11 @@ const FEATURES = [
 ]
 
 export default function Landing() {
+  // Someone already signed in who lands here (a bookmark, the "Back to
+  // home" link, or just typing the domain) was being shown "Log in" as if
+  // they were a stranger, with no way back to their own books.
+  const { user, loading } = useAuth()
+
   return (
     <div className="landing">
       <header className="landing-nav">
@@ -100,9 +106,15 @@ export default function Landing() {
           <Logo size={30} />
           Farmgirl Finance
         </span>
-        <Link to="/login" className="landing-nav-cta">
-          Log in
-        </Link>
+        {loading ? null : user ? (
+          <Link to="/entities" className="landing-nav-cta">
+            Go to my dashboard →
+          </Link>
+        ) : (
+          <Link to="/login" className="landing-nav-cta">
+            Log in
+          </Link>
+        )}
       </header>
 
       <section className="landing-hero">
@@ -119,8 +131,8 @@ export default function Landing() {
           business you run.
         </p>
         <div className="landing-cta-row">
-          <Link to="/login" className="landing-cta-primary">
-            Get started
+          <Link to={user ? '/entities' : '/login'} className="landing-cta-primary">
+            {user ? 'Go to my dashboard' : 'Get started'}
           </Link>
           <a href="#pricing" className="landing-cta-secondary">
             See pricing
@@ -175,8 +187,8 @@ export default function Landing() {
             <li>Manual, cash, and Venmo transaction entry</li>
             <li>Cancel anytime</li>
           </ul>
-          <Link to="/login" className="landing-cta-primary landing-price-cta">
-            Start now
+          <Link to={user ? '/entities' : '/login'} className="landing-cta-primary landing-price-cta">
+            {user ? 'Go to my dashboard' : 'Start now'}
           </Link>
         </div>
       </section>

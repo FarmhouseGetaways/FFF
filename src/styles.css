@@ -138,6 +138,41 @@ button[type='submit']:disabled,
   color: var(--green-dark);
 }
 
+.header-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Row-level actions - Archive, Rename, Delete inside a table or list row.
+   Same pill as everywhere else, just smaller so a table doesn't turn into
+   a wall of buttons. Cory's rule, 3 Sep 2026: every action is a button,
+   there is no such thing as a bare underlined text action in this app. */
+.header-btn--sm {
+  font-size: 0.72rem;
+  padding: 0.3rem 0.7rem;
+  border-width: 1px;
+}
+
+/* Destructive actions read differently before you click, not after. */
+.header-btn--danger {
+  color: var(--red);
+  border-color: var(--red-light);
+}
+
+.header-btn--danger:hover {
+  border-color: var(--red);
+  background: var(--red-light);
+  color: var(--red);
+}
+
+/* Keeps two or three row actions from butting together. */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
 /* Landing page */
 .landing {
   min-height: 100vh;
@@ -763,80 +798,36 @@ button[type='submit']:disabled,
   font-weight: 500;
 }
 
-/* Entity picker */
-.entity-list {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.85rem;
-  margin: 1.5rem 0;
+/* Entity picker. The business CARDS are gone as of 3 Sep 2026 - they
+   duplicated the sidebar, which is where you pick a business now. What's
+   left in the main window is a comparison table: the numbers the sidebar
+   can't show you, plus the rename/archive controls. */
+.business-table td {
+  vertical-align: middle;
 }
 
-.entity-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 1.15rem 1.4rem;
-  background: white;
-  border: 1px solid var(--border);
-  border-left: 5px solid var(--green);
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.entity-card:hover {
-  transform: translateY(-2px) translateX(2px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Name takes the slack so the type pill and the "view" cue sit together on
-   the right, rather than space-between spreading three items across the
-   whole row and leaving the type stranded in the middle. */
-.entity-name {
+.business-name-link {
   font-weight: 700;
-  font-size: 1.05rem;
-  flex: 1;
-}
-
-/* The click affordance. Visible at rest (a hover-only cue is invisible on a
-   phone, which is where this was confusing people) and stronger on hover. */
-.entity-card-cta {
+  font-size: 1rem;
   color: var(--green-dark);
-  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.business-name-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.business-name {
   font-weight: 700;
-  white-space: nowrap;
-  opacity: 0.75;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.entity-card:hover .entity-card-cta {
-  opacity: 1;
-  transform: translateX(2px);
-}
-
-/* The row while you're renaming it. Keeps the card's footprint so the list
-   doesn't jump when you click Rename. */
-.entity-card--editing {
-  border-left-color: var(--gold);
-  cursor: default;
-}
-
-.entity-card--editing:hover {
-  transform: none;
-  box-shadow: var(--shadow-sm);
+  font-size: 1rem;
 }
 
 .entity-rename-input {
-  flex: 1;
-  min-width: 0;
-  font-size: 1.05rem;
+  min-width: 12rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  padding: 0.5rem 0.7rem;
+  padding: 0.4rem 0.6rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: inherit;

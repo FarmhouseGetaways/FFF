@@ -461,13 +461,19 @@ export default function Transactions() {
                 </td>
                 <td>
                   {t.attachment_path && (
-                    <button className="link-button" onClick={() => handleViewAttachment(t.attachment_path)}>
+                    <button
+                      className="header-btn header-btn--sm"
+                      onClick={() => handleViewAttachment(t.attachment_path)}
+                    >
                       Receipt
                     </button>
                   )}
                 </td>
                 <td>
-                  <button className="link-button" onClick={() => handleDelete(t)}>
+                  <button
+                    className="header-btn header-btn--sm header-btn--danger"
+                    onClick={() => handleDelete(t)}
+                  >
                     Delete
                   </button>
                 </td>

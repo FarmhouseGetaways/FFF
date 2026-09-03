@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabaseClient'
 import { useAuth } from '../lib/AuthContext.jsx'
 import { useIsAdmin } from '../lib/useIsAdmin.js'
 import { labelForType, BUILT_IN_TYPES } from '../lib/entityTypes'
+import { formatMoney, todayISO } from '../lib/money'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
 import HomeSummary from '../components/HomeSummary.jsx'
 import Logo from '../components/Logo.jsx'
@@ -76,6 +77,55 @@ export default function EntityPicker() {
   // nobody found - "Settings" doesn't say "rename". It lives on the row now.
   const [renamingId, setRenamingId] = useState(null)
   const [renameDraft, setRenameDraft] = useState('')
+  // This month's numbers per business. The sidebar is how you PICK a
+  // business; the main window shouldn't repeat that list, it should tell
+  // you something the sidebar can't - which of them is actually earning.
+  const [perEntity, setPerEntity] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    const monthStart = () => {
+      const d = new Date()
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+    }
+
+    async function loadTotals() {
+      const [{ data: txns }, { data: balances }] = await Promise.all([
+        supabase
+          .from('transactions')
+          .select('amount, entity_id')
+          .not('category_id', 'is', null)
+          .gte('txn_date', monthStart())
+          .lte('txn_date', todayISO()),
+        supabase.from('account_balances').select('balance, account_type, is_archived, entity_id'),
+      ])
+      if (!active) return
+
+      const blank = () => ({ inn: 0, out: 0, onHand: 0 })
+      const map = {}
+      for (const t of txns ?? []) {
+        if (!map[t.entity_id]) map[t.entity_id] = blank()
+        const amt = Number(t.amount)
+        if (amt >= 0) map[t.entity_id].inn += amt
+        else map[t.entity_id].out += Math.abs(amt)
+      }
+      // Same asset-only rule as HomeSummary: liabilities are stored
+      // negative, and folding them in would make "on hand" mean something
+      // else entirely.
+      const ASSETS = ['checking', 'savings', 'cash', 'venmo', 'other_asset']
+      for (const b of balances ?? []) {
+        if (b.is_archived || !ASSETS.includes(b.account_type)) continue
+        if (!map[b.entity_id]) map[b.entity_id] = blank()
+        map[b.entity_id].onHand += Number(b.balance)
+      }
+      setPerEntity(map)
+    }
+
+    loadTotals()
+    return () => {
+      active = false
+    }
+  }, [entities])
   const [showArchived, setShowArchived] = useState(false)
   const [dragId, setDragId] = useState(null)
 
@@ -173,6 +223,10 @@ export default function EntityPicker() {
 
   const visibleEntities = entities ? entities.filter((e) => (showArchived ? e.is_archived : !e.is_archived)) : null
   const groups = visibleEntities ? groupEntities(visibleEntities) : []
+  // Flattened but still in the grouped order (built-in types first, then
+  // custom ones), so the table reads in the same sequence the sidebar does
+  // and a drag lands where you'd expect.
+  const orderedEntities = groups.flatMap((g) => g.items)
 
   const firstName = (
     user?.user_metadata?.full_name ||
@@ -259,12 +313,12 @@ export default function EntityPicker() {
       )}
 
       <h2 className="section-title section-title--lead">
-        {showArchived ? 'Archived businesses' : 'Your businesses — pick one'}
+        {showArchived ? 'Archived businesses' : 'How each business is doing'}
       </h2>
       <p className="page-subtitle">
         {showArchived
           ? 'Businesses you’ve put away. Reinstate one anytime to bring it back.'
-          : 'The numbers above are all your businesses added together. Open one below to see that business on its own — its transactions, its money summary and its inventory.'}
+          : 'The same month, split out per business, so you can see which ones are earning and which are costing. Pick one from the left to open it.'}
       </p>
 
       <div className="page-actions">
@@ -296,97 +350,150 @@ export default function EntityPicker() {
         </p>
       )}
 
-      {groups.map((group) => (
-        <section key={group.type} style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '0.9rem', color: 'var(--muted, #888)', margin: '0 0 0.5rem' }}>{group.label}</h2>
-          <ul className="entity-list">
-            {group.items.map((entity) => (
-              <li
-                key={entity.id}
-                draggable={!showArchived}
-                onDragStart={() => setDragId(entity.id)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(group.items, entity.id)}
-                onDragEnd={() => setDragId(null)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  opacity: dragId === entity.id ? 0.5 : 1,
-                  cursor: showArchived ? 'default' : 'grab',
-                }}
-              >
+      {orderedEntities.length > 0 && (
+        <div className="table-scroll">
+          <table className="data-table business-table">
+            <thead>
+              <tr>
+                {!showArchived && <th aria-label="Drag to reorder" />}
+                <th>Business</th>
+                <th>Type</th>
                 {!showArchived && (
-                  <span aria-hidden="true" style={{ color: 'var(--muted, #888)', userSelect: 'none' }}>
-                    ⠿
-                  </span>
-                )}
-                {showArchived ? (
-                  <div className="entity-card" style={{ flex: 1 }}>
-                    <span className="entity-name">{entity.name}</span>
-                    <span className="entity-type">{labelForType(entity.entity_type)}</span>
-                  </div>
-                ) : renamingId === entity.id ? (
-                  // Edits in place rather than sending you to another page -
-                  // you're looking right at the name you want to change.
-                  <div className="entity-card entity-card--editing" style={{ flex: 1 }}>
-                    <input
-                      className="entity-rename-input"
-                      value={renameDraft}
-                      onChange={(e) => setRenameDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') saveRename(entity.id)
-                        if (e.key === 'Escape') setRenamingId(null)
-                      }}
-                      aria-label="Business name"
-                      autoFocus
-                    />
-                    <button className="header-btn" disabled={busy} onClick={() => saveRename(entity.id)}>
-                      Save
-                    </button>
-                    <button className="header-btn" disabled={busy} onClick={() => setRenamingId(null)}>
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <Link to={`/entities/${entity.id}`} className="entity-card" draggable={false} style={{ flex: 1 }}>
-                    <span className="entity-name">{entity.name}</span>
-                    <span className="entity-type">{labelForType(entity.entity_type)}</span>
-                    {/* Says out loud what clicking does. Without it the row
-                        looked like a label, not a way in - which is exactly
-                        how people got stuck on the summary above thinking
-                        that was all there was. */}
-                    <span className="entity-card-cta">View its numbers →</span>
-                  </Link>
-                )}
-                {showArchived ? (
                   <>
-                    <button
-                      className="link-button"
-                      disabled={busy}
-                      onClick={() => downloadCsv(`${entity.name}.csv`, [entity])}
-                    >
-                      Download
-                    </button>
-                    <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, false)}>
-                      Reinstate
-                    </button>
-                  </>
-                ) : renamingId === entity.id ? null : (
-                  <>
-                    <button className="link-button" disabled={busy} onClick={() => startRename(entity)}>
-                      Rename
-                    </button>
-                    <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true, entity.name)}>
-                      Archive
-                    </button>
+                    <th className="num">Incoming</th>
+                    <th className="num">Outgoing</th>
+                    <th className="num">Profit</th>
+                    <th className="num">On hand</th>
                   </>
                 )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {orderedEntities.map((entity) => {
+                const t = perEntity?.[entity.id]
+                const net = t ? t.inn - t.out : 0
+                const editing = renamingId === entity.id
+                return (
+                  <tr
+                    key={entity.id}
+                    draggable={!showArchived && !editing}
+                    onDragStart={() => setDragId(entity.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleDrop(orderedEntities, entity.id)}
+                    onDragEnd={() => setDragId(null)}
+                    style={{ opacity: dragId === entity.id ? 0.5 : 1 }}
+                  >
+                    {!showArchived && (
+                      <td
+                        aria-hidden="true"
+                        style={{ color: 'var(--muted, #888)', userSelect: 'none', cursor: editing ? 'default' : 'grab' }}
+                      >
+                        ⠿
+                      </td>
+                    )}
+                    <td>
+                      {editing ? (
+                        <div className="row-actions">
+                          <input
+                            className="entity-rename-input"
+                            value={renameDraft}
+                            onChange={(e) => setRenameDraft(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') saveRename(entity.id)
+                              if (e.key === 'Escape') setRenamingId(null)
+                            }}
+                            aria-label="Business name"
+                            autoFocus
+                          />
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busy}
+                            onClick={() => saveRename(entity.id)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busy}
+                            onClick={() => setRenamingId(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : showArchived ? (
+                        <span className="business-name">{entity.name}</span>
+                      ) : (
+                        <Link to={`/entities/${entity.id}`} className="business-name-link" draggable={false}>
+                          {entity.name}
+                        </Link>
+                      )}
+                    </td>
+                    <td>
+                      <span className="entity-type">{labelForType(entity.entity_type)}</span>
+                    </td>
+                    {!showArchived && (
+                      <>
+                        <td className="num positive">{t ? formatMoney(t.inn) : '—'}</td>
+                        <td className="num negative">{t ? formatMoney(t.out) : '—'}</td>
+                        <td className={'num ' + (net > 0 ? 'positive' : net < 0 ? 'negative' : '')}>
+                          {t ? formatMoney(net) : '—'}
+                        </td>
+                        <td className="num">{t ? formatMoney(t.onHand) : '—'}</td>
+                      </>
+                    )}
+                    <td>
+                      {editing ? null : showArchived ? (
+                        <div className="row-actions">
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busy}
+                            onClick={() => {
+                              downloadCsv(`${entity.name}.csv`, [entity])
+                              setNotice(
+                                `CSV downloaded — check your browser’s Downloads folder for ${entity.name}.csv.`,
+                              )
+                            }}
+                          >
+                            Download
+                          </button>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busy}
+                            onClick={() => setArchived(entity.id, false)}
+                          >
+                            Reinstate
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="row-actions">
+                          <Link to={`/entities/${entity.id}`} className="header-btn header-btn--sm" draggable={false}>
+                            Open
+                          </Link>
+                          <button
+                            className="header-btn header-btn--sm"
+                            disabled={busy}
+                            onClick={() => startRename(entity)}
+                          >
+                            Rename
+                          </button>
+                          <button
+                            className="header-btn header-btn--sm header-btn--danger"
+                            disabled={busy}
+                            onClick={() => setArchived(entity.id, true, entity.name)}
+                          >
+                            Archive
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {!showArchived && (
         <form className="inline-form" onSubmit={handleCreate}>

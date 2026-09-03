@@ -83,7 +83,7 @@ export default function Subscribe() {
 
         {error && <p className="form-error">{error}</p>}
 
-        <button type="button" className="link-button" onClick={signOut}>
+        <button type="button" className="header-btn" onClick={signOut}>
           Sign out
         </button>
       </div>
