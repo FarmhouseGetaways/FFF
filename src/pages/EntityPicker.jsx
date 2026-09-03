@@ -103,7 +103,10 @@ export default function EntityPicker() {
     loadEntities()
   }
 
-  async function setArchived(id, archived) {
+  async function setArchived(id, archived, name) {
+    if (archived && !window.confirm(`Archive ${name}? It'll drop off this list, but you can reinstate it anytime from "View archived entities."`)) {
+      return
+    }
     setBusy(true)
     await supabase.from('entities').update({ is_archived: archived }).eq('id', id)
     await loadEntities()
@@ -147,6 +150,9 @@ export default function EntityPicker() {
           Farmgirl Finance
         </h1>
         <div>
+          <Link to="/" className="link-button" style={{ marginRight: '1rem' }}>
+            ← Back to home
+          </Link>
           {isAdmin && (
             <Link to="/admin" className="link-button" style={{ marginRight: '1rem' }}>
               Admin
@@ -161,6 +167,7 @@ export default function EntityPicker() {
       {!showArchived && <HomeSummary />}
 
       <h2 className="section-title">Your Entities</h2>
+      <p className="page-subtitle">These are the businesses that are earning you money.</p>
 
       <p>
         <button className="link-button" onClick={() => setShowArchived((v) => !v)}>
@@ -236,7 +243,7 @@ export default function EntityPicker() {
                     </button>
                   </>
                 ) : (
-                  <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true)}>
+                  <button className="link-button" disabled={busy} onClick={() => setArchived(entity.id, true, entity.name)}>
                     Archive
                   </button>
                 )}
