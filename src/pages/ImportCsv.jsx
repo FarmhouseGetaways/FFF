@@ -350,6 +350,7 @@ export default function ImportCsv() {
             wrong, and rows flagged &quot;possible duplicate&quot; are already unchecked for you — we found
             a transaction on that account with the same date and amount.
           </p>
+          <div className="table-scroll">
           <table className="data-table">
             <thead>
               <tr>
@@ -399,6 +400,7 @@ export default function ImportCsv() {
               ))}
             </tbody>
           </table>
+          </div>
 
           <div className="inline-form" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>

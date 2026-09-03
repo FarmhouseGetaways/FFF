@@ -149,16 +149,16 @@ export default function EntityPicker() {
           <Logo size={32} />
           Farmgirl Finance
         </h1>
-        <div>
-          <Link to="/" className="link-button" style={{ marginRight: '1rem' }}>
+        <div className="page-header-actions">
+          <Link to="/" className="header-btn">
             ← Back to home
           </Link>
           {isAdmin && (
-            <Link to="/admin" className="link-button" style={{ marginRight: '1rem' }}>
+            <Link to="/admin" className="header-btn">
               Admin
             </Link>
           )}
-          <button className="link-button" onClick={signOut}>
+          <button className="header-btn" onClick={signOut}>
             Sign out
           </button>
         </div>

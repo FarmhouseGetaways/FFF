@@ -113,6 +113,31 @@ button[type='submit']:disabled,
   color: var(--gold-dark);
 }
 
+/* Real pill buttons for header-level actions (Back to home, Sign out,
+   Admin) - .link-button reads fine inline in a list row, but floating on
+   its own in a header it needs a visible edge to read as a button at all,
+   especially once it's alone on a narrow phone screen. */
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  background: white;
+  color: var(--green-dark);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.header-btn:hover {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
 /* Landing page */
 .landing {
   min-height: 100vh;
@@ -582,10 +607,34 @@ button[type='submit']:disabled,
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .page-header h1 {
   margin: 0;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding: 1.25rem;
+  }
+
+  .page-header .brand-lockup {
+    font-size: 1.3rem;
+  }
+
+  .page-header .brand-lockup .logo-mark {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .page-subtitle {
@@ -1028,6 +1077,18 @@ button[type='submit']:disabled,
 }
 
 /* Tables */
+/* A data-table's columns don't shrink below their content's natural
+   width - on a narrow phone that would otherwise force the whole page
+   wider than the viewport (the bug: a form card above it reads as
+   having a mysterious gap on its right, when actually the *page* grew
+   wide and everything just isn't visible at once). Scoping the scroll
+   to just the table keeps the rest of the page - including that card -
+   at the real viewport width. */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .data-table {
   width: 100%;
   border-collapse: separate;

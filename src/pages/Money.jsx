@@ -146,6 +146,7 @@ export default function Money() {
             <div className="statement">
               <section>
                 <h2>Income</h2>
+                <div className="table-scroll">
                 <table className="data-table">
                   <tbody>
                     {income.map((c) => (
@@ -169,10 +170,12 @@ export default function Money() {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
               </section>
 
               <section>
                 <h2>Expenses</h2>
+                <div className="table-scroll">
                 <table className="data-table">
                   <tbody>
                     {expense.map((c) => (
@@ -196,6 +199,7 @@ export default function Money() {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
               </section>
             </div>
           </details>
@@ -205,6 +209,7 @@ export default function Money() {
             <div className="statement">
               <section>
                 <h2>What you own</h2>
+                <div className="table-scroll">
                 <table className="data-table">
                   <tbody>
                     {assets.map((a) => (
@@ -228,10 +233,12 @@ export default function Money() {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
               </section>
 
               <section>
                 <h2>What you owe</h2>
+                <div className="table-scroll">
                 <table className="data-table">
                   <tbody>
                     {liabilities.map((a) => (
@@ -255,6 +262,7 @@ export default function Money() {
                     </tr>
                   </tfoot>
                 </table>
+                </div>
               </section>
 
               <div className={'net-income' + (equity < 0 ? ' negative' : '')}>

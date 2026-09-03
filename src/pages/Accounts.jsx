@@ -80,6 +80,7 @@ export default function Accounts() {
       {accounts === null && <p>Loading…</p>}
 
       {accounts && (
+        <div className="table-scroll">
         <table className="data-table">
           <thead>
             <tr>
@@ -111,6 +112,7 @@ export default function Accounts() {
             )}
           </tbody>
         </table>
+        </div>
       )}
 
       <form className="inline-form" onSubmit={handleCreate}>

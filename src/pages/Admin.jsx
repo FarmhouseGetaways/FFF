@@ -104,7 +104,7 @@ export default function Admin() {
   return (
     <div className="page">
       <p>
-        <Link to="/entities" className="link-button">
+        <Link to="/entities" className="header-btn">
           ← Back to your books
         </Link>
       </p>
@@ -135,6 +135,7 @@ export default function Admin() {
       {rows === null && !error && <p>Loading…</p>}
 
       {visibleRows && (
+        <div className="table-scroll">
         <table className="data-table">
           <thead>
             <tr>
@@ -230,6 +231,7 @@ export default function Admin() {
             )}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

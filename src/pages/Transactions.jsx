@@ -372,6 +372,7 @@ export default function Transactions() {
           <span className="legend-item"><span className="legend-dot legend-dot--out" /> Red = money out</span>
           <span className="legend-item"><span className="legend-dot legend-dot--transfer" /> Gray = moved between your own accounts</span>
         </p>
+        <div className="table-scroll">
         <table className="data-table">
           <thead>
             <tr>
@@ -427,6 +428,7 @@ export default function Transactions() {
             )}
           </tbody>
         </table>
+        </div>
         </>
       )}
     </div>

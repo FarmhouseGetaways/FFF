@@ -114,9 +114,9 @@ export default function Landing() {
           Farmgirl&nbsp;Finance
         </h1>
         <p className="landing-subhead">
-          This software can be accessed anywhere — from the farmstand, the road, or the couch.
-          Profit &amp; Loss and Balance Sheet statements for your properties and farmstand — built
-          from real transactions, not guesswork. One place for every entity you run.
+          Profit &amp; Loss and Balance Sheet statements, available anywhere, on demand, from your
+          computer or your phone — built from real transactions, not guesswork. One place for every
+          entity you run.
         </p>
         <div className="landing-cta-row">
           <Link to="/login" className="landing-cta-primary">
