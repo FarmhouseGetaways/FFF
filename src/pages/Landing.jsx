@@ -136,7 +136,7 @@ export default function Landing() {
             Hold a product up to the camera and it just knows — what it is, what it costs, and it&apos;s
             in the books before the tap-to-pay beep finishes. No barcode scanner. No point-of-sale
             terminal. Nobody standing behind a counter. This is the kind of tech big retailers spend
-            six figures building — made simple and affordable enough for a bootstrapped farmstand to
+            seven figures building — made simple and affordable enough for a bootstrapped farmstand to
             run from day one, and customers notice every single time.
           </p>
           <div className="landing-spotlight-chips">
@@ -169,6 +169,7 @@ export default function Landing() {
             <span className="landing-price-period">/ month</span>
           </div>
           <ul className="landing-price-list">
+            <li>Camera-based self-checkout — hold it up, it&apos;s priced and logged automatically</li>
             <li>Unlimited entities — properties, farmstands, anything you run</li>
             <li>Profit &amp; Loss and Balance Sheet, any date range</li>
             <li>Manual, cash, and Venmo transaction entry</li>
