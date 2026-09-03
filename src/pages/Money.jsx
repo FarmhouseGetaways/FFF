@@ -159,6 +159,10 @@ export default function Money() {
 
           <details className="statement-detail">
             <summary>Where it came from and went ({from} to {to})</summary>
+            <p className="page-subtitle">
+              The same money broken out by category, so you can see which parts of the business
+              earned and which parts cost. Accountants call this a Profit &amp; Loss.
+            </p>
             <div className="statement">
               <section>
                 <h2>Income</h2>
@@ -222,6 +226,10 @@ export default function Money() {
 
           <details className="statement-detail">
             <summary>What you own and owe (as of today)</summary>
+            <p className="page-subtitle">
+              Everything this business has against everything it owes, right now — not just for the
+              date range above. Accountants call this a Balance Sheet.
+            </p>
             <div className="statement">
               <section>
                 <h2>What you own</h2>

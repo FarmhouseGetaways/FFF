@@ -197,6 +197,10 @@ export default function Inventory() {
 
       <form className="inline-form" onSubmit={handleSubmit}>
         <h2>Add a product</h2>
+        <p className="page-subtitle">
+          Anything you add here is something the checkout can recognize and ring up. Name and price
+          are all it needs — cost is optional, and it&apos;s what lets you see profit per item later.
+        </p>
         <div className="form-row">
           <label className="grow">
             Name

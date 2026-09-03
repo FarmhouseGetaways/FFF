@@ -229,7 +229,9 @@ export default function EntityPicker() {
 
       {visibleEntities && visibleEntities.length === 0 && (
         <p className="empty-state">
-          {showArchived ? 'No archived entities.' : 'No entities yet — add your first property or farmstand below.'}
+          {showArchived
+            ? 'No archived businesses.'
+            : 'No businesses yet — add your first property or farmstand below.'}
         </p>
       )}
 
@@ -295,7 +297,15 @@ export default function EntityPicker() {
 
       {!showArchived && (
         <form className="inline-form" onSubmit={handleCreate}>
-          <h2>Add an entity</h2>
+          {/* "Business", not "entity" - the list above it says businesses,
+              and the two words meaning the same thing on one screen is
+              exactly the kind of thing that makes this feel like software
+              written for accountants. */}
+          <h2>Add a business</h2>
+          <p className="page-subtitle">
+            Add another business to track here. Each one keeps its own transactions, accounts and
+            profit — nothing mixes together, and they all roll up into the summary above.
+          </p>
           <div className="form-row">
             <label>
               Name
@@ -311,7 +321,7 @@ export default function EntityPicker() {
               <EntityTypePicker value={entityType} onChange={setEntityType} />
             </label>
             <button type="submit" disabled={busy}>
-              {busy ? 'Adding…' : 'Add entity'}
+              {busy ? 'Adding…' : 'Add business'}
             </button>
           </div>
           {error && <p className="form-error">{error}</p>}

@@ -73,6 +73,7 @@ export default function Categories() {
         <div className="category-columns">
           <div>
             <h3>Income</h3>
+            <p className="page-subtitle">Where money comes in from.</p>
             <ul className="simple-list">
               {income.map((c) => (
                 <li key={c.id}>
@@ -86,6 +87,7 @@ export default function Categories() {
           </div>
           <div>
             <h3>Expense</h3>
+            <p className="page-subtitle">What money gets spent on.</p>
             <ul className="simple-list">
               {expense.map((c) => (
                 <li key={c.id}>
@@ -102,6 +104,11 @@ export default function Categories() {
 
       <form className="inline-form" onSubmit={handleCreate}>
         <h2>Add a category</h2>
+        <p className="page-subtitle">
+          Make a new bucket to sort transactions into. Pick <strong>Income</strong> for money coming
+          in and <strong>Expense</strong> for money going out — that&apos;s what decides which side of
+          the Money summary it shows up on.
+        </p>
         <div className="form-row">
           <label>
             Name
