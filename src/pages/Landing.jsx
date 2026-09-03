@@ -108,7 +108,11 @@ export default function Landing() {
       <section className="landing-hero">
         <div className="landing-hero-glow" aria-hidden="true" />
         <p className="landing-eyebrow">Financial Freedom Farmgirl</p>
-        <h1>Welcome to Farmgirl Finance</h1>
+        <h1>
+          Welcome to
+          <br />
+          Farmgirl&nbsp;Finance
+        </h1>
         <p className="landing-subhead">
           This software can be accessed anywhere — from the farmstand, the road, or the couch.
           Profit &amp; Loss and Balance Sheet statements for your properties and farmstand — built
