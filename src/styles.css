@@ -261,6 +261,53 @@ button[type='submit']:disabled,
   text-decoration: underline;
 }
 
+/* The self-checkout spotlight, added 3 Sep 2026 per Cory: the kiosk is
+   the hook, not a line item in the six-card grid below - it gets its own
+   full-width band between the hero and the feature grid. */
+.landing-spotlight {
+  background: linear-gradient(135deg, var(--green-light), var(--gold-light));
+  padding: 3.5rem 2rem;
+  margin: 0 0 3rem;
+}
+
+.landing-spotlight-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.landing-spotlight h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  color: var(--green-dark);
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+}
+
+.landing-spotlight-body {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+}
+
+.landing-spotlight-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.landing-spotlight-chips span {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--green-dark);
+  box-shadow: var(--shadow-sm);
+}
+
 /* Fixed 3 columns rather than auto-fit: with six cards that's an even
    3x2 block. auto-fit was producing a 4 + 1 orphan row. */
 .landing-features {
