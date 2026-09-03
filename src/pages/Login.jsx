@@ -20,7 +20,17 @@ export default function Login() {
     setError('')
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/entities` },
+      options: {
+        redirectTo: `${window.location.origin}/entities`,
+        // Always show Google's "choose an account" screen. Without this,
+        // Google silently reuses whatever account already has a session in
+        // the browser - and in a Safari home-screen web app there's no
+        // address bar, no tabs, and no obvious way to get to Google and
+        // sign that account out, so picking the wrong one once left you
+        // stuck with it. Signing out of this app only clears OUR session,
+        // never Google's, which is why the fix has to be here at sign-in.
+        queryParams: { prompt: 'select_account' },
+      },
     })
     if (error) setError(error.message)
   }
