@@ -806,6 +806,25 @@ button[type='submit']:disabled,
   vertical-align: middle;
 }
 
+/* Seven columns don't fit a phone, and squeezing them wraps the business
+   name and the action pills onto two lines each. Give the table a real
+   minimum and let its .table-scroll wrapper scroll instead - a readable
+   row you scroll to beats a crushed one you can see all of. */
+.business-table {
+  min-width: 48rem;
+}
+
+.business-table .business-name-link,
+.business-table .business-name,
+.business-table .entity-type {
+  white-space: nowrap;
+}
+
+.business-table .row-actions {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+}
+
 .business-name-link {
   font-weight: 700;
   font-size: 1rem;
