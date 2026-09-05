@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
+import NotificationToggle from '../components/NotificationToggle.jsx'
 
 export default function EntitySettings() {
   const { entityId, onEntityUpdated } = useOutletContext()
@@ -73,6 +74,17 @@ export default function EntitySettings() {
         {error && <p className="form-error">{error}</p>}
         {saved && <p className="form-info">Saved.</p>}
       </form>
+
+      <section className="settings-section">
+        <h2>Notifications</h2>
+        <p className="page-subtitle">
+          When the stand sells something that isn&apos;t in the catalog, the customer
+          says a price out loud and is charged it. That needs a human to look at it,
+          so this tells you the moment it happens rather than waiting for you to
+          open the app.
+        </p>
+        <NotificationToggle />
+      </section>
 
       <section className="settings-section">
         <h2>Categories</h2>
