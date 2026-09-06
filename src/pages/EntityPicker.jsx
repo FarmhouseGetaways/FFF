@@ -270,7 +270,7 @@ export default function EntityPicker() {
               <span className="sidebar-empty">None yet — add one on the right.</span>
             )}
             {activeEntities?.map((e) => (
-              <Link key={e.id} to={`/entities/${e.id}`} className="sidebar-link">
+              <Link key={e.id} to={`/entities/${e.id}`} className="sidebar-link sidebar-link--entity">
                 {e.name}
               </Link>
             ))}

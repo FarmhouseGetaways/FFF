@@ -996,24 +996,51 @@ button[type='submit']:disabled,
   font-size: 1.25rem;
 }
 
+/* Every one of these is a pill you can see without touching it.
+   It was already round, but transparent until hovered - and :hover is
+   gated to devices that have one, so on a phone the list of businesses
+   was indistinguishable from plain text (Cory, 6 Sep 2026). The resting
+   state now carries its own surface, the way .sidebar-home does. */
 .sidebar-link {
-  display: block;
-  padding: 0.6rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.5rem 0.65rem 0.95rem;
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: #eef3ea;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.15s ease, transform 0.15s ease;
 }
+/* The chevron is only on the businesses list, where the pill is a way IN
+   to something with its own screens. The nav inside a business does not
+   get one - and its "Checkout stand" link already carries its own arrow,
+   which would have made two. */
+.sidebar-link--entity::after {
+  content: '›';
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0.55;
+  padding-right: 0.5rem;
+}
 @media (hover: hover) {
   .sidebar-link:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.18);
   }
+}
+/* Pressed state, since hover never fires on the device this matters on. */
+.sidebar-link:active {
+  transform: scale(0.985);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .sidebar-link.active {
   background: var(--gold);
+  border-color: var(--gold);
   color: var(--green-dark);
   transform: translateX(2px);
 }
@@ -1205,10 +1232,12 @@ button[type='submit']:disabled,
 }
 
 /* Separates the day-to-day views from the setup ones. */
+/* Room enough that the pills read as separate things to press. They used
+   to be flat text, where 0.15rem was plenty. */
 .sidebar-group {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.4rem;
 }
 
 .sidebar-divider {
