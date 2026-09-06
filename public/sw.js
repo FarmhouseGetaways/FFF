@@ -38,6 +38,12 @@ self.addEventListener('push', (event) => {
     // afternoon is one standing notification instead of ten to dismiss.
     tag: data.tag || 'farmgirl',
     renotify: true,
+    // An urgent alert stays on screen until it is dealt with, and vibrates.
+    // A stand that has stopped taking money is not something to notice
+    // three hours later among the rest.
+    requireInteraction: data.urgent === true,
+    vibrate: data.urgent === true ? [200, 100, 200] : undefined,
+    timestamp: data.at || Date.now(),
   }
   event.waitUntil(self.registration.showNotification(title, options))
 })

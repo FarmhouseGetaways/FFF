@@ -48,6 +48,9 @@ export default async (req) => {
   try { body = await req.json(); } catch { return json({ error: "Bad request" }, 400); }
   const { entityId, title, url, tag } = body || {};
   if (!entityId || !title) return json({ error: "Need entityId and title." }, 400);
+  // Callers say whether this is worth waking a phone for. Default no: most
+  // of what this sends is a queue that can wait for the next glance.
+  const urgent = body.urgent === true;
 
   const headers = {
     apikey: serviceKey,
@@ -78,6 +81,8 @@ export default async (req) => {
     body: body.body || "",
     url: url || "/entities",
     tag: tag || "farmgirl",
+    urgent,
+    at: Date.now(),
   });
 
   let sent = 0;
@@ -86,7 +91,28 @@ export default async (req) => {
     try {
       await webpush.sendNotification(
         { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-        payload
+        payload,
+        {
+          /* THIS is why notifications took ten or fifteen minutes to arrive.
+           *
+           * Web Push defaults to "normal" urgency, and a push service is
+           * entitled to hold a normal message until the phone next wakes on
+           * its own - which on a phone in someone's pocket, in doze, is
+           * exactly that sort of delay. "high" tells FCM and APNs to deliver
+           * now and wake the device to do it.
+           *
+           * Reserve it for things that are actually urgent. Mark everything
+           * high and the platforms start ignoring it - and the battery cost
+           * lands on the person you are trying to help.
+           */
+          urgency: urgent ? "high" : "normal",
+          /* How long the push service may keep trying if the phone is off.
+           * An alert about a stand being down is worthless an hour later -
+           * by then it is either fixed or the owner has driven out. Better
+           * to drop it than to buzz at midnight about something that
+           * resolved at teatime. */
+          TTL: urgent ? 900 : 86400,
+        }
       );
       sent++;
     } catch (err) {
