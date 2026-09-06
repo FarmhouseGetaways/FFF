@@ -132,7 +132,8 @@ export default function NotificationToggle() {
       )}
       {state === 'on' && (
         <p className="form-notice">
-          This device will get a notification when the stand sells something
+          This device will be told when the stand goes offline, when somebody
+          tries to check out while it is down, and when it sells something
           that isn’t in the catalog.
         </p>
       )}

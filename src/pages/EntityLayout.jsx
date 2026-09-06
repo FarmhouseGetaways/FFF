@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Logo from '../components/Logo.jsx'
 
+const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/logs'
+
 export default function EntityLayout() {
   const { entityId } = useParams()
   const location = useLocation()
@@ -34,6 +36,12 @@ export default function EntityLayout() {
       { to: 'transactions', label: 'Transactions' },
       { to: 'money', label: 'Money', alsoActiveOn: ['profit-loss', 'balance-sheet'] },
       { to: 'inventory', label: 'Inventory' },
+      // The checkout stand. It is a separate site, so this is a real link
+      // out rather than a route - but it belongs in this list, because from
+      // the owner's side the stand is part of the business, not a different
+      // product. There was no way to reach it from here at all (Cory, 6 Sep
+      // 2026). VITE_POS_URL lets a deployment point it somewhere else.
+      { href: POS_URL, label: 'Checkout stand' },
     ],
     [
       { to: 'accounts', label: 'Accounts' },
@@ -59,20 +67,32 @@ export default function EntityLayout() {
           {navGroups.map((group, i) => (
             <div className="sidebar-group" key={i}>
               {i > 0 && <hr className="sidebar-divider" />}
-              {group.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    'sidebar-link' +
-                    (isActive || item.alsoActiveOn?.some((p) => location.pathname.endsWith(`/${p}`))
-                      ? ' active'
-                      : '')
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+              {group.map((item) =>
+                item.href ? (
+                  <a
+                    key={item.href}
+                    className="sidebar-link"
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {item.label} ↗
+                  </a>
+                ) : (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) =>
+                      'sidebar-link' +
+                      (isActive || item.alsoActiveOn?.some((p) => location.pathname.endsWith(`/${p}`))
+                        ? ' active'
+                        : '')
+                    }
+                  >
+                    {item.label}
+                  </NavLink>
+                )
+              )}
             </div>
           ))}
         </nav>

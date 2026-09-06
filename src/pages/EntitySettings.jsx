@@ -78,10 +78,14 @@ export default function EntitySettings() {
       <section className="settings-section">
         <h2>Notifications</h2>
         <p className="page-subtitle">
-          When the stand sells something that isn&apos;t in the catalog, the customer
-          says a price out loud and is charged it. That needs a human to look at it,
-          so this tells you the moment it happens rather than waiting for you to
-          open the app.
+          Turn this on and the stand can reach you: when it drops off the internet,
+          when somebody stands there with shopping and can&apos;t pay, and when it
+          sells something the catalog has never heard of. All three need a person,
+          and none of them can wait for you to next open the app.
+        </p>
+        <p className="page-subtitle">
+          It applies to this device only &mdash; a phone and a laptop each have to
+          say yes. On an iPhone, add this to the Home Screen first.
         </p>
         <NotificationToggle />
       </section>
