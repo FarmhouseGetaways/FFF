@@ -92,13 +92,23 @@ export default async (req) => {
     return json({ error: "Not your business." }, 403);
   }
 
+  /* Is this concierge, or somebody opening their own stand? An admin working
+     on a customer's stand should be told so on every screen - it is their
+     shop, their wording, their prices, and changes are live the moment they
+     are saved. The flag is signed along with the rest so it cannot be flipped
+     in the URL, and it is decided HERE, from ownership, not asked for. */
+  const concierge = isAdmin && rows[0].owner_id !== user.id;
+
   const exp = Date.now() + 60_000;
-  const payload = `${entityId}.${exp}`;
-  const sig = createHmac("sha256", secret).update(payload).digest("hex");
+  const sig = createHmac("sha256", secret)
+    .update(`${entityId}.${exp}.${concierge ? 1 : 0}`)
+    .digest("hex");
 
   return json({
-    url: `${posUrl}/.netlify/functions/pos-enter?e=${encodeURIComponent(entityId)}&x=${exp}&s=${sig}`,
+    url: `${posUrl}/.netlify/functions/pos-enter?e=${encodeURIComponent(entityId)}`
+       + `&x=${exp}&c=${concierge ? 1 : 0}&s=${sig}`,
     expiresInSeconds: 60,
+    concierge,
   });
 };
 
