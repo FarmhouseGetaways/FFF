@@ -345,7 +345,7 @@ export default function EntityPicker() {
           </Link>
           {isAdmin && (
             <Link to="/admin" className="header-btn">
-              Members
+              Admin
             </Link>
           )}
           {/* POS SITS LAST BEFORE SIGN OUT, ALWAYS. Cory's rule, 7 Sep 2026:
