@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Logo from '../components/Logo.jsx'
+import { openPos } from '../lib/posHandoff.js'
 
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/logs'
 
@@ -41,7 +42,7 @@ export default function EntityLayout() {
       // the owner's side the stand is part of the business, not a different
       // product. There was no way to reach it from here at all (Cory, 6 Sep
       // 2026). VITE_POS_URL lets a deployment point it somewhere else.
-      { href: POS_URL, label: 'POS' },
+      { pos: true, label: 'POS' },
     ],
     [
       { to: 'accounts', label: 'Accounts' },
@@ -68,7 +69,18 @@ export default function EntityLayout() {
             <div className="sidebar-group" key={i}>
               {i > 0 && <hr className="sidebar-divider" />}
               {group.map((item) =>
-                item.href ? (
+                item.pos ? (
+                  /* Hands off with THIS business's id, so it opens that
+                     business's stand already signed in. From here the entity
+                     is unambiguous, which is why this is the better door. */
+                  <button
+                    key="pos"
+                    className="sidebar-link"
+                    onClick={() => openPos(entityId)}
+                  >
+                    {item.label} ↗
+                  </button>
+                ) : item.href ? (
                   <a
                     key={item.href}
                     className="sidebar-link"

@@ -8,6 +8,7 @@ import { formatMoney, todayISO } from '../lib/money'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
 import HomeSummary from '../components/HomeSummary.jsx'
 import Logo from '../components/Logo.jsx'
+import { openPos } from '../lib/posHandoff.js'
 
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/'
 
@@ -342,11 +343,21 @@ export default function EntityPicker() {
           <Link to="/" className="header-btn">
             Landing page
           </Link>
-          {/* Moved out of the left column: the sidebar is the list of
-              businesses, and the stand is not one of them. */}
-          <a className="header-btn" href={POS_URL} target="_blank" rel="noopener noreferrer">
+          {/* Straight into the stand's admin, signed in. There is only ever
+              one stand per business, so from the home screen we hand off with
+              whichever business is first - and fall back to the stand's front
+              page if the hand-off cannot be made. */}
+          <button
+            className="header-btn"
+            onClick={async () => {
+              const target = activeEntities?.[0]
+              if (!target) { window.open(POS_URL, '_blank', 'noopener'); return }
+              const r = await openPos(target.id)
+              if (!r.ok) setNotice('Opened the stand, but you may need to sign in there.')
+            }}
+          >
             POS ↗
-          </a>
+          </button>
           {isAdmin && (
             <Link to="/admin" className="header-btn">
               Members

@@ -1002,6 +1002,13 @@ button[type='submit']:disabled,
    was indistinguishable from plain text (Cory, 6 Sep 2026). The resting
    state now carries its own surface, the way .sidebar-home does. */
 .sidebar-link {
+  /* Also worn by a <button> (the POS hand-off), which inherits none of a
+     link.s typography by default - so it is set here rather than in a
+     second rule that would drift. */
+  font: inherit;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
