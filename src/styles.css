@@ -1018,7 +1018,7 @@ button[type='submit']:disabled,
 }
 /* The chevron is only on the businesses list, where the pill is a way IN
    to something with its own screens. The nav inside a business does not
-   get one - and its "Checkout stand" link already carries its own arrow,
+   get one - and its "POS" link already carries its own arrow,
    which would have made two. */
 .sidebar-link--entity::after {
   content: '›';

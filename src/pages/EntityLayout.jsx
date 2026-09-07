@@ -41,7 +41,7 @@ export default function EntityLayout() {
       // the owner's side the stand is part of the business, not a different
       // product. There was no way to reach it from here at all (Cory, 6 Sep
       // 2026). VITE_POS_URL lets a deployment point it somewhere else.
-      { href: POS_URL, label: 'Checkout stand' },
+      { href: POS_URL, label: 'POS' },
     ],
     [
       { to: 'accounts', label: 'Accounts' },

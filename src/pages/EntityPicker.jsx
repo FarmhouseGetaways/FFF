@@ -322,16 +322,6 @@ export default function EntityPicker() {
             )}
           </div>
 
-          {/* The kiosk. It was only reachable from inside a business, which is
-              the one place you are not when you want to jump to the stand
-              (Cory, 7 Sep 2026). Same link, same place in the list, on both
-              screens - so it never moves. */}
-          <div className="sidebar-group">
-            <hr className="sidebar-divider" />
-            <a className="sidebar-link" href={POS_URL} target="_blank" rel="noopener noreferrer">
-              Checkout stand ↗
-            </a>
-          </div>
         </nav>
       </aside>
 
@@ -343,14 +333,21 @@ export default function EntityPicker() {
           Farmgirl Finance
         </h1>
         <div className="page-header-actions">
-          {/* Was "← Back to home", which is what made Home ambiguous -
-              this one goes to the public marketing page, not your books. */}
+          {/* The four places you can go that are not your books, in the one
+              row. "Landing page" rather than "Public site" because that is
+              what it is; "POS" rather than "Checkout stand" because that is
+              what Cory calls it (7 Sep 2026). */}
           <Link to="/" className="header-btn">
-            Public site
+            Landing page
           </Link>
+          {/* Moved out of the left column: the sidebar is the list of
+              businesses, and the stand is not one of them. */}
+          <a className="header-btn" href={POS_URL} target="_blank" rel="noopener noreferrer">
+            POS ↗
+          </a>
           {isAdmin && (
             <Link to="/admin" className="header-btn">
-              Admin
+              Users
             </Link>
           )}
           <button className="header-btn" onClick={signOut}>
