@@ -1108,6 +1108,21 @@ button[type='submit']:disabled,
   background: rgba(255, 255, 255, 0.06);
   color: white;
 }
+/* THE OPEN DROPDOWN IS DRAWN BY THE OS, NOT BY THIS PAGE. Giving the select
+   white text was enough to make its closed state readable on the dark
+   sidebar, and it silently made the open list white-on-white - every option
+   invisible until the mouse moved over it and the highlight rendered
+   (Cory, 7 Sep 2026). The popup does not inherit the control's colours, so
+   the options have to be told directly. */
+.sidebar-form select option {
+  background: #ffffff;
+  color: #1f2a24;
+}
+/* And tell the browser this control sits on a dark ground, so the arrow and
+   any native chrome are drawn to match rather than in default light. */
+.sidebar-form select {
+  color-scheme: dark;
+}
 .sidebar-form input::placeholder { color: rgba(255, 255, 255, 0.4); }
 .sidebar-form input:focus,
 .sidebar-form select:focus { outline: none; border-color: var(--gold); }
