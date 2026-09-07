@@ -67,13 +67,26 @@ export default async (req) => {
   const entityId = String(body?.entityId || "").trim();
   if (!entityId) return json({ error: "Which business?" }, 400);
 
+  const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` };
+
+  /* A PLATFORM ADMIN MAY ENTER ANY STAND. Concierge setup is a real part of
+     the offer - somebody buys the kiosk and wants their idle screen and their
+     products done for them - and it cannot be done from outside. The flag is
+     read from the database, never from the request, and it is the same flag
+     that gates the Admin screen. Everyone else is held to what they own. */
+  const me = await fetch(
+    `${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}&select=is_admin`,
+    { headers }
+  );
+  const isAdmin = me.ok && ((await me.json().catch(() => []))[0]?.is_admin === true);
+
   // Ownership from the database, never from the caller.
   const res = await fetch(
     `${supabaseUrl}/rest/v1/entities?id=eq.${encodeURIComponent(entityId)}&select=id,owner_id`,
-    { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
+    { headers }
   );
   const rows = res.ok ? await res.json().catch(() => []) : [];
-  if (!rows[0] || rows[0].owner_id !== user.id) {
+  if (!rows[0] || (!isAdmin && rows[0].owner_id !== user.id)) {
     // Same answer whether it does not exist or is not theirs - a probe should
     // not be able to map which entity ids are real.
     return json({ error: "Not your business." }, 403);
