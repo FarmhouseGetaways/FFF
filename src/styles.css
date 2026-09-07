@@ -1785,3 +1785,48 @@ button[type='submit']:disabled,
     grid-template-columns: 1fr;
   }
 }
+
+/* --- Admin hub: kiosk fleet and usage --------------------------------- */
+
+/* The selected tab in the Admin hub. Filled rather than outlined, so which
+   view you are in reads at a glance instead of needing a second look. */
+.header-btn--on {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+  color: white;
+}
+@media (hover: hover) {
+  .header-btn--on:hover {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: white;
+  }
+}
+
+/* Live / not reporting / never checked in. Colour AND position carry it -
+   a dot alone would be unreadable to anyone who cannot separate red from
+   green, so the words are always beside it. */
+.kiosk-dot {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: baseline;
+}
+.kiosk-dot--up { background: var(--green); }
+.kiosk-dot--down { background: var(--red); }
+.kiosk-dot--never { background: var(--muted); }
+
+/* The second line in a cell - an owner's email under a stand's name. */
+.cell-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.1rem;
+}
+
+/* A month with nothing entered is the number worth ringing somebody about. */
+.cell-quiet {
+  color: var(--red);
+  font-weight: 700;
+}

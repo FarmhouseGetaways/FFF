@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import AdminKiosks from '../components/AdminKiosks.jsx'
+import AdminUsage from '../components/AdminUsage.jsx'
 
 function csvCell(value) {
   const s = value === null || value === undefined ? '' : String(value)
@@ -101,6 +103,8 @@ export default function Admin() {
     setBusyId(null)
   }
 
+  const [tab, setTab] = useState("kiosks")
+
   const visibleRows = rows ? rows.filter((r) => (showArchived ? r.is_archived : !r.is_archived)) : null
 
   return (
@@ -110,7 +114,34 @@ export default function Admin() {
           ← Back to your books
         </Link>
       </p>
-      <h1>Members</h1>
+      <h1>Admin</h1>
+      <p className="page-subtitle">
+        The platform's own view: every kiosk in the field, who is subscribed, and how much the
+        accounting side is actually being used. Nobody but you sees this page.
+      </p>
+
+      {/* Three views of the same customers, not three pages: kiosks, accounts,
+          and how much they use it are questions you ask in one sitting. */}
+      <div className="page-actions" style={{ marginBottom: '1.25rem' }}>
+        {[
+          ['kiosks', 'Customer kiosks'],
+          ['members', 'Accounts'],
+          ['usage', 'Usage'],
+        ].map(([key, label]) => (
+          <button
+            key={key}
+            className={'header-btn' + (tab === key ? ' header-btn--on' : '')}
+            onClick={() => setTab(key)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'kiosks' && <AdminKiosks />}
+      {tab === 'usage' && <AdminUsage />}
+
+      {tab === 'members' && (<>
       <p className="page-subtitle">
         Manually activate or deactivate a comped/manual member's subscription, or schedule a real
         Stripe member's cancellation (per the 30-day email notice policy — this sets the
@@ -249,6 +280,7 @@ export default function Admin() {
         </table>
         </div>
       )}
+      </>)}
     </div>
   )
 }
