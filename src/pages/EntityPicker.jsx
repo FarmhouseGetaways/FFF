@@ -9,6 +9,8 @@ import EntityTypePicker from '../components/EntityTypePicker.jsx'
 import HomeSummary from '../components/HomeSummary.jsx'
 import Logo from '../components/Logo.jsx'
 
+const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/'
+
 function csvCell(value) {
   const s = value === null || value === undefined ? '' : String(value)
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
@@ -73,6 +75,10 @@ export default function EntityPicker() {
   // A browser download gives no visible feedback of its own - the file just
   // appears somewhere you aren't looking. Say where it went.
   const [notice, setNotice] = useState('')
+  // The sidebar shows a dashed "Add a business" pill until you press it, then
+  // becomes the form in place - so the list never jumps, and you can see what
+  // you are adding it next to.
+  const [adding, setAdding] = useState(false)
   // Renaming was only possible from a business's own Settings page, which
   // nobody found - "Settings" doesn't say "rename". It lives on the row now.
   const [renamingId, setRenamingId] = useState(null)
@@ -157,6 +163,9 @@ export default function EntityPicker() {
       return
     }
     setName('')
+    // Collapse back to the pill - the new business is now in the list right
+    // above it, which is the confirmation.
+    setAdding(false)
     loadEntities()
   }
 
@@ -267,13 +276,61 @@ export default function EntityPicker() {
           <div className="sidebar-group">
             {activeEntities === null && <span className="sidebar-empty">Loading…</span>}
             {activeEntities?.length === 0 && (
-              <span className="sidebar-empty">None yet — add one on the right.</span>
+              <span className="sidebar-empty">None yet — add your first below.</span>
             )}
             {activeEntities?.map((e) => (
               <Link key={e.id} to={`/entities/${e.id}`} className="sidebar-link sidebar-link--entity">
                 {e.name}
               </Link>
             ))}
+
+            {/* Adding a business belongs with the list of businesses, not in a
+                card at the bottom of the page you have to scroll past the
+                numbers to reach. Dashed rather than filled so it reads as
+                "make a new one" and never as another business you could open. */}
+            {!adding ? (
+              <button type="button" className="sidebar-add" onClick={() => { setAdding(true); setError('') }}>
+                <span className="sidebar-add-plus" aria-hidden="true">+</span>
+                Add a business
+              </button>
+            ) : (
+              <form className="sidebar-form" onSubmit={handleCreate}>
+                <label>
+                  Name
+                  <input
+                    value={name}
+                    onChange={(ev) => setName(ev.target.value)}
+                    placeholder="e.g. Red Barn Ranch"
+                    autoFocus
+                    required
+                  />
+                </label>
+                <label>
+                  Type
+                  <EntityTypePicker value={entityType} onChange={setEntityType} />
+                </label>
+                <div className="sidebar-form-actions">
+                  <button type="button" className="sidebar-cancel" onClick={() => { setAdding(false); setName(''); setError('') }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="sidebar-save" disabled={busy}>
+                    {busy ? 'Adding…' : 'Add'}
+                  </button>
+                </div>
+                {error && <p className="sidebar-error">{error}</p>}
+              </form>
+            )}
+          </div>
+
+          {/* The kiosk. It was only reachable from inside a business, which is
+              the one place you are not when you want to jump to the stand
+              (Cory, 7 Sep 2026). Same link, same place in the list, on both
+              screens - so it never moves. */}
+          <div className="sidebar-group">
+            <hr className="sidebar-divider" />
+            <a className="sidebar-link" href={POS_URL} target="_blank" rel="noopener noreferrer">
+              Checkout stand ↗
+            </a>
           </div>
         </nav>
       </aside>
@@ -507,38 +564,10 @@ export default function EntityPicker() {
         </div>
       )}
 
-      {!showArchived && (
-        <form className="inline-form" onSubmit={handleCreate}>
-          {/* "Business", not "entity" - the list above it says businesses,
-              and the two words meaning the same thing on one screen is
-              exactly the kind of thing that makes this feel like software
-              written for accountants. */}
-          <h2>Add a business</h2>
-          <p className="page-subtitle">
-            Add another business to track here. Each one keeps its own transactions, accounts and
-            profit — nothing mixes together, and they all roll up into the summary above.
-          </p>
-          <div className="form-row">
-            <label>
-              Name
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Red Barn Ranch"
-                required
-              />
-            </label>
-            <label>
-              Type
-              <EntityTypePicker value={entityType} onChange={setEntityType} />
-            </label>
-            <button type="submit" disabled={busy}>
-              {busy ? 'Adding…' : 'Add business'}
-            </button>
-          </div>
-          {error && <p className="form-error">{error}</p>}
-        </form>
-      )}
+      {/* "Add a business" used to be a card down here. It moved into the
+          sidebar, under the list of businesses it adds to (Cory, 7 Sep 2026):
+          adding one belongs with them, not at the bottom of a page you have to
+          scroll past the month's numbers to reach. */}
     </div>
       </main>
     </div>
