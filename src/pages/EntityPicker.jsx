@@ -336,7 +336,9 @@ export default function EntityPicker() {
           {/* The four places you can go that are not your books, in the one
               row. "Landing page" rather than "Public site" because that is
               what it is; "POS" rather than "Checkout stand" because that is
-              what Cory calls it (7 Sep 2026). */}
+              what Cory calls it. "Members" for the admin-only page, matching
+              its own heading - and NOT "Accounts", which is already the
+              bank-accounts page inside every business (7 Sep 2026). */}
           <Link to="/" className="header-btn">
             Landing page
           </Link>
@@ -347,7 +349,7 @@ export default function EntityPicker() {
           </a>
           {isAdmin && (
             <Link to="/admin" className="header-btn">
-              Users
+              Members
             </Link>
           )}
           <button className="header-btn" onClick={signOut}>
