@@ -343,10 +343,20 @@ export default function EntityPicker() {
           <Link to="/" className="header-btn">
             Landing page
           </Link>
-          {/* Straight into the stand's admin, signed in. There is only ever
-              one stand per business, so from the home screen we hand off with
-              whichever business is first - and fall back to the stand's front
-              page if the hand-off cannot be made. */}
+          {isAdmin && (
+            <Link to="/admin" className="header-btn">
+              Members
+            </Link>
+          )}
+          {/* POS SITS LAST BEFORE SIGN OUT, ALWAYS. Cory's rule, 7 Sep 2026:
+              anything new added to this row goes to the LEFT of it, so the
+              way into the stand never moves. It is the button he reaches for
+              most and muscle memory is worth more than tidy grouping.
+
+              Hands off signed-in. There is one stand per business, so from
+              the home screen it uses the first business - and falls back to
+              the stand's front page if the hand-off cannot be made, because a
+              screen you have to sign in past beats a dead button. */}
           <button
             className="header-btn"
             onClick={async () => {
@@ -358,11 +368,6 @@ export default function EntityPicker() {
           >
             POS ↗
           </button>
-          {isAdmin && (
-            <Link to="/admin" className="header-btn">
-              Members
-            </Link>
-          )}
           <button className="header-btn" onClick={signOut}>
             Sign out
           </button>
