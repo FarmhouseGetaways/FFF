@@ -8,12 +8,16 @@
 // (subscriptions, profiles) and the same Stripe subscription, and an admin
 // should only ever reach them through this one gate:
 //
-//   'schedule' - the 30-day-notice path. Cancels at the end of whichever
-//     billing period is the first one on or after 30 days from now, so the
-//     member is never cut off mid-period they've already paid for, and never
-//     billed one extra full cycle beyond what the notice requires. For a
-//     comped/manual member there is no real billing cycle to align to, so
-//     the notice is a flat 30 days from today.
+//   'schedule' - the 30-day-notice path. Cancels on the first monthly
+//     anniversary of THEIR OWN ACTIVATION DATE (subscriptions.created_at -
+//     our own record of when they went live with us, not Stripe's) that
+//     falls at least 30 days out. Cory, 8 Sep 2026: "it shouldn't base it on
+//     stripe, it should base it on the activation date with us." Billing
+//     runs from that same date regardless of provider or whether a card
+//     reader is even connected - a cash/digital-only stand is still live and
+//     still billed - so it is the correct anchor for both a real Stripe
+//     member and a comped/manual one, unifying what used to be two branches
+//     into one calculation.
 //   'undo' - clears a pending 'schedule', Stripe side and local side both.
 //   'archive' - immediate. Cancels the Stripe subscription NOW (not at a
 //     future date), sets the local subscription canceled, and sets the
@@ -32,54 +36,30 @@ function serviceHeaders(serviceKey) {
   return { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
 }
 
-/** Add `count` of `interval` (Stripe's vocabulary: day/week/month/year) to a
- *  unix-seconds timestamp, using calendar month/year arithmetic rather than a
- *  fixed number of seconds - "a month later" is not always 30*86400 seconds,
- *  and getting that wrong is exactly the kind of off-by-a-few-days error that
- *  turns into a customer complaint. */
-function addInterval(unixSeconds, interval, count) {
+/** Add one calendar month to a unix-seconds timestamp - "a month later" is
+ *  not a fixed number of seconds, and getting that wrong (28 vs. 31 days) is
+ *  exactly the kind of off-by-a-few-days error that turns into a customer
+ *  complaint. Only 'month' is needed: this product has one price, billed
+ *  monthly. */
+function addMonth(unixSeconds) {
   const d = new Date(unixSeconds * 1000)
-  switch (interval) {
-    case 'day':
-      d.setUTCDate(d.getUTCDate() + count)
-      break
-    case 'week':
-      d.setUTCDate(d.getUTCDate() + 7 * count)
-      break
-    case 'year':
-      d.setUTCFullYear(d.getUTCFullYear() + count)
-      break
-    case 'month':
-    default:
-      d.setUTCMonth(d.getUTCMonth() + count)
-      break
-  }
+  d.setUTCMonth(d.getUTCMonth() + 1)
   return Math.floor(d.getTime() / 1000)
 }
 
-/** The first billing-period boundary at or after 30 days from now, read from
- *  the subscription's own current period and interval. Returns null if
- *  Stripe can't be read - the caller falls back to a flat 30 days rather
- *  than failing the whole request over it. */
-async function billingCycleCancelAt(stripeKey, subscriptionId) {
-  const res = await fetch(`https://api.stripe.com/v1/subscriptions/${subscriptionId}`, {
-    headers: { Authorization: `Bearer ${stripeKey}` },
-  })
-  if (!res.ok) return null
-  const sub = await res.json()
-  const item = sub.items?.data?.[0]
-  const interval = item?.price?.recurring?.interval || item?.plan?.interval || 'month'
-  const intervalCount = item?.price?.recurring?.interval_count || item?.plan?.interval_count || 1
-  const periodEnd = item?.current_period_end || sub.current_period_end
-  if (!periodEnd) return null
-
+/** The first monthly anniversary of the member's OWN activation date that
+ *  falls at least 30 days from now. `activatedAtIso` is
+ *  subscriptions.created_at - the date they went live with us, which is ours
+ *  to know regardless of what Stripe (or nothing, for a manual member)
+ *  reports. */
+function activationCancelAt(activatedAtIso) {
   const minSeconds = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60
-  let cancelAt = periodEnd
+  let cancelAt = Math.floor(new Date(activatedAtIso).getTime() / 1000)
   let guard = 0
-  // A guard, not an assumption of "one loop is enough" - a monthly plan that
-  // lapsed unnoticed for a year could need several steps to catch up to today.
-  while (cancelAt < minSeconds && guard < 60) {
-    cancelAt = addInterval(cancelAt, interval, intervalCount)
+  // A guard, not an assumption of "one loop is enough" - a member activated
+  // a year ago needs several steps to catch up to today's anniversary.
+  while (cancelAt < minSeconds && guard < 1200) {
+    cancelAt = addMonth(cancelAt)
     guard += 1
   }
   return cancelAt
@@ -170,7 +150,7 @@ export default async (request) => {
   }
 
   const subRes = await fetch(
-    `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}&select=provider,provider_subscription_id`,
+    `${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}&select=provider,provider_subscription_id,created_at`,
     { headers: serviceHeaders(serviceKey) }
   )
   const subRows = subRes.ok ? await subRes.json() : []
@@ -207,46 +187,33 @@ export default async (request) => {
     })
   }
 
-  // schedule / undo, from here down.
-  if (hasStripeSub) {
-    const cancelAtSeconds =
-      action === 'schedule'
-        ? (await billingCycleCancelAt(stripeKey, sub.provider_subscription_id)) ??
-          Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60 // Stripe unreadable - fall back flat.
-        : ''
-
-    const updated = await setStripeCancelAt(stripeKey, sub.provider_subscription_id, cancelAtSeconds)
-    if (!updated) return new Response('Could not update the subscription in Stripe', { status: 502 })
-
-    const newCancelAt = updated.cancel_at ? new Date(updated.cancel_at * 1000).toISOString() : null
-    await fetch(`${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}`, {
-      method: 'PATCH',
-      headers: { ...serviceHeaders(serviceKey), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ cancel_at: newCancelAt, updated_at: new Date().toISOString() }),
-    })
-    return new Response(JSON.stringify({ ok: true, cancel_at: newCancelAt }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  // No Stripe subscription (manual/comped, or none on file) - nothing to ask
-  // Stripe for a billing cycle on, so the notice is a flat 30 days, kept
-  // entirely locally. Nothing external enforces this date; the admin screen
-  // finalizes it on next load once it's passed (see Admin.jsx's `load()`).
+  // schedule / undo, from here down. Both need a subscription row to exist -
+  // there is nothing to schedule or undo for someone who was never activated.
   if (!sub) {
     return new Response('No subscription on file for this member.', { status: 400 })
   }
-  const newCancelAt =
-    action === 'schedule'
-      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      : null
+
+  // ONE calculation for both providers now - the member's own activation
+  // date with us, never Stripe's. See activationCancelAt above.
+  const newCancelAtIso =
+    action === 'schedule' ? new Date(activationCancelAt(sub.created_at) * 1000).toISOString() : null
+
+  if (hasStripeSub) {
+    // Still tell Stripe when to actually stop billing - the DATE comes from
+    // us, but Stripe is what executes it and fires the webhook back.
+    const cancelAtSeconds = action === 'schedule' ? Math.floor(new Date(newCancelAtIso).getTime() / 1000) : ''
+    const updated = await setStripeCancelAt(stripeKey, sub.provider_subscription_id, cancelAtSeconds)
+    if (!updated) return new Response('Could not update the subscription in Stripe', { status: 502 })
+  }
+
+  // Manual/comped members have no Stripe side to update - see Admin.jsx's
+  // `load()`, which is what actually finalizes a lapsed manual cancel_at.
   await fetch(`${supabaseUrl}/rest/v1/subscriptions?user_id=eq.${userId}`, {
     method: 'PATCH',
     headers: { ...serviceHeaders(serviceKey), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-    body: JSON.stringify({ cancel_at: newCancelAt, updated_at: new Date().toISOString() }),
+    body: JSON.stringify({ cancel_at: newCancelAtIso, updated_at: new Date().toISOString() }),
   })
-  return new Response(JSON.stringify({ ok: true, cancel_at: newCancelAt }), {
+  return new Response(JSON.stringify({ ok: true, cancel_at: newCancelAtIso }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   })

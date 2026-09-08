@@ -170,6 +170,28 @@ export default function Admin() {
   async function setArchived(userId, archived) {
     setBusyId(userId)
     await supabase.from('profiles').update({ is_archived: archived }).eq('id', userId)
+    if (!archived) {
+      /* Reinstate undoes an Archive - and Cory never asked for that round
+         trip to stop working (8 Sep 2026: "i never told you to remove it").
+         A comped/manual member is fully ours to restore: no external biller
+         to satisfy, so Reinstate puts them straight back to active, same as
+         the old Activate button did. A real Stripe member who was Archived
+         had their Stripe subscription actually DELETED, not just paused -
+         there is no "un-delete" to ask Stripe for, so their local status
+         stays whatever it is and they go through checkout again like any
+         new signup. */
+      const { data: rows } = await supabase
+        .from('subscriptions')
+        .select('provider')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (rows && rows.provider !== 'stripe') {
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'active', cancel_at: null, updated_at: new Date().toISOString() })
+          .eq('user_id', userId)
+      }
+    }
     await load()
     setBusyId(null)
   }
