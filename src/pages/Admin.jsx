@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import AdminKiosks from '../components/AdminKiosks.jsx'
 import AdminUsage from '../components/AdminUsage.jsx'
+import AdminPosRequests from '../components/AdminPosRequests.jsx'
 
 function csvCell(value) {
   const s = value === null || value === undefined ? '' : String(value)
@@ -257,13 +258,15 @@ export default function Admin() {
         accounting side is actually being used. Nobody but you sees this page.
       </p>
 
-      {/* Three views of the same customers, not three pages: kiosks, accounts,
-          and how much they use it are questions you ask in one sitting. */}
+      {/* Four views of the same customers, not four pages: kiosks, accounts,
+          how much they use it, and what they're asking for are questions
+          you ask in one sitting. */}
       <div className="page-actions" style={{ marginBottom: '1.25rem' }}>
         {[
           ['kiosks', 'Customer kiosks'],
           ['members', 'Accounts'],
           ['usage', 'Usage'],
+          ['requests', 'Requests'],
         ].map(([key, label]) => (
           <button
             key={key}
@@ -277,6 +280,7 @@ export default function Admin() {
 
       {tab === 'kiosks' && <AdminKiosks />}
       {tab === 'usage' && <AdminUsage />}
+      {tab === 'requests' && <AdminPosRequests />}
 
       {tab === 'members' && (<>
       <p className="page-subtitle">
