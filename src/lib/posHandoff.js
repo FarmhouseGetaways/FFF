@@ -14,7 +14,10 @@ import { supabase } from './supabaseClient'
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app'
 
 export async function openPos(entityId) {
-  const win = window.open('', '_blank', 'noopener')
+  // No 'noopener' here: window.open returns null when it is set, which would
+  // strand the tab we just opened at about:blank and send the ticket to the
+  // tab the owner was already working in. The destination is our own stand.
+  const win = window.open('', '_blank')
 
   try {
     const { data: { session } } = await supabase.auth.getSession()
@@ -33,6 +36,7 @@ export async function openPos(entityId) {
     return { ok: true }
   } catch (err) {
     if (win) win.location = POS_URL
+    else window.location = POS_URL
     return { ok: false, error: String(err.message || err) }
   }
 }
