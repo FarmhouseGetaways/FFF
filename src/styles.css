@@ -944,8 +944,17 @@ button[type='submit']:disabled,
 
 /* The one section people have to act on to get anywhere. It sits under a
    wall of summary numbers, so it needs to read as the next thing to do
-   rather than another block of text. */
-.section-title--lead {
+   rather than another block of text.
+
+   Compound selector, not just .section-title--lead, and on purpose: plain
+   .section-title (below, later in the file) sets margin-top:0 as part of
+   its shorthand, same specificity, later in the cascade - so it was quietly
+   winning and zeroing this out everywhere .section-title--lead sits right
+   under the page header with nothing else above it. Invisible on the active
+   businesses view, where a whole greeting and summary card wall already
+   separates the two - fully exposed on the archived view, where this
+   heading is the first thing after the header (Cory, 8 Sep 2026). */
+.section-title.section-title--lead {
   font-size: 1.35rem;
   margin-top: 2.25rem;
 }
