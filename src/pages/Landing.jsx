@@ -62,22 +62,10 @@ const FEATURES = [
     body: 'Hold an item up to the stand’s camera and it knows what it is and what it costs. No barcode gun, no keypad, no line — and every sale lands in your books on its own.',
   },
   {
-    icon: 'simple',
+    icon: 'wallet',
     accent: 'green',
-    title: 'Not another QuickBooks',
-    body: 'No setup wizards, no accountant-speak, no forty menus you will never touch. Enter what came in and what went out — that is it. Real accounting for people who hate software.',
-  },
-  {
-    icon: 'chart',
-    accent: 'gold',
-    title: 'Profit & Loss, done right',
-    body: 'Every dollar in and out, categorized and rolled up into a clean P&L for any date range. No spreadsheet required — but export one the moment you need it.',
-  },
-  {
-    icon: 'scales',
-    accent: 'green',
-    title: 'Balance Sheet at a glance',
-    body: 'See what every account is actually worth — checking, savings, cash box, Venmo — assets against liabilities, always current, always easy.',
+    title: 'However they pay',
+    body: 'Card, tap, cash, or a scan that opens Venmo, Cash App, or PayPal already filled in — log it the same way, and it all lands in one ledger.',
   },
   {
     icon: 'entities',
@@ -86,10 +74,22 @@ const FEATURES = [
     body: 'Running a rental property and a farmstand, or even more? Track each one separately, with its own accounts, categories, statements and inventories — then see them all added together on one screen.',
   },
   {
-    icon: 'wallet',
+    icon: 'simple',
     accent: 'green',
-    title: 'Cash, card, or Venmo',
-    body: 'Log a bank transaction, a cash sale at the stand, or a Venmo payment the same way — everything lands in one ledger.',
+    title: 'Not another QuickBooks',
+    body: 'No setup wizards, no accountant-speak, no forty menus you will never touch. Enter what came in and what went out — that is it.',
+  },
+  {
+    icon: 'chart',
+    accent: 'gold',
+    title: 'Profit & Loss, done right',
+    body: 'Every dollar in and out, categorized and rolled up into a clean P&L for any date range — ready to hand off the moment you need one.',
+  },
+  {
+    icon: 'scales',
+    accent: 'green',
+    title: 'Balance Sheet at a glance',
+    body: 'See what every account is actually worth — checking, savings, cash box, Venmo — assets against liabilities, always current, always easy.',
   },
 ]
 
@@ -134,9 +134,8 @@ export default function Landing() {
           Farmgirl&nbsp;Finance
         </h1>
         <p className="landing-subhead">
-          Profit &amp; Loss and Balance Sheet statements, available anywhere, on demand, from your
-          computer or your phone — built from real transactions, not guesswork. One place for every
-          business you run.
+          Hold it up, it&apos;s rung up — paid by card, tap, or a scan from their phone, with nobody
+          standing behind a counter. Built for a roadside stand, not a chain.
         </p>
         <div className="landing-cta-row">
           <Link to={user ? '/entities' : '/login'} className="landing-cta-primary">
@@ -151,11 +150,10 @@ export default function Landing() {
       <section className="landing-spotlight">
         <div className="landing-spotlight-inner">
           <p className="landing-eyebrow">Automated self-checkout</p>
-          <h2>The checkout that runs itself</h2>
+          <h2>No barcode scanner. No terminal. No cashier.</h2>
           <p className="landing-spotlight-body">
             Hold a product up to the camera and it just knows — what it is, what it costs, and it&apos;s
-            in the books before the tap-to-pay beep finishes. No barcode scanner. No point-of-sale
-            terminal. Nobody standing behind a counter. This is the kind of tech big retailers spend
+            in the books before the tap-to-pay beep finishes. This is the kind of tech big retailers spend
             seven figures building — made simple and affordable enough for a bootstrapped farmstand to
             run from day one, and customers notice every single time.
           </p>
@@ -163,6 +161,39 @@ export default function Landing() {
             <span>No barcode scanner</span>
             <span>No POS hardware</span>
             <span>Every sale logs itself</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-edge">
+        <div className="landing-edge-inner">
+          <div className="landing-edge-head">
+            <p className="landing-eyebrow">Getting paid, made simple</p>
+            <h2>The part every other checkout makes you deal with yourself</h2>
+          </div>
+          <div className="landing-edge-grid">
+            <div className="landing-edge-card">
+              <h3>However they want to pay</h3>
+              <p>
+                Tap or insert a card — credit, debit, Apple Pay, Google Pay — or scan a code that opens
+                Venmo, Cash App, or PayPal with the total already filled in. One stand, every way people
+                actually pay.
+              </p>
+            </div>
+            <div className="landing-edge-card">
+              <h3>Rates sized for a farmstand</h3>
+              <p>
+                Processing built around what a roadside stand actually earns, not what a mall storefront
+                does — so a five-dollar jar of honey doesn&apos;t quietly lose fifty cents to fees.
+              </p>
+            </div>
+            <div className="landing-edge-card">
+              <h3>We set it up, together</h3>
+              <p>
+                White-glove onboarding — we walk you through opening a merchant account and getting the
+                stand live, instead of leaving you a form and a login.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -190,9 +221,9 @@ export default function Landing() {
           </div>
           <ul className="landing-price-list">
             <li>Camera-based self-checkout — hold it up, it&apos;s priced and logged automatically</li>
+            <li>Card, tap, or scan-to-pay — Venmo, Cash App, PayPal, and more</li>
             <li>Unlimited businesses — properties, farmstands, anything you run</li>
             <li>Profit &amp; Loss and Balance Sheet, any date range</li>
-            <li>Manual, cash, and Venmo transaction entry</li>
             <li>Cancel anytime</li>
           </ul>
           <Link to={user ? '/entities' : '/login'} className="landing-cta-primary landing-price-cta">

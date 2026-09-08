@@ -401,6 +401,66 @@ button[type='submit']:disabled,
   box-shadow: var(--shadow-sm);
 }
 
+/* The three reasons this beats running cards through anything else - added
+   8 Sep 2026 per Cory: payment breadth, fees and onboarding are the actual
+   differentiators, not a line in the six-card grid below. Plain cream
+   band (not the green/gold gradient) so it doesn't compete with the
+   spotlight right above it for attention. */
+.landing-edge {
+  padding: 3.5rem 2rem;
+}
+
+.landing-edge-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.landing-edge-head {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 2.25rem;
+}
+
+.landing-edge-head h2 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--green-dark);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.landing-edge-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+}
+
+@media (max-width: 780px) {
+  .landing-edge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-edge-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.landing-edge-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: var(--green-dark);
+}
+
+.landing-edge-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 /* Fixed 3 columns rather than auto-fit: with six cards that's an even
    3x2 block. auto-fit was producing a 4 + 1 orphan row. */
 .landing-features {
