@@ -66,7 +66,7 @@ export default function AdminKiosks() {
 
   return (
     <div className="table-scroll">
-      <table className="data-table">
+      <table className="data-table admin-table">
         <thead>
           <tr>
             <th>Stand</th>
@@ -85,14 +85,14 @@ export default function AdminKiosks() {
               : (s.payMethods?.length ? `Digital (${s.payMethods.join(', ')})` : 'Cash only')
             return (
               <tr key={s.slug}>
-                <td>
+                <td data-label="Stand">
                   <b>{s.name}</b>
                   <div className="cell-sub">{s.ownerEmail || '—'}</div>
                 </td>
-                <td>{s.businessName || <span className="cell-sub">not linked</span>}</td>
-                <td><span className={st.className} /> {st.label}</td>
-                <td>{ago(s.lastBeatAt)}</td>
-                <td>{takes}</td>
+                <td data-label="Business">{s.businessName || <span className="cell-sub">not linked</span>}</td>
+                <td data-label="Status"><span className={st.className} /> {st.label}</td>
+                <td data-label="Last seen">{ago(s.lastBeatAt)}</td>
+                <td data-label="Takes">{takes}</td>
                 <td>
                   <div className="row-actions">
                     {/* Straight into their stand's admin, signed in - the same

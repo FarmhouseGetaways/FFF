@@ -79,7 +79,7 @@ export default function AdminPosRequests() {
       </div>
 
       <div className="table-scroll">
-        <table className="data-table">
+        <table className="data-table admin-table">
           <thead>
             <tr>
               <th>Business</th>
@@ -92,13 +92,13 @@ export default function AdminPosRequests() {
           <tbody>
             {visible.map((r) => (
               <tr key={r.id}>
-                <td>
+                <td data-label="Business">
                   <b>{r.entities?.name || '—'}</b>
                   <div className="cell-sub">{r.ownerEmail || '—'}</div>
                 </td>
-                <td>{r.location_name}</td>
-                <td>{ago(r.created_at)}</td>
-                <td className="cell-sub">
+                <td data-label="Wants it called">{r.location_name}</td>
+                <td data-label="Requested">{ago(r.created_at)}</td>
+                <td data-label="Shipping / notes" className="cell-sub">
                   {r.shipping_address && <div>{r.shipping_address}</div>}
                   {r.notes && <div>{r.notes}</div>}
                   {!r.shipping_address && !r.notes && '—'}

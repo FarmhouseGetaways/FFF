@@ -54,14 +54,14 @@ function MemberRow({ r, busyId, archivedView, onDownload, onReinstate, onSchedul
   const pending = !!sub?.cancel_at
   return (
     <tr>
-      <td>
+      <td data-label="Email">
         {r.email}
         {r.is_admin ? ' (admin)' : ''}
       </td>
-      <td>{new Date(r.created_at).toLocaleDateString()}</td>
-      <td>{sub?.status ?? 'none'}</td>
-      <td>{sub?.provider ?? '—'}</td>
-      <td>{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
+      <td data-label="Signed up">{new Date(r.created_at).toLocaleDateString()}</td>
+      <td data-label="Status">{sub?.status ?? 'none'}</td>
+      <td data-label="Provider">{sub?.provider ?? '—'}</td>
+      <td data-label="Cancels">{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
       <td>
         <div className="row-actions">
           {r.is_admin ? (
@@ -316,7 +316,7 @@ export default function Admin() {
 
       {visibleRows && (
         <div className="table-scroll">
-        <table className="data-table">
+        <table className="data-table admin-table">
           <thead>
             <tr>
               <th>Email</th>

@@ -1673,6 +1673,96 @@ button[type='submit']:disabled,
   font-weight: 700;
 }
 
+/* Admin's tables (Kiosks, Accounts, Usage, Requests) - marked with this
+   second class rather than changing every .data-table in the app, since the
+   business list already made its own deliberate choice (scroll, not cards -
+   see .business-table above) and this shouldn't silently change that too.
+
+   Row actions on ONE line, not stacked: two pill buttons wrapping onto their
+   own line is what made Accounts so much taller per row than Usage (Cory,
+   8 Sep 2026: "these tables should match height-wise") - same fix
+   .business-table already uses, for the same reason. */
+.admin-table .row-actions {
+  flex-wrap: nowrap;
+}
+
+.table-scroll .admin-table {
+  min-width: 34rem;
+}
+
+/* "Be creative on mobile" - table rows spent as a card each are dramatically
+   more readable at phone widths than either a squeezed table or a wide one
+   you scroll sideways to read, and these tables (unlike the wider business
+   list) have few enough columns that a stacked card per row stays short. */
+@media (max-width: 640px) {
+  .admin-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .table-scroll:has(.admin-table) {
+    overflow-x: visible;
+  }
+  .admin-table,
+  .admin-table tbody,
+  .admin-table tr {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .admin-table tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .admin-table tr:last-child {
+    margin-bottom: 0;
+  }
+  .admin-table td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-table tr td:last-child {
+    border-bottom: none;
+  }
+  /* The label a header cell would have given this column, read back from
+     data-label (set per <td> in the admin components) since the real
+     <thead> is hidden above rather than duplicated per row. */
+  .admin-table td[data-label]::before {
+    content: attr(data-label);
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    flex: 0 0 auto;
+  }
+  /* Actions and the empty-state row are their own full-width thing, not a
+     label:value pair. */
+  .admin-table td:has(.row-actions),
+  .admin-table td.empty-state {
+    display: block;
+    text-align: left;
+  }
+  .admin-table td:has(.row-actions) .row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .admin-table .cell-sub {
+    text-align: right;
+  }
+}
+
 /* Statements */
 .date-range {
   display: flex;

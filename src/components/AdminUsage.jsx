@@ -58,7 +58,7 @@ export default function AdminUsage() {
       </div>
 
       <div className="table-scroll">
-        <table className="data-table">
+        <table className="data-table admin-table">
           <thead>
             <tr>
               <th>Member</th>
@@ -71,18 +71,18 @@ export default function AdminUsage() {
           <tbody>
             {visible.map((u) => (
               <tr key={u.userId}>
-                <td>
+                <td data-label="Member">
                   {u.email}
                   {u.isAdmin ? ' (admin)' : ''}
                 </td>
-                <td>{u.joined ? new Date(u.joined).toLocaleDateString() : '—'}</td>
-                <td>{u.businesses}</td>
+                <td data-label="Joined">{u.joined ? new Date(u.joined).toLocaleDateString() : '—'}</td>
+                <td data-label="Businesses">{u.businesses}</td>
                 {/* Nought entries in a month is the number worth acting on, so
                     it is marked rather than left to be spotted in a column. */}
-                <td className={u.transactions30d === 0 ? 'cell-quiet' : ''}>
+                <td data-label="Entries, 30 days" className={u.transactions30d === 0 ? 'cell-quiet' : ''}>
                   {u.transactions30d === 0 ? 'none' : u.transactions30d}
                 </td>
-                <td>{u.transactionsTotal}</td>
+                <td data-label="Entries, all time">{u.transactionsTotal}</td>
               </tr>
             ))}
             {!visible.length && (
