@@ -78,7 +78,7 @@ export default async (req) => {
     fetch(`${supabaseUrl}/rest/v1/entities?select=id,name,owner_id,created_at,is_archived`, { headers })
       .then((r) => (r.ok ? r.json() : []))
       .catch(() => []),
-    fetch(`${supabaseUrl}/rest/v1/profiles?select=id,email,created_at,is_admin`, { headers })
+    fetch(`${supabaseUrl}/rest/v1/profiles?select=id,email,created_at,is_admin,is_archived`, { headers })
       .then((r) => (r.ok ? r.json() : []))
       .catch(() => []),
     shared
@@ -107,6 +107,7 @@ export default async (req) => {
         userId: p.id,
         email: p.email,
         isAdmin: p.is_admin === true,
+        isArchived: p.is_archived === true,
         joined: p.created_at,
         businesses: mine.filter((e) => !e.is_archived).length,
         transactions30d: recent,

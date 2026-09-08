@@ -11,10 +11,15 @@ import { supabase } from '../lib/supabaseClient'
  *
  * What it is FOR: spotting the customer who signed up, added two businesses
  * and then stopped, while there is still time to ring them.
+ *
+ * ARCHIVED MEMBERS GET A SEPARATE VIEW, same toggle as Admin's Accounts tab
+ * (7 Sep 2026, one visual language for "there's an archived list" rather than
+ * mixing them into the active one with nothing to say they aren't live).
  */
 export default function AdminUsage() {
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+  const [showArchived, setShowArchived] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -37,12 +42,21 @@ export default function AdminUsage() {
   if (error) return <p className="form-error">{error}</p>
   if (!data) return <p>Loading…</p>
 
+  const visible = data.usage.filter((u) => (showArchived ? u.isArchived : !u.isArchived))
+
   return (
     <>
       <p className="page-subtitle">
         Whether people are using it, not what they entered. No amounts, no balances, and no
         transaction details are read — the server asks the database for a count and nothing else.
       </p>
+
+      <div className="page-actions" style={{ marginBottom: '1rem' }}>
+        <button className="header-btn" onClick={() => setShowArchived((v) => !v)}>
+          {showArchived ? '← Back to active members' : 'View archived members'}
+        </button>
+      </div>
+
       <div className="table-scroll">
         <table className="data-table">
           <thead>
@@ -55,7 +69,7 @@ export default function AdminUsage() {
             </tr>
           </thead>
           <tbody>
-            {data.usage.map((u) => (
+            {visible.map((u) => (
               <tr key={u.userId}>
                 <td>
                   {u.email}
@@ -71,8 +85,12 @@ export default function AdminUsage() {
                 <td>{u.transactionsTotal}</td>
               </tr>
             ))}
-            {!data.usage.length && (
-              <tr><td colSpan={5} className="empty-state">No members yet.</td></tr>
+            {!visible.length && (
+              <tr>
+                <td colSpan={5} className="empty-state">
+                  {showArchived ? 'No archived members.' : 'No members yet.'}
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

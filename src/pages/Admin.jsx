@@ -37,6 +37,85 @@ function downloadCsv(filename, rows) {
   URL.revokeObjectURL(url)
 }
 
+/**
+ * One member row.
+ *
+ * THE ACTION SET, decided 7 Sep 2026 - Cory: "Admin should not have a
+ * deactivate or schedule cancellation. User accounts should have a schedule
+ * cancellation and an archive." A platform admin's own row gets no actions at
+ * all here - there is nothing on this screen an admin should be doing to
+ * their own account. Every other live member gets exactly two: Schedule
+ * cancellation (or Undo, once one is pending) and Archive. An archived
+ * member instead gets Download and Reinstate - the only way back.
+ */
+function MemberRow({ r, busyId, archivedView, onDownload, onReinstate, onSchedule, onUndo, onArchive }) {
+  const sub = r.subscription
+  const pending = !!sub?.cancel_at
+  return (
+    <tr>
+      <td>
+        {r.email}
+        {r.is_admin ? ' (admin)' : ''}
+      </td>
+      <td>{new Date(r.created_at).toLocaleDateString()}</td>
+      <td>{sub?.status ?? 'none'}</td>
+      <td>{sub?.provider ?? '—'}</td>
+      <td>{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
+      <td>
+        <div className="row-actions">
+          {r.is_admin ? (
+            <span className="cell-quiet">—</span>
+          ) : archivedView ? (
+            <>
+              <button
+                className="header-btn header-btn--sm"
+                disabled={busyId === r.id}
+                onClick={() => onDownload(r)}
+              >
+                Download
+              </button>
+              <button
+                className="header-btn header-btn--sm"
+                disabled={busyId === r.id}
+                onClick={() => onReinstate(r.id)}
+              >
+                Reinstate
+              </button>
+            </>
+          ) : (
+            <>
+              {pending ? (
+                <button
+                  className="header-btn header-btn--sm"
+                  disabled={busyId === r.id}
+                  onClick={() => onUndo(r.id)}
+                >
+                  Undo cancellation
+                </button>
+              ) : (
+                <button
+                  className="header-btn header-btn--sm"
+                  disabled={busyId === r.id}
+                  onClick={() => onSchedule(r.id)}
+                >
+                  Schedule cancellation
+                </button>
+              )}
+              <button
+                className="header-btn header-btn--sm header-btn--danger"
+                disabled={busyId === r.id}
+                onClick={() => onArchive(r.id)}
+              >
+                Archive
+              </button>
+            </>
+          )}
+        </div>
+      </td>
+    </tr>
+  )
+}
+
 export default function Admin() {
   const [rows, setRows] = useState(null)
   const [error, setError] = useState('')
@@ -57,6 +136,29 @@ export default function Admin() {
       setError((pErr || sErr).message)
       return
     }
+
+    /* Finalize any lapsed manual/comped cancellation. A real Stripe
+       cancellation is enforced by Stripe itself and arrives back here through
+       the webhook; a manual one has no such timer anywhere, since it never
+       touches Stripe at all - see admin-schedule-cancellation.js. Loading
+       this, the one screen that reads cancel_at, is the one reliable place to
+       notice a date has passed and finish the job. */
+    const now = Date.now()
+    const lapsed = subs.filter(
+      (s) => s.provider !== 'stripe' && s.status === 'active' && s.cancel_at && new Date(s.cancel_at).getTime() <= now
+    )
+    if (lapsed.length) {
+      await Promise.all(
+        lapsed.map((s) =>
+          supabase
+            .from('subscriptions')
+            .update({ status: 'canceled', updated_at: new Date().toISOString() })
+            .eq('user_id', s.user_id)
+        )
+      )
+      for (const s of lapsed) s.status = 'canceled'
+    }
+
     const subsByUser = new Map(subs.map((s) => [s.user_id, s]))
     setRows(profiles.map((p) => ({ ...p, subscription: subsByUser.get(p.id) ?? null })))
   }
@@ -65,18 +167,6 @@ export default function Admin() {
     load()
   }, [])
 
-  async function setStatus(userId, status) {
-    setBusyId(userId)
-    await supabase
-      .from('subscriptions')
-      .upsert(
-        { user_id: userId, provider: 'manual', status, updated_at: new Date().toISOString() },
-        { onConflict: 'user_id' }
-      )
-    await load()
-    setBusyId(null)
-  }
-
   async function setArchived(userId, archived) {
     setBusyId(userId)
     await supabase.from('profiles').update({ is_archived: archived }).eq('id', userId)
@@ -84,7 +174,7 @@ export default function Admin() {
     setBusyId(null)
   }
 
-  async function scheduleCancellation(userId, action) {
+  async function callAction(userId, action) {
     setBusyId(userId)
     setError('')
     try {
@@ -103,7 +193,32 @@ export default function Admin() {
     setBusyId(null)
   }
 
-  const [tab, setTab] = useState("kiosks")
+  function schedule(userId) {
+    if (
+      !confirm(
+        'Schedule this member’s cancellation? They’ll be canceled at the end of their current ' +
+          'billing period, at least 30 days out — never cut off early, never billed an extra cycle ' +
+          'beyond what the notice needs.'
+      )
+    ) {
+      return
+    }
+    callAction(userId, 'schedule')
+  }
+
+  function archiveNow(userId) {
+    if (
+      !confirm(
+        'Archive this member? This disables their account immediately — any active subscription is ' +
+          'canceled right now, not at a future date — and moves them to the archived list.'
+      )
+    ) {
+      return
+    }
+    callAction(userId, 'archive')
+  }
+
+  const [tab, setTab] = useState('kiosks')
 
   const visibleRows = rows ? rows.filter((r) => (showArchived ? r.is_archived : !r.is_archived)) : null
 
@@ -143,10 +258,10 @@ export default function Admin() {
 
       {tab === 'members' && (<>
       <p className="page-subtitle">
-        Manually activate or deactivate a comped/manual member's subscription, or schedule a real
-        Stripe member's cancellation (per the 30-day email notice policy — this sets the
-        cancellation in Stripe itself, so billing stays correct). This does not show any member's
-        businesses or transactions.
+        Schedule a real member's cancellation (30 days' notice, aligned to the end of their current
+        billing period so nobody's cut off mid-cycle or billed an extra one) or archive an account
+        outright, which disables it immediately. This does not show any member's businesses or
+        transactions.
       </p>
 
       {/* Same pill-button action row as the entity list - see .page-actions
@@ -187,88 +302,19 @@ export default function Admin() {
             </tr>
           </thead>
           <tbody>
-            {visibleRows.map((r) => {
-              const sub = r.subscription
-              const isStripe = sub?.provider === 'stripe' && sub?.provider_subscription_id
-              const isActive = sub?.status === 'active'
-              return (
-                <tr key={r.id}>
-                  <td>
-                    {r.email}
-                    {r.is_admin ? ' (admin)' : ''}
-                  </td>
-                  <td>{new Date(r.created_at).toLocaleDateString()}</td>
-                  <td>{sub?.status ?? 'none'}</td>
-                  <td>{sub?.provider ?? '—'}</td>
-                  <td>{sub?.cancel_at ? new Date(sub.cancel_at).toLocaleDateString() : '—'}</td>
-                  <td>
-                    <div className="row-actions">
-                      {showArchived ? (
-                        <>
-                          <button
-                            className="header-btn header-btn--sm"
-                            disabled={busyId === r.id}
-                            onClick={() => downloadCsv(`${r.email}.csv`, [r])}
-                          >
-                            Download
-                          </button>
-                          <button
-                            className="header-btn header-btn--sm"
-                            disabled={busyId === r.id}
-                            onClick={() => setArchived(r.id, false)}
-                          >
-                            Reinstate
-                          </button>
-                        </>
-                      ) : isStripe && isActive ? (
-                        sub.cancel_at ? (
-                          <button
-                            className="header-btn header-btn--sm"
-                            disabled={busyId === r.id}
-                            onClick={() => scheduleCancellation(r.id, 'undo')}
-                          >
-                            Undo cancellation
-                          </button>
-                        ) : (
-                          <button
-                            className="header-btn header-btn--sm header-btn--danger"
-                            disabled={busyId === r.id}
-                            onClick={() => scheduleCancellation(r.id, 'schedule')}
-                          >
-                            Schedule cancellation
-                          </button>
-                        )
-                      ) : isActive ? (
-                        <button
-                          className="header-btn header-btn--sm header-btn--danger"
-                          disabled={busyId === r.id}
-                          onClick={() => setStatus(r.id, 'canceled')}
-                        >
-                          Deactivate
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            className="header-btn header-btn--sm"
-                            disabled={busyId === r.id}
-                            onClick={() => setStatus(r.id, 'active')}
-                          >
-                            Activate
-                          </button>
-                          <button
-                            className="header-btn header-btn--sm header-btn--danger"
-                            disabled={busyId === r.id}
-                            onClick={() => setArchived(r.id, true)}
-                          >
-                            Archive
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+            {visibleRows.map((r) => (
+              <MemberRow
+                key={r.id}
+                r={r}
+                busyId={busyId}
+                archivedView={showArchived}
+                onDownload={(row) => downloadCsv(`${row.email}.csv`, [row])}
+                onReinstate={(id) => setArchived(id, false)}
+                onSchedule={schedule}
+                onUndo={(id) => callAction(id, 'undo')}
+                onArchive={archiveNow}
+              />
+            ))}
             {visibleRows.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty-state">
