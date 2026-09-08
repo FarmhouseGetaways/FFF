@@ -165,6 +165,24 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="landing-spotlight landing-spotlight--alt">
+        <div className="landing-spotlight-inner">
+          <p className="landing-eyebrow">Stocking the shelf</p>
+          <h2>No barcodes on this end, either</h2>
+          <p className="landing-spotlight-body">
+            Take a photo of your handwritten price list &mdash; or just say what you&apos;re adding out
+            loud &mdash; and it turns into rows you check over and add. No barcode printer, no labels to
+            stick on, no software to learn first. The same idea that runs checkout runs the back office,
+            too.
+          </p>
+          <div className="landing-spotlight-chips">
+            <span>Photo of a price list</span>
+            <span>Or just say it out loud</span>
+            <span>Nothing to print or scan</span>
+          </div>
+        </div>
+      </section>
+
       <section className="landing-edge">
         <div className="landing-edge-inner">
           <div className="landing-edge-head">

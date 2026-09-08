@@ -401,6 +401,13 @@ button[type='submit']:disabled,
   box-shadow: var(--shadow-sm);
 }
 
+/* Second spotlight band (stocking the shelf, added 8 Sep 2026) - same
+   pattern as the checkout one right above it, gradient flipped so two
+   back-to-back full-bleed bands don't read as one long identical stripe. */
+.landing-spotlight--alt {
+  background: linear-gradient(135deg, var(--gold-light), var(--green-light));
+}
+
 /* The three reasons this beats running cards through anything else - added
    8 Sep 2026 per Cory: payment breadth, fees and onboarding are the actual
    differentiators, not a line in the six-card grid below. Plain cream
