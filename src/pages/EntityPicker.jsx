@@ -397,7 +397,7 @@ export default function EntityPicker() {
       )}
 
       <h2 className="section-title section-title--lead">
-        {showArchived ? 'Archived businesses' : 'How each business is doing'}
+        {showArchived ? 'Archived businesses' : 'Active businesses'}
       </h2>
       <p className="page-subtitle">
         {showArchived
