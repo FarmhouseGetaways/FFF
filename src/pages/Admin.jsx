@@ -280,10 +280,10 @@ export default function Admin() {
 
       {tab === 'members' && (<>
       <p className="page-subtitle">
-        Schedule a real member's cancellation (30 days' notice, aligned to the end of their current
-        billing period so nobody's cut off mid-cycle or billed an extra one) or archive an account
-        outright, which disables it immediately. This does not show any member's businesses or
-        transactions.
+        Schedule a member's cancellation (30 days' notice, aligned to the anniversary of when they
+        went live with us so nobody's cut off mid-cycle or billed an extra one) or archive an
+        account outright, which disables it immediately. This does not show any member's
+        businesses or transactions.
       </p>
 
       {/* Same pill-button action row as the entity list - see .page-actions
