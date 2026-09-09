@@ -136,13 +136,31 @@ export default function EntityPicker() {
   const [showArchived, setShowArchived] = useState(false)
   const [dragId, setDragId] = useState(null)
 
+  // A stalled request (a dropped connection, a switch between wifi and
+  // cellular mid-fetch) leaves the sidebar saying "Loading…" forever with
+  // nothing to click, and no error either — Supabase's client has no
+  // built-in timeout, so a hung fetch just never resolves either branch
+  // below (Cory, 8 Sep 2026: "It just hangs trying to load businesses").
+  // Racing it against a timeout guarantees this always ends in an entities
+  // list or a retryable error, never silence.
   async function loadEntities() {
-    const { data, error } = await supabase
-      .from('entities')
-      .select('id, name, entity_type, is_archived, sort_order')
-      .order('created_at', { ascending: true })
-    if (error) setError(error.message)
-    else setEntities(data)
+    setError('')
+    const timeout = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Taking too long to load — check your connection.')), 15000),
+    )
+    try {
+      const { data, error } = await Promise.race([
+        supabase
+          .from('entities')
+          .select('id, name, entity_type, is_archived, sort_order')
+          .order('created_at', { ascending: true }),
+        timeout,
+      ])
+      if (error) setError(error.message)
+      else setEntities(data)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   useEffect(() => {
@@ -275,7 +293,15 @@ export default function EntityPicker() {
         <h2 className="sidebar-title">Your businesses</h2>
         <nav>
           <div className="sidebar-group">
-            {activeEntities === null && <span className="sidebar-empty">Loading…</span>}
+            {activeEntities === null && !error && <span className="sidebar-empty">Loading…</span>}
+            {activeEntities === null && error && (
+              <span className="sidebar-empty">
+                Couldn&rsquo;t load your businesses.{' '}
+                <button type="button" className="sidebar-retry" onClick={loadEntities}>
+                  Try again
+                </button>
+              </span>
+            )}
             {activeEntities?.length === 0 && (
               <span className="sidebar-empty">None yet — add your first below.</span>
             )}
