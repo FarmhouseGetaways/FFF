@@ -1,7 +1,7 @@
 /**
  * POST /.netlify/functions/pos-handoff  { entityId }  -> { url }
  *
- * One click from Farmgirl Finance into the checkout stand's admin, with no
+ * One click from ivizhin into the checkout stand's admin, with no
  * second password.
  *
  * WHY THIS EXISTS. The stand's admin pages have their own password, because

@@ -357,7 +357,7 @@ export default function EntityPicker() {
       <header className="page-header">
         <h1 className="brand-lockup">
           <Logo size={32} />
-          Farmgirl Finance
+          <span className="wordmark">ivizhin</span>
         </h1>
         <div className="page-header-actions">
           {/* The four places you can go that are not your books, in the one

@@ -15,7 +15,7 @@ function fileToBase64(file) {
 // What the checkout kiosk (mbm-checkout) sells and what it charges - the
 // same `products` table it reads from (public-products.mjs) and writes to
 // (admin-products.mjs) when the kiosk's own /catalog page is used. This is
-// that same data, managed from inside Farmgirl Finance instead, with a
+// that same data, managed from inside ivizhin instead, with a
 // camera-scan shortcut for adding a product from your phone. Direct
 // Supabase calls here (not through admin-products.mjs) since this page
 // already has the owner's own session - RLS on `products` (migration

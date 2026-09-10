@@ -10,7 +10,7 @@ import { supabase } from './supabaseClient'
  * that trick existed only because a new tab needs one. A same-window
  * navigation has no popup to block, so there is nothing left to work around.
  * The trade this makes on purpose: the browser's own Back button is now
- * how you return to Farmgirl Finance, the same way it works everywhere
+ * how you return to ivizhin, the same way it works everywhere
  * else on the web - see also the stand's own "← Home" pill, which is the
  * same idea from the other side.
  *

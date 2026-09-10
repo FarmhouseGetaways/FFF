@@ -25,10 +25,10 @@ self.addEventListener('push', (event) => {
     data = event.data ? event.data.json() : {}
   } catch {
     // A payload we can't parse still deserves to ring - something happened.
-    data = { title: 'Farmgirl Finance', body: event.data ? event.data.text() : '' }
+    data = { title: 'ivizhin', body: event.data ? event.data.text() : '' }
   }
 
-  const title = data.title || 'Farmgirl Finance'
+  const title = data.title || 'ivizhin'
   const options = {
     body: data.body || '',
     icon: '/icon-512.png',

@@ -104,7 +104,7 @@ export default function Landing() {
       <header className="landing-nav">
         <span className="landing-logo">
           <Logo size={30} />
-          Farmgirl Finance
+          <span className="wordmark">ivizhin</span>
         </span>
         {loading ? null : user ? (
           // The account is spelled out, not just implied by "you're signed
@@ -128,11 +128,7 @@ export default function Landing() {
       <section className="landing-hero">
         <div className="landing-hero-glow" aria-hidden="true" />
         <p className="landing-eyebrow">Financial Freedom Farmgirl</p>
-        <h1>
-          Welcome to
-          <br />
-          Farmgirl&nbsp;Finance
-        </h1>
+        <h1 className="wordmark">ivizhin</h1>
         <p className="landing-subhead">
           Hold it up, it&apos;s rung up — paid by card, tap, or a scan from their phone, with nobody
           standing behind a counter. Built for a roadside stand, not a chain.
@@ -251,7 +247,9 @@ export default function Landing() {
       </section>
 
       <footer className="landing-footer">
-        <span>Farmgirl Finance — part of the Financial Freedom Farmgirl program</span>
+        <span>
+          <span className="wordmark">ivizhin</span> — by Financial Freedom Farmgirl
+        </span>
         <a
           href="https://www.instagram.com/financialfreedomfarmgirl/"
           target="_blank"
