@@ -3,6 +3,9 @@
 // frame to match ivizhin"), so the two read as one family: same viewfinder
 // language, different centre glyph. Here it's an uptick - the books
 // trending the right way - in green, not ivizhin's purple ring and pupil.
+// Bent, not straight (Cory: "a bend in the middle - from slightly rising
+// up to a sharp rise"): a shallow opening run, then a steep second leg
+// into the arrowhead, the shape of a number actually taking off.
 //
 // Colors come from `currentColor` and the --logo-accent custom property, so
 // a caller can drop it on any ground: set color for the brackets, and
@@ -32,7 +35,7 @@ export default function Logo({ size = 28, className = '', title }) {
         <path d="M34 110 L18 110 Q10 110 10 102 L10 86" />
       </g>
       <path
-        d="M38 80 L80 38 M60 38 L80 38 L80 58"
+        d="M35 78 L64 68 L83 35 M63 35 L83 35 L83 55"
         fill="none"
         stroke="var(--logo-accent, #3f8f5c)"
         strokeWidth="6"

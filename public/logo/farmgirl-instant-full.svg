@@ -6,5 +6,5 @@
     <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
     <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
   </g>
-  <path d="M38 80 L80 38 M60 38 L80 38 L80 58" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M35 78 L64 68 L83 35 M63 35 L83 35 L83 55" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
