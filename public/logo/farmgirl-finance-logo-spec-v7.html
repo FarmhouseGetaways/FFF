@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Farmgirl Finance — Logo Spec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  @page { size: letter; margin: 0.6in 0.65in; }
+  :root{
+    --green:#3f8f5c; --green-dark:#2c4c2c; --green-light:#e7f3e5;
+    --gold:#e0a72e; --gold-dark:#b9791a; --gold-light:#fbeecb;
+    --cream:#fdf9f0; --border:#e9e0cb; --text:#2c2a22; --muted:#79715f;
+    --ink-dark:#2c4c2c; --ink-light:#eef3ea;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--text);
+    font-family:'Inter',-apple-system,sans-serif;font-size:10pt;line-height:1.5}
+  h1,h2,h3{font-family:'Fredoka',sans-serif;font-weight:700;letter-spacing:-0.01em;margin:0}
+  h1{font-size:25pt;color:var(--green-dark)}
+  .sub{color:var(--muted);font-size:10.5pt;margin:3pt 0 0}
+  .meta{color:var(--muted);font-size:8pt;letter-spacing:.3pt;text-transform:uppercase;
+    border-top:2px solid var(--green);padding-top:6pt;margin-top:10pt}
+  h2{font-size:13pt;color:var(--green-dark);margin:22pt 0 8pt;padding-bottom:4pt;
+    border-bottom:1px solid var(--border);page-break-after:avoid}
+  p{margin:0 0 7pt}
+  code{font-family:'JetBrains Mono',monospace;font-size:8.5pt;background:var(--green-light);
+    padding:1px 4px;border-radius:3px}
+  .pagebreak{page-break-before:always}
+
+  /* Swatch grid for the mark variants */
+  .swatch-row{display:flex;gap:12pt;margin:0 0 10pt}
+  .swatch{flex:1;border:1px solid var(--border);border-radius:10pt;overflow:hidden;
+    page-break-inside:avoid}
+  .swatch-art{height:150pt;display:flex;align-items:center;justify-content:center}
+  .swatch-art.on-cream{background:var(--cream)}
+  .swatch-art.on-white{background:#ffffff}
+  .swatch-art.on-dark{background:linear-gradient(180deg,var(--green-dark),#1f3a20)}
+  .swatch-art.on-black{background:#1c1a17}
+  .swatch-label{padding:7pt 10pt;background:#fff;border-top:1px solid var(--border)}
+  .swatch-label .name{font-family:'Fredoka',sans-serif;font-weight:600;font-size:9.5pt;
+    color:var(--green-dark)}
+  .swatch-label .use{font-size:8pt;color:var(--muted);margin-top:1pt}
+
+  /* Lockup swatches, wider */
+  .lockup-row{display:flex;gap:12pt;margin:0 0 10pt}
+  .lockup{flex:1;border:1px solid var(--border);border-radius:10pt;overflow:hidden;
+    page-break-inside:avoid}
+  .lockup-art{height:100pt;display:flex;align-items:center;justify-content:center;gap:10pt}
+  .lockup-art.on-cream{background:var(--cream)}
+  .lockup-art.on-dark{background:linear-gradient(180deg,var(--green-dark),#1f3a20)}
+  .lockup-word{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22pt;
+    letter-spacing:-0.01em}
+  .lockup-word.on-light{color:var(--green-dark)}
+  .lockup-word.on-dark{color:#eef3ea}
+
+  /* Size ladder */
+  .size-row{display:flex;align-items:flex-end;gap:20pt;padding:14pt 12pt;
+    background:var(--cream);border:1px solid var(--border);border-radius:10pt;
+    margin:0 0 10pt}
+  .size-item{display:flex;flex-direction:column;align-items:center;gap:5pt}
+  .size-item .px{font-size:7.5pt;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+  /* Color table */
+  table{width:100%;border-collapse:collapse;margin:2pt 0 10pt;font-size:9pt}
+  th{text-align:left;font-size:7.5pt;text-transform:uppercase;letter-spacing:.5pt;
+    color:var(--muted);border-bottom:1.5px solid var(--text);padding:3pt 8pt 3pt 0}
+  td{padding:6pt 8pt 6pt 0;border-bottom:1px solid var(--border);vertical-align:middle}
+  .swab{width:22pt;height:22pt;border-radius:5pt;border:1px solid rgba(0,0,0,.12);display:inline-block;vertical-align:middle}
+  .hex{font-family:'JetBrains Mono',monospace;font-size:8.5pt}
+
+  .note{background:var(--green-light);border-left:3px solid var(--green);padding:8pt 11pt;
+    margin:9pt 0;font-size:9.5pt;page-break-inside:avoid}
+  .note strong{color:var(--green-dark)}
+  ul{margin:0 0 8pt;padding-left:15pt}
+  li{margin-bottom:3pt}
+  .footer-src{font-size:8pt;color:var(--muted);margin-top:4pt}
+</style>
+</head>
+<body>
+
+<h1>Farmgirl Finance — the mark</h1>
+<p class="sub">Uptick — four scan brackets, same frame as ivizhin, holding a bent line taking off.</p>
+<p class="meta">Version 7 &nbsp;·&nbsp; 10 September 2026 &nbsp;·&nbsp; Replaces the "Instant" bolt mark (V6)</p>
+
+<div class="note">
+  <strong>What changed, and why.</strong> The frame — four rounded scan brackets on a 120&times;120
+  grid — now matches ivizhin's mark exactly, so the two read as one family: same viewfinder
+  language, different centre glyph and colour. Farmgirl Finance keeps its own green and its own
+  symbol — an uptick, bent partway through from a shallow opening run into a sharp rise, the shape
+  of a number actually taking off.
+</div>
+
+<h2>The mark</h2>
+<div class="swatch-row">
+  <div class="swatch">
+    <div class="swatch-art on-cream">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="swatch-label">
+      <div class="name">Primary — on light</div>
+      <div class="use">Cream and white grounds. Default everywhere.</div>
+    </div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-art on-dark">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <g fill="none" stroke="#eef3ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="swatch-label">
+      <div class="name">Reversed — on dark</div>
+      <div class="use">The app sidebar. Same green accent, cream brackets.</div>
+    </div>
+  </div>
+</div>
+
+<div class="swatch-row">
+  <div class="swatch">
+    <div class="swatch-art on-white">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <g fill="none" stroke="#2c2a22" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#2c2a22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="swatch-label">
+      <div class="name">One colour — black</div>
+      <div class="use">Receipts, stamps, embroidery, anywhere colour won't hold.</div>
+    </div>
+  </div>
+  <div class="swatch">
+    <div class="swatch-art on-black">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="swatch-label">
+      <div class="name">One colour — white</div>
+      <div class="use">Dark or unpredictable print/fabric grounds.</div>
+    </div>
+  </div>
+</div>
+
+<h2>The lockup</h2>
+<div class="lockup-row">
+  <div class="lockup">
+    <div class="lockup-art on-cream">
+      <svg width="60" height="60" viewBox="0 0 120 120">
+        <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="lockup-word on-light">Farmgirl Finance</span>
+    </div>
+    <div class="swatch-label"><div class="name">Horizontal lockup — on light</div></div>
+  </div>
+</div>
+<div class="lockup-row">
+  <div class="lockup">
+    <div class="lockup-art on-dark">
+      <svg width="60" height="60" viewBox="0 0 120 120">
+        <g fill="none" stroke="#eef3ea" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/>
+          <path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+          <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/>
+          <path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+        </g>
+        <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="lockup-word on-dark">Farmgirl Finance</span>
+    </div>
+    <div class="swatch-label"><div class="name">Horizontal lockup — on dark</div></div>
+  </div>
+</div>
+
+<h2>At actual size</h2>
+<p>Every place the mark is used in the app today — sidebar "Home" link, page headers, the landing
+nav. Nothing smaller than 20px is used; nothing needs a simplified version at these sizes.</p>
+<div class="size-row">
+  <div class="size-item">
+    <svg width="20" height="20" viewBox="0 0 120 120">
+      <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/><path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+        <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/><path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+      </g>
+      <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="px">20px — sidebar</span>
+  </div>
+  <div class="size-item">
+    <svg width="28" height="28" viewBox="0 0 120 120">
+      <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/><path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+        <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/><path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+      </g>
+      <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="px">28px — default</span>
+  </div>
+  <div class="size-item">
+    <svg width="34" height="34" viewBox="0 0 120 120">
+      <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/><path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+        <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/><path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+      </g>
+      <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="px">34px — login / signup</span>
+  </div>
+  <div class="size-item">
+    <svg width="48" height="48" viewBox="0 0 120 120">
+      <g fill="none" stroke="#2c4c2c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 34 L10 18 Q10 10 18 10 L34 10"/><path d="M86 10 L102 10 Q110 10 110 18 L110 34"/>
+        <path d="M110 86 L110 102 Q110 110 102 110 L86 110"/><path d="M34 110 L18 110 Q10 110 10 102 L10 86"/>
+      </g>
+      <path d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45" fill="none" stroke="#3f8f5c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="px">48px — print/social ref.</span>
+  </div>
+</div>
+
+<div class="pagebreak"></div>
+
+<h2>Colour</h2>
+<table>
+  <tr><th>Swatch</th><th>Role</th><th>Value</th><th>Used where</th></tr>
+  <tr>
+    <td><span class="swab" style="background:#2c4c2c"></span></td>
+    <td>Ink, on light</td><td class="hex">#2c4c2c</td>
+    <td>Brackets and wordmark, cream/white grounds (default)</td>
+  </tr>
+  <tr>
+    <td><span class="swab" style="background:#eef3ea"></span></td>
+    <td>Ink, on dark</td><td class="hex">#eef3ea</td>
+    <td>Brackets, sidebar "Home" link</td>
+  </tr>
+  <tr>
+    <td><span class="swab" style="background:#3f8f5c"></span></td>
+    <td>Accent</td><td class="hex">#3f8f5c</td>
+    <td>The uptick — every ground, never recoloured</td>
+  </tr>
+  <tr>
+    <td><span class="swab" style="background:#fdf9f0"></span></td>
+    <td>Cream</td><td class="hex">#fdf9f0</td>
+    <td>App background; reversed-ink colour on dark grounds</td>
+  </tr>
+  <tr>
+    <td><span class="swab" style="background:#2c2a22;border-color:#2c2a22"></span></td>
+    <td>One-colour black</td><td class="hex">#2c2a22</td>
+    <td>Single-ink print: receipts, stamps, embroidery</td>
+  </tr>
+</table>
+
+<h2>Construction</h2>
+<p>Built on a 120×120 grid, matching ivizhin's own mark exactly so the two frames are identical —
+only the centre glyph and accent colour tell them apart.</p>
+<ul>
+  <li><strong>Frame:</strong> four corner brackets, arm length 24 units, corner radius 8, stroke 5, round caps and joins.</li>
+  <li><strong>Uptick:</strong> <code>M30 84 L56 74 L88 30</code> — a shallow opening run (30,84 → 56,74) bending into a sharp rise (56,74 → 88,30). Stroke 6, round caps and joins.</li>
+  <li><strong>Arrowhead:</strong> <code>M74 37 L88 30 L85 45</code> — an open chevron computed to the actual angle of the final leg, not a guessed 45°.</li>
+  <li><strong>Clear space:</strong> a quarter of the mark's width, all four sides.</li>
+</ul>
+
+<h2>Type</h2>
+<p>Wordmark "Farmgirl Finance" is set in <strong>Fredoka Bold (700)</strong>, the same face every
+heading in the app uses, colour <code>#2c4c2c</code> on light grounds and <code>#eef3ea</code> on
+dark, tracking −0.01em.</p>
+
+<h2>Rules</h2>
+<ul>
+  <li>Never rotate the mark, and never recolour the accent beyond the values above.</li>
+  <li>Never place the mark on a saturated or busy fill — grounds stay cream, white, dark green, or single-colour print.</li>
+  <li>The frame is shared with ivizhin on purpose. Don't redraw it independently if either mark changes later — update both from the same brackets.</li>
+</ul>
+
+<h2>Where this lives</h2>
+<ul>
+  <li><code>src/components/Logo.jsx</code> — the live React component, every in-app use</li>
+  <li><code>public/logo/farmgirl-instant-full.svg</code> — favicon, colour</li>
+  <li><code>public/logo/farmgirl-instant-mono-black.svg</code> / <code>-mono-white.svg</code> / <code>-reverse.svg</code> — the variants above, as standalone files</li>
+</ul>
+<p class="footer-src">Farmgirl Finance brand mark, V7 · farmgirl.ai</p>
+
+</body>
+</html>
