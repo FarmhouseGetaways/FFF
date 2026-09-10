@@ -1312,14 +1312,14 @@ button[type='submit']:disabled,
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  --logo-accent: var(--gold);
+  --logo-accent: var(--green);
 }
 
 .landing-logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  --logo-accent: var(--gold);
+  --logo-accent: var(--green);
 }
 
 .sidebar-home {
@@ -1334,7 +1334,7 @@ button[type='submit']:disabled,
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 700;
-  --logo-accent: var(--gold);
+  --logo-accent: var(--green);
   transition: background 0.15s ease;
 }
 @media (hover: hover) {

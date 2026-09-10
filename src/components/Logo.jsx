@@ -1,17 +1,18 @@
-// "Instant" - a bolt inside camera focus brackets. Chosen 3 Sep 2026 from
-// the kiosk-led round of concepts: the brackets are the stand looking at an
-// item, the bolt is how fast it's over. Two inks only, so it reverses onto
-// the dark sidebar without a second artwork.
+// Farmgirl Finance's own mark. The frame - four scan brackets on a
+// 120-unit grid - now matches ivizhin's (9 Sep 2026, Cory: "I want the
+// frame to match ivizhin"), so the two read as one family: same viewfinder
+// language, different centre glyph. Here it's an uptick - the books
+// trending the right way - in green, not ivizhin's purple ring and pupil.
 //
 // Colors come from `currentColor` and the --logo-accent custom property, so
 // a caller can drop it on any ground: set color for the brackets, and
-// --logo-accent for the bolt.
+// --logo-accent for the uptick (defaults to the brand green).
 export default function Logo({ size = 28, className = '', title }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 64 64"
+      viewBox="0 0 120 120"
       className={'logo-mark ' + className}
       role={title ? 'img' : undefined}
       aria-label={title}
@@ -21,16 +22,23 @@ export default function Logo({ size = 28, className = '', title }) {
       <g
         fill="none"
         stroke="currentColor"
-        strokeWidth="4.2"
+        strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M8 20V12a3 3 0 0 1 3-3h8" />
-        <path d="M45 9h8a3 3 0 0 1 3 3v8" />
-        <path d="M56 44v8a3 3 0 0 1-3 3h-8" />
-        <path d="M19 55h-8a3 3 0 0 1-3-3v-8" />
+        <path d="M10 34 L10 18 Q10 10 18 10 L34 10" />
+        <path d="M86 10 L102 10 Q110 10 110 18 L110 34" />
+        <path d="M110 86 L110 102 Q110 110 102 110 L86 110" />
+        <path d="M34 110 L18 110 Q10 110 10 102 L10 86" />
       </g>
-      <path d="M37 14 L23 35 H31 L27 50 L42 29 H34 Z" fill="var(--logo-accent, #e0a72e)" />
+      <path
+        d="M38 80 L80 38 M60 38 L80 38 L80 58"
+        fill="none"
+        stroke="var(--logo-accent, #3f8f5c)"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
