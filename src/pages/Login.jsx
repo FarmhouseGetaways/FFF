@@ -69,7 +69,7 @@ export default function Login() {
         </Link>
         <h1 className="brand-lockup">
           <Logo size={34} />
-          <span className="wordmark">ivizhin</span>
+          Farmgirl Finance
         </h1>
         <p className="auth-subtitle">
           {mode === 'signin' ? 'Sign in to your books' : 'Create your account'}

@@ -1,19 +1,17 @@
-// "Viewfinder" - four scan brackets holding a lens. The ivizhin mark
-// (9 Sep 2026, replacing "Instant"): same four-corner language as the
-// kiosk's own on-screen viewfinder, because recognizing an item held up
-// to a camera is the whole product. Geometry matches the approved brand
-// file exactly (120-unit grid, corner arms 24 units, radius 8, ring r21,
-// pupil r7.5, stroke 5) - see Z:\...\iVision.ai\Logo\Ivizhin Logo Design.
+// "Instant" - a bolt inside camera focus brackets. Chosen 3 Sep 2026 from
+// the kiosk-led round of concepts: the brackets are the stand looking at an
+// item, the bolt is how fast it's over. Two inks only, so it reverses onto
+// the dark sidebar without a second artwork.
 //
 // Colors come from `currentColor` and the --logo-accent custom property, so
 // a caller can drop it on any ground: set color for the brackets, and
-// --logo-accent for the ring and pupil (defaults to the brand accent).
+// --logo-accent for the bolt.
 export default function Logo({ size = 28, className = '', title }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 120 120"
+      viewBox="0 0 64 64"
       className={'logo-mark ' + className}
       role={title ? 'img' : undefined}
       aria-label={title}
@@ -23,17 +21,16 @@ export default function Logo({ size = 28, className = '', title }) {
       <g
         fill="none"
         stroke="currentColor"
-        strokeWidth="5"
+        strokeWidth="4.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        <path d="M10 34 L10 18 Q10 10 18 10 L34 10" />
-        <path d="M86 10 L102 10 Q110 10 110 18 L110 34" />
-        <path d="M110 86 L110 102 Q110 110 102 110 L86 110" />
-        <path d="M34 110 L18 110 Q10 110 10 102 L10 86" />
+        <path d="M8 20V12a3 3 0 0 1 3-3h8" />
+        <path d="M45 9h8a3 3 0 0 1 3 3v8" />
+        <path d="M56 44v8a3 3 0 0 1-3 3h-8" />
+        <path d="M19 55h-8a3 3 0 0 1-3-3v-8" />
       </g>
-      <circle cx="60" cy="60" r="21" fill="none" stroke="var(--logo-accent, #9184d9)" strokeWidth="5" />
-      <circle cx="60" cy="60" r="7.5" fill="var(--logo-accent, #9184d9)" />
+      <path d="M37 14 L23 35 H31 L27 50 L42 29 H34 Z" fill="var(--logo-accent, #e0a72e)" />
     </svg>
   )
 }

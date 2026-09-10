@@ -8,7 +8,7 @@
  * Two ways in, both end up writing via the service_role key (bypasses
  * RLS) so either caller shape works without duplicating this function:
  *
- *   1. A signed-in ivizhin user — `Authorization: Bearer <token>`,
+ *   1. A signed-in Farmgirl Finance user — `Authorization: Bearer <token>`,
  *      the normal case once there's a Products page in the app itself.
  *      Verified against Supabase, then checked that they actually own the
  *      entity being written to (never trust entityId from the client

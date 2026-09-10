@@ -4,7 +4,7 @@
  *   body:    { entityId, title, body, url?, tag? }
  *
  * Server-to-server only. Same door and same key as admin-products.mjs —
- * mbm-checkout has no ivizhin user session of its own, and the key
+ * mbm-checkout has no Farmgirl Finance user session of its own, and the key
  * IS the credential.
  *
  * Sends to the OWNER of the entity, resolved here from entityId. The caller

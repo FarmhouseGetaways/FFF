@@ -11,11 +11,6 @@
   --muted: #79715f;
   --red: #c1503a;
   --red-light: #fbe6e0;
-  /* The ivizhin mark's own accent (9 Sep 2026) - the viewfinder's ring and
-     pupil, never the green/gold palette the rest of the app still runs on.
-     Kept as its own token rather than overloading --gold, since the two
-     don't share a reason to change together. */
-  --accent-ivizhin: #9184d9;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 22px;
@@ -42,18 +37,6 @@ h2,
 h3 {
   font-family: 'Fredoka', 'Inter', sans-serif;
   letter-spacing: -0.01em;
-}
-
-/* The ivizhin wordmark itself, everywhere it appears next to the mark -
-   brand spec calls for Inter Medium, lowercase, tight tracking, which is
-   deliberately NOT the rounded Fredoka every other heading on the site
-   uses. Scoped to just the wordmark text so it doesn't touch headings
-   that happen to share a lockup. */
-.wordmark {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif;
-  font-weight: 500;
-  letter-spacing: -0.04em;
 }
 
 button {
@@ -1279,14 +1262,14 @@ button[type='submit']:disabled,
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  --logo-accent: var(--accent-ivizhin);
+  --logo-accent: var(--gold);
 }
 
 .landing-logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  --logo-accent: var(--accent-ivizhin);
+  --logo-accent: var(--gold);
 }
 
 .sidebar-home {
@@ -1301,7 +1284,7 @@ button[type='submit']:disabled,
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 700;
-  --logo-accent: var(--accent-ivizhin);
+  --logo-accent: var(--gold);
   transition: background 0.15s ease;
 }
 @media (hover: hover) {

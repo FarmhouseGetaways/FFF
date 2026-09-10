@@ -56,7 +56,7 @@ export default function Subscribe() {
         </Link>
         <h1 className="brand-lockup">
           <Logo size={34} />
-          <span className="wordmark">ivizhin</span>
+          Farmgirl Finance
         </h1>
         <p className="auth-subtitle">{message}</p>
         <p>Signed in as {user?.email}.</p>
