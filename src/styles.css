@@ -354,6 +354,56 @@ button[type='submit']:disabled,
   }
 }
 
+/* Introducing ivizhin, 9 Sep 2026 - a small, self-contained card between
+   the hero and the checkout spotlight, naming the checkout tech without
+   touching the Farmgirl Finance identity around it (Cory: "I didn't want
+   you to replace all the FFF logo stuff... introduce ivizhin below").
+   Its own accent purple, used nowhere else on the page, on purpose - this
+   is a name being introduced, not the site repainted. */
+.landing-ivizhin-intro {
+  max-width: 620px;
+  margin: 0 auto 3rem;
+  padding: 2rem 2rem 2.25rem;
+  text-align: center;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.landing-ivizhin-lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.landing-ivizhin-word {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  font-size: 1.9rem;
+  color: #161826;
+}
+
+.landing-ivizhin-tagline {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.landing-ivizhin-body {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
+}
+
 /* The self-checkout spotlight, added 3 Sep 2026 per Cory: the kiosk is
    the hook, not a line item in the six-card grid below - it gets its own
    full-width band between the hero and the feature grid. */
