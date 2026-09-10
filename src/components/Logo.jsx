@@ -35,7 +35,7 @@ export default function Logo({ size = 28, className = '', title }) {
         <path d="M34 110 L18 110 Q10 110 10 102 L10 86" />
       </g>
       <path
-        d="M35 78 L64 68 L83 35 M63 35 L83 35 L83 55"
+        d="M30 84 L56 74 L88 30 M74 37 L88 30 L85 45"
         fill="none"
         stroke="var(--logo-accent, #3f8f5c)"
         strokeWidth="6"
