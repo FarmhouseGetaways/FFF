@@ -2227,3 +2227,8 @@ button[type='submit']:disabled,
   fill: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* Edit and Archive side by side in a product row, not stacked. */
+.data-table .row-actions {
+  flex-wrap: nowrap;
+}
