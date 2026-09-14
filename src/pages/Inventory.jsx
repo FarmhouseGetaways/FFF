@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { formatMoney } from '../lib/money'
@@ -12,6 +12,15 @@ function fileToBase64(file) {
   })
 }
 
+// Selling price over wholesale, as dollars and percent of wholesale. Blank
+// when there's no wholesale price to measure against.
+function markup(p) {
+  const cost = p.cost == null ? null : Number(p.cost)
+  if (!cost) return null
+  const each = Number(p.price) - cost
+  return { each, pct: Math.round((each / cost) * 100) }
+}
+
 // What the checkout kiosk (mbm-checkout) sells and what it charges - the
 // same `products` table it reads from (public-products.mjs) and writes to
 // (admin-products.mjs) when the kiosk's own /catalog page is used. This is
@@ -20,13 +29,21 @@ function fileToBase64(file) {
 // Supabase calls here (not through admin-products.mjs) since this page
 // already has the owner's own session - RLS on `products` (migration
 // 0005) is what actually enforces the entity-ownership check.
+//
+// Vendor, and markup from the wholesale (`cost`) and selling price, added
+// 14 Sep 2026 so this doubles as the vendor price list a tester kept in a
+// spreadsheet (migration 0011). Edit came with it - vendor and wholesale
+// have to be fillable on products that already exist.
 export default function Inventory() {
   const { entityId } = useOutletContext()
   const [products, setProducts] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [vendorFilter, setVendorFilter] = useState('')
 
+  const [editingId, setEditingId] = useState(null)
   const [name, setName] = useState('')
+  const [vendor, setVendor] = useState('')
   const [price, setPrice] = useState('')
   const [cost, setCost] = useState('')
   const [category, setCategory] = useState('')
@@ -37,6 +54,7 @@ export default function Inventory() {
   const [scanning, setScanning] = useState(false)
   const [scanNote, setScanNote] = useState('')
   const fileInputRef = useRef(null)
+  const formRef = useRef(null)
 
   async function loadProducts() {
     const { data, error } = await supabase
@@ -54,14 +72,47 @@ export default function Inventory() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityId])
 
+  const vendors = useMemo(
+    () => [...new Set((products ?? []).map((p) => p.vendor).filter(Boolean))].sort((a, b) => a.localeCompare(b)),
+    [products]
+  )
+
+  const shown = useMemo(() => {
+    const list = (products ?? []).filter((p) => !vendorFilter || p.vendor === vendorFilter)
+    // Grouped by vendor, the way a price list reads; no vendor last.
+    return list.sort(
+      (a, b) =>
+        (a.vendor ? 0 : 1) - (b.vendor ? 0 : 1) ||
+        (a.vendor || '').localeCompare(b.vendor || '') ||
+        a.name.localeCompare(b.name)
+    )
+  }, [products, vendorFilter])
+
   function resetForm() {
+    setEditingId(null)
     setName('')
+    setVendor('')
     setPrice('')
     setCost('')
     setCategory('')
     setVariantGroup('')
     setVariantLabel('')
     setKeywords('')
+  }
+
+  function startEdit(p) {
+    setEditingId(p.id)
+    setName(p.name)
+    setVendor(p.vendor || '')
+    setPrice(String(p.price))
+    setCost(p.cost != null ? String(p.cost) : '')
+    setCategory(p.category || '')
+    setVariantGroup(p.variant_group || '')
+    setVariantLabel(p.variant_label || '')
+    setKeywords((p.keywords || []).join(', '))
+    setError('')
+    setScanNote('')
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   async function handleSubmit(e) {
@@ -72,16 +123,22 @@ export default function Inventory() {
     }
     setBusy(true)
     setError('')
-    const { error } = await supabase.from('products').insert({
-      entity_id: entityId,
+    const fields = {
       name: name.trim(),
+      vendor: vendor.trim() || null,
       price: Number(price),
       cost: cost === '' ? null : Number(cost),
       category: category.trim() || null,
       variant_group: variantGroup.trim() || null,
       variant_label: variantLabel.trim() || null,
       keywords: keywords.split(',').map((k) => k.trim()).filter(Boolean),
-    })
+    }
+    const { error } = editingId
+      ? await supabase
+          .from('products')
+          .update({ ...fields, updated_at: new Date().toISOString() })
+          .eq('id', editingId)
+      : await supabase.from('products').insert({ entity_id: entityId, ...fields })
     setBusy(false)
     if (error) {
       setError(error.message)
@@ -95,6 +152,7 @@ export default function Inventory() {
   async function handleArchive(id) {
     if (!confirm('Archive this product? It stops showing at checkout, but you can bring it back anytime.')) return
     await supabase.from('products').update({ is_archived: true }).eq('id', id)
+    if (editingId === id) resetForm()
     loadProducts()
   }
 
@@ -132,11 +190,11 @@ export default function Inventory() {
   }
 
   return (
-    <div className="page">
+    <div className="page page--wide">
       <h1>Inventory</h1>
       <p className="page-subtitle">
-        What the checkout kiosk sells and what it charges. Hold a product up to your phone&apos;s
-        camera to fill in the name and price automatically, or just type them in below.
+        What you sell, who you buy it from, and what you pay and charge for it. Hold a product up to
+        your phone&apos;s camera to fill in the name and price automatically, or type them in below.
       </p>
 
       <label className="btn-primary scan-product-btn">
@@ -155,40 +213,70 @@ export default function Inventory() {
 
       {products === null && <p>Loading…</p>}
 
+      {products && vendors.length > 0 && (
+        <div className="date-range">
+          <label>
+            Vendor
+            <select value={vendorFilter} onChange={(e) => setVendorFilter(e.target.value)}>
+              <option value="">All vendors</option>
+              {vendors.map((v) => (
+                <option key={v} value={v}>
+                  {v}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
+
       {products && (
         <div className="table-scroll">
         <table className="data-table">
           <thead>
             <tr>
               <th>Name</th>
+              <th>Vendor</th>
               <th>Category</th>
               <th>Group / size</th>
-              <th className="num">Price</th>
-              <th className="num">Cost</th>
+              <th className="num">Wholesale</th>
+              <th className="num">Selling price</th>
+              <th className="num">Markup</th>
               <th />
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td>{p.category || '—'}</td>
-                <td>{p.variant_group ? `${p.variant_group}${p.variant_label ? ' (' + p.variant_label + ')' : ''}` : '—'}</td>
-                <td className="num">{formatMoney(p.price)}</td>
-                <td className="num">{p.cost != null ? formatMoney(p.cost) : '—'}</td>
-                <td>
-                  <button
-                    className="header-btn header-btn--sm header-btn--danger"
-                    onClick={() => handleArchive(p.id)}
-                  >
-                    Archive
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {shown.map((p) => {
+              const m = markup(p)
+              return (
+                <tr key={p.id}>
+                  <td>{p.name}</td>
+                  <td>{p.vendor || '—'}</td>
+                  <td>{p.category || '—'}</td>
+                  <td>{p.variant_group ? `${p.variant_group}${p.variant_label ? ' (' + p.variant_label + ')' : ''}` : '—'}</td>
+                  <td className="num">{p.cost != null ? formatMoney(p.cost) : '—'}</td>
+                  <td className="num">{formatMoney(p.price)}</td>
+                  <td className={'num' + (m && m.each < 0 ? ' negative' : '')}>
+                    {m ? `${formatMoney(m.each)} (${m.pct}%)` : '—'}
+                  </td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="header-btn header-btn--sm" onClick={() => startEdit(p)}>
+                        Edit
+                      </button>
+                      <button
+                        className="header-btn header-btn--sm header-btn--danger"
+                        onClick={() => handleArchive(p.id)}
+                      >
+                        Archive
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
             {products.length === 0 && (
               <tr>
-                <td colSpan={6} className="empty-state">
+                <td colSpan={8} className="empty-state">
                   Nothing yet — scan or add your first product below.
                 </td>
               </tr>
@@ -198,31 +286,47 @@ export default function Inventory() {
         </div>
       )}
 
-      <form className="inline-form" onSubmit={handleSubmit}>
-        <h2>Add a product</h2>
+      <form className="inline-form" onSubmit={handleSubmit} ref={formRef}>
+        <h2>{editingId ? 'Edit product' : 'Add a product'}</h2>
         <p className="page-subtitle">
-          Anything you add here is something the checkout can recognize and ring up. Name and price
-          are all it needs — cost is optional, and it&apos;s what lets you see profit per item later.
+          Anything you add here is something the checkout can recognize and ring up. Name and selling
+          price are all it needs. Add the wholesale price to see your markup.
         </p>
         <div className="form-row">
           <label className="grow">
             Name
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Buckwheat Honey — 12oz" required />
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mini loaf" required />
           </label>
           <label>
-            Price
-            <input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" required />
+            Vendor (optional)
+            <input
+              value={vendor}
+              onChange={(e) => setVendor(e.target.value)}
+              placeholder="e.g. East County Dough"
+              list="inventory-vendors"
+            />
           </label>
-          <label>
-            Your cost (optional)
-            <input type="number" step="0.01" min="0" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="What you paid" />
-          </label>
+          <datalist id="inventory-vendors">
+            {vendors.map((v) => (
+              <option key={v} value={v} />
+            ))}
+          </datalist>
         </div>
         <div className="form-row">
           <label>
-            Category (optional)
-            <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Honey, Eggs, Produce" />
+            Wholesale price (optional)
+            <input type="number" step="0.01" min="0" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="What you pay" />
           </label>
+          <label>
+            Selling price
+            <input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" required />
+          </label>
+          <label>
+            Category (optional)
+            <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Baked goods, Honey, Eggs" />
+          </label>
+        </div>
+        <div className="form-row">
           <label>
             Product group (optional)
             <input value={variantGroup} onChange={(e) => setVariantGroup(e.target.value)} placeholder="e.g. Buckwheat Honey — same for every size" />
@@ -238,8 +342,13 @@ export default function Inventory() {
             <input value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="e.g. honey, raw honey — other words a customer might say" />
           </label>
           <button type="submit" disabled={busy}>
-            {busy ? 'Adding…' : 'Add product'}
+            {busy ? 'Saving…' : editingId ? 'Save changes' : 'Add product'}
           </button>
+          {editingId && (
+            <button type="button" className="header-btn" onClick={resetForm} disabled={busy}>
+              Cancel
+            </button>
+          )}
         </div>
         {error && <p className="form-error">{error}</p>}
       </form>

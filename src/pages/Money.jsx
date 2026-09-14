@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
-import { formatMoney } from '../lib/money'
+import { formatMoney, todayISO } from '../lib/money'
+import PLChart from '../components/PLChart.jsx'
 
 function startOfMonth() {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
-}
-function today() {
-  return new Date().toISOString().slice(0, 10)
 }
 
 const LIABILITY_TYPES = new Set(['credit_card', 'loan', 'other_liability'])
@@ -25,7 +23,7 @@ const LIABILITY_TYPES = new Set(['credit_card', 'loan', 'other_liability'])
 export default function Money() {
   const { entityId } = useOutletContext()
   const [from, setFrom] = useState(startOfMonth())
-  const [to, setTo] = useState(today())
+  const [to, setTo] = useState(todayISO())
   const [txnRows, setTxnRows] = useState(null)
   const [balanceRows, setBalanceRows] = useState(null)
   const [error, setError] = useState('')
@@ -35,7 +33,7 @@ export default function Money() {
     setTxnRows(null)
     supabase
       .from('transactions')
-      .select('amount, category:categories(id, name, category_type)')
+      .select('amount, txn_date, category:categories(id, name, category_type)')
       .eq('entity_id', entityId)
       .not('category_id', 'is', null)
       .gte('txn_date', from)
@@ -156,6 +154,8 @@ export default function Money() {
               </div>
             ))}
           </div>
+
+          <PLChart rows={txnRows} from={from} to={to} />
 
           <details className="statement-detail">
             <summary>Where it came from and went ({from} to {to})</summary>

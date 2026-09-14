@@ -2061,3 +2061,169 @@ button[type='submit']:disabled,
   color: var(--red);
   font-weight: 700;
 }
+
+/* Daily count (DailyCount.jsx) */
+.summary-grid--three {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 720px) {
+  .summary-grid--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+.count-date {
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.count-date .header-btn {
+  min-height: 2.45rem;
+}
+
+.count-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+  color: var(--green-dark);
+}
+.count-heading--history {
+  margin-top: 2.5rem;
+}
+.count-status {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+}
+.count-status--saved {
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+.page-subtitle.count-prefill {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.count-table td {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  white-space: nowrap;
+}
+.count-table select {
+  min-width: 13rem;
+  max-width: 20rem;
+}
+.count-table input[type='number'] {
+  width: 5.25rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.page-actions.count-add {
+  margin-top: 0.75rem;
+}
+
+.count-check {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 1.1rem 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+.count-check input {
+  margin-top: 0.2rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--green);
+}
+.count-check small {
+  display: block;
+  margin-top: 0.2rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.count-message {
+  margin-top: 1rem;
+}
+
+.data-table tbody tr.count-current {
+  background: var(--green-light);
+}
+
+/* A button that reads as a link - a day in the history table. */
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--green-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Money page chart (Money.jsx) */
+.pl-chart {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.4rem 1rem;
+  margin: 0 0 2rem;
+}
+.pl-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pl-chart h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--green-dark);
+}
+.pl-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.pl-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.pl-swatch {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 3px;
+}
+.pl-swatch--line {
+  height: 3px;
+  border-radius: 2px;
+}
+.pl-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 0.75rem;
+  overflow: visible;
+}
+.pl-chart text {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

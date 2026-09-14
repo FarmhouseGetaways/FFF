@@ -45,6 +45,8 @@ export default function EntityLayout() {
       { to: 'transactions', label: 'Transactions' },
       { to: 'money', label: 'Money', alsoActiveOn: ['profit-loss', 'balance-sheet'] },
       { to: 'inventory', label: 'Inventory' },
+      // What was ordered against what sold, closed out each day (14 Sep 2026).
+      { to: 'daily-count', label: 'Daily count' },
       // The checkout stand. It is a separate site, so this is a real link
       // out rather than a route - but it belongs in this list, because from
       // the owner's side the stand is part of the business, not a different
