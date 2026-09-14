@@ -49,9 +49,15 @@ function downloadCsv(filename, rows) {
  * cancellation (or Undo, once one is pending) and Archive. An archived
  * member instead gets Download and Reinstate - the only way back.
  */
-function MemberRow({ r, busyId, archivedView, onDownload, onReinstate, onSchedule, onUndo, onArchive }) {
+function MemberRow({ r, busyId, archivedView, onDownload, onReinstate, onSchedule, onUndo, onArchive, onComp }) {
   const sub = r.subscription
   const pending = !!sub?.cancel_at
+  /* Someone who signed up but never paid - a tester, a friend, a stand we're
+     onboarding. "Give free access" makes them a manual member so they get
+     past the payment page (Cory, 13 Sep 2026: "How do i add an account so
+     someone can test the software?"). Not offered on a Stripe row: that one
+     is tied to a real subscription, and overwriting it would orphan it. */
+  const canComp = sub?.status !== 'active' && sub?.provider !== 'stripe'
   return (
     <tr>
       <td data-label="Email">
@@ -81,6 +87,23 @@ function MemberRow({ r, busyId, archivedView, onDownload, onReinstate, onSchedul
                 onClick={() => onReinstate(r.id)}
               >
                 Reinstate
+              </button>
+            </>
+          ) : canComp ? (
+            <>
+              <button
+                className="header-btn header-btn--sm"
+                disabled={busyId === r.id}
+                onClick={() => onComp(r.id)}
+              >
+                Give free access
+              </button>
+              <button
+                className="header-btn header-btn--sm header-btn--danger"
+                disabled={busyId === r.id}
+                onClick={() => onArchive(r.id)}
+              >
+                Archive
               </button>
             </>
           ) : (
@@ -193,6 +216,20 @@ export default function Admin() {
           .eq('user_id', userId)
       }
     }
+    await load()
+    setBusyId(null)
+  }
+
+  async function giveFreeAccess(userId) {
+    setBusyId(userId)
+    setError('')
+    const { error: upErr } = await supabase
+      .from('subscriptions')
+      .upsert(
+        { user_id: userId, provider: 'manual', status: 'active', cancel_at: null, updated_at: new Date().toISOString() },
+        { onConflict: 'user_id' }
+      )
+    if (upErr) setError(upErr.message)
     await load()
     setBusyId(null)
   }
@@ -339,6 +376,7 @@ export default function Admin() {
                 onSchedule={schedule}
                 onUndo={(id) => callAction(id, 'undo')}
                 onArchive={archiveNow}
+                onComp={giveFreeAccess}
               />
             ))}
             {visibleRows.length === 0 && (
