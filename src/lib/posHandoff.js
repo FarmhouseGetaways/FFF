@@ -20,6 +20,32 @@ import { supabase } from './supabaseClient'
  */
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app'
 
+/* Which of the signed-in user's businesses have a kiosk (live or ordered).
+   Asked once per page load and shared by every screen that shows POS.
+   Resolves to a Set of entity ids, or null when it could not be told - the
+   caller then shows POS as before rather than hiding a real owner's way in. */
+let posEntitiesPromise = null
+export function getPosEntities() {
+  if (!posEntitiesPromise) {
+    posEntitiesPromise = (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/.netlify/functions/my-stands', {
+          headers: { Authorization: `Bearer ${session?.access_token || ''}` },
+        })
+        const body = await res.json().catch(() => null)
+        if (!res.ok || !body || body.known === false) return null
+        return new Set(body.entityIds || [])
+      } catch {
+        return null
+      }
+    })()
+    // A failed answer is not cached, so the next screen asks again.
+    posEntitiesPromise.then((v) => { if (v === null) posEntitiesPromise = null })
+  }
+  return posEntitiesPromise
+}
+
 export async function openPos(entityId) {
   try {
     const { data: { session } } = await supabase.auth.getSession()

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import Logo from '../components/Logo.jsx'
-import { openPos } from '../lib/posHandoff.js'
+import { openPos, getPosEntities } from '../lib/posHandoff.js'
 
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/logs'
 
@@ -10,6 +10,14 @@ export default function EntityLayout() {
   const { entityId } = useParams()
   const location = useLocation()
   const [entity, setEntity] = useState(null)
+  // Whether this business has a kiosk, live or ordered - see getPosEntities.
+  const [posEntities, setPosEntities] = useState(undefined)
+  useEffect(() => {
+    let live = true
+    getPosEntities().then((s) => { if (live) setPosEntities(s) })
+    return () => { live = false }
+  }, [])
+  const showPos = posEntities === null || (posEntities !== undefined && posEntities.has(entityId))
 
   useEffect(() => {
     let active = true
@@ -42,7 +50,8 @@ export default function EntityLayout() {
       // the owner's side the stand is part of the business, not a different
       // product. There was no way to reach it from here at all (Cory, 6 Sep
       // 2026). VITE_POS_URL lets a deployment point it somewhere else.
-      { pos: true, label: 'POS' },
+      // Only for a business with a kiosk, live or ordered (13 Sep 2026).
+      ...(showPos ? [{ pos: true, label: 'POS' }] : []),
     ],
     [
       { to: 'accounts', label: 'Accounts' },

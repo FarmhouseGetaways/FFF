@@ -8,7 +8,7 @@ import { formatMoney, todayISO } from '../lib/money'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
 import HomeSummary from '../components/HomeSummary.jsx'
 import Logo from '../components/Logo.jsx'
-import { openPos } from '../lib/posHandoff.js'
+import { openPos, getPosEntities } from '../lib/posHandoff.js'
 
 const POS_URL = import.meta.env.VITE_POS_URL || 'https://mbm-checkout.netlify.app/'
 
@@ -88,6 +88,14 @@ export default function EntityPicker() {
   // business; the main window shouldn't repeat that list, it should tell
   // you something the sidebar can't - which of them is actually earning.
   const [perEntity, setPerEntity] = useState(null)
+  // Businesses with a kiosk, live or ordered. undefined while asking, null if
+  // it could not be told (POS then shows as it always did).
+  const [posEntities, setPosEntities] = useState(undefined)
+  useEffect(() => {
+    let live = true
+    getPosEntities().then((s) => { if (live) setPosEntities(s) })
+    return () => { live = false }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -383,10 +391,14 @@ export default function EntityPicker() {
               the home screen it uses the first business - and falls back to
               the stand's front page if the hand-off cannot be made, because a
               screen you have to sign in past beats a dead button. */}
+          {/* Only for someone with a kiosk, live or ordered (Cory, 13 Sep
+              2026). Hidden while that is still being asked, so it never
+              flashes up and disappears for someone who has none. */}
+          {posEntities !== undefined && (posEntities === null || activeEntities?.some((e) => posEntities.has(e.id))) && (
           <button
             className="header-btn"
             onClick={async () => {
-              const target = activeEntities?.[0]
+              const target = activeEntities?.find((e) => !posEntities || posEntities.has(e.id)) || activeEntities?.[0]
               if (!target) { window.open(POS_URL, '_blank', 'noopener'); return }
               const r = await openPos(target.id)
               if (!r.ok) setNotice('Opened the stand, but you may need to sign in there.')
@@ -394,6 +406,7 @@ export default function EntityPicker() {
           >
             POS ↗
           </button>
+          )}
           <button className="header-btn" onClick={signOut}>
             Sign out
           </button>
