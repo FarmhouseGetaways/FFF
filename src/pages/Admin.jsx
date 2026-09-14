@@ -220,6 +220,37 @@ export default function Admin() {
     setBusyId(null)
   }
 
+  const [adding, setAdding] = useState(false)
+  const [newEmail, setNewEmail] = useState('')
+  const [newName, setNewName] = useState('')
+  const [addBusy, setAddBusy] = useState(false)
+  // The temporary password is shown here once and kept on screen until
+  // dismissed - it is not stored anywhere, so a toast that faded would lose it.
+  const [added, setAdded] = useState(null)
+
+  async function addMember(e) {
+    e.preventDefault()
+    setAddBusy(true)
+    setError('')
+    try {
+      const { data } = await supabase.auth.getSession()
+      const res = await fetch('/.netlify/functions/admin-add-member', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${data.session?.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail, fullName: newName }),
+      })
+      if (!res.ok) throw new Error(await res.text())
+      setAdded(await res.json())
+      setNewEmail('')
+      setNewName('')
+      setAdding(false)
+      await load()
+    } catch (err) {
+      setError(err.message)
+    }
+    setAddBusy(false)
+  }
+
   async function giveFreeAccess(userId) {
     setBusyId(userId)
     setError('')
@@ -331,6 +362,11 @@ export default function Admin() {
           in styles.css. A page-level action shouldn't look like one thing
           here and another thing there. */}
       <div className="page-actions">
+        {!showArchived && (
+          <button className="header-btn" onClick={() => { setAdding((v) => !v); setAdded(null) }}>
+            {adding ? 'Cancel' : '+ Add member'}
+          </button>
+        )}
         <button className="header-btn" onClick={() => setShowArchived((v) => !v)}>
           {showArchived ? '← Back to active members' : 'View archived members'}
         </button>
@@ -346,6 +382,66 @@ export default function Admin() {
           </button>
         )}
       </div>
+
+      {adding && !showArchived && (
+        <form className="inline-form" onSubmit={addMember} style={{ marginTop: '1rem', marginBottom: '1.25rem' }}>
+          <h2>Add a member</h2>
+          <p className="page-subtitle">
+            They get free access and can sign in right away. You’ll get a temporary password to send them.
+          </p>
+          <div className="form-row">
+            <label className="grow">
+              Email
+              <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} required />
+            </label>
+            <label className="grow">
+              Name (optional)
+              <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+            </label>
+            <button type="submit" disabled={addBusy}>
+              {addBusy ? 'Adding…' : 'Add member'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {added && (
+        <div className="inline-form" style={{ marginTop: '1rem', marginBottom: '1.25rem' }}>
+          <h2>{added.existing ? `${added.email} now has free access` : `Added ${added.email}`}</h2>
+          {added.password ? (
+            <>
+              <p className="page-subtitle">
+                Send them this. It’s shown only once. They sign in at farmgirl.ai with this email and password
+                {/@gmail\.com$/.test(added.email) ? ', or with Continue with Google' : ''}.
+              </p>
+              <div className="form-row">
+                <code style={{ fontSize: '1.2rem', padding: '0.4rem 0.7rem', background: 'var(--cream, #fdf9f0)', borderRadius: 8 }}>
+                  {added.password}
+                </code>
+                <button
+                  type="button"
+                  className="header-btn header-btn--sm"
+                  onClick={() => navigator.clipboard?.writeText(
+                    `Sign in at https://farmgirl.ai\nEmail: ${added.email}\nTemporary password: ${added.password}`
+                  )}
+                >
+                  Copy sign-in details
+                </button>
+                <button type="button" className="header-btn header-btn--sm" onClick={() => setAdded(null)}>
+                  Done
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="form-row">
+              <p className="page-subtitle" style={{ margin: 0 }}>They already had an account, so they sign in the way they did before.</p>
+              <button type="button" className="header-btn header-btn--sm" onClick={() => setAdded(null)}>
+                Done
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {notice && <p className="form-notice">{notice}</p>}
       {error && <p className="form-error">{error}</p>}
