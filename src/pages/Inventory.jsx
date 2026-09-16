@@ -285,19 +285,25 @@ export default function Inventory() {
                   <td>{p.category || '—'}</td>
                   <td>{p.variant_group ? `${p.variant_group}${p.variant_label ? ' (' + p.variant_label + ')' : ''}` : '—'}</td>
                   <td className="num">{p.ordered_qty != null ? p.ordered_qty : '—'}</td>
+                  {/* Nothing on order means there's no bill to be unpaid -
+                      a row of "Not paid" on everything reads as a problem. */}
                   <td>
-                    <button
-                      type="button"
-                      className={'paid-pill' + (p.paid ? ' is-paid' : '')}
-                      onClick={() => togglePaid(p)}
-                      aria-pressed={p.paid}
-                    >
-                      {p.paid
-                        ? 'Paid'
-                        : p.ordered_qty != null && p.cost != null
-                          ? `Owe ${formatMoney(Number(p.ordered_qty) * Number(p.cost))}`
-                          : 'Not paid'}
-                    </button>
+                    {Number(p.ordered_qty) > 0 || p.paid ? (
+                      <button
+                        type="button"
+                        className={'paid-pill' + (p.paid ? ' is-paid' : '')}
+                        onClick={() => togglePaid(p)}
+                        aria-pressed={p.paid}
+                      >
+                        {p.paid
+                          ? 'Paid'
+                          : p.cost != null
+                            ? `Owe ${formatMoney(Number(p.ordered_qty) * Number(p.cost))}`
+                            : 'Not paid'}
+                      </button>
+                    ) : (
+                      '—'
+                    )}
                   </td>
                   <td className="num">{p.cost != null ? formatMoney(p.cost) : '—'}</td>
                   <td className="num">{formatMoney(p.price)}</td>
