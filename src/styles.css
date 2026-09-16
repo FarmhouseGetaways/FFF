@@ -2284,3 +2284,37 @@ button[type='submit']:disabled,
 .trend-block .summary-grid {
   margin-bottom: 1rem;
 }
+
+/* Inventory: what's on order and whether the vendor has been paid
+   (16 Sep 2026). The pill is the control itself - tap it to mark a bill
+   off - so it has to read as a button, not a status chip. */
+.paid-pill {
+  border: 1px solid var(--border);
+  background: var(--red-light);
+  color: var(--red);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.paid-pill.is-paid {
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+.check-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-end;
+  padding-bottom: 0.55rem;
+}
+.check-label input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--green);
+}

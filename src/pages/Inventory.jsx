@@ -50,6 +50,8 @@ export default function Inventory() {
   const [variantGroup, setVariantGroup] = useState('')
   const [variantLabel, setVariantLabel] = useState('')
   const [keywords, setKeywords] = useState('')
+  const [orderedQty, setOrderedQty] = useState('')
+  const [paid, setPaid] = useState(false)
 
   const [scanning, setScanning] = useState(false)
   const [scanNote, setScanNote] = useState('')
@@ -88,6 +90,12 @@ export default function Inventory() {
     )
   }, [products, vendorFilter])
 
+  // What the orders still marked unpaid come to, at wholesale.
+  const owed = useMemo(() => {
+    const rows = shown.filter((p) => !p.paid && Number(p.ordered_qty) > 0 && p.cost != null)
+    return { count: rows.length, total: rows.reduce((s, p) => s + Number(p.ordered_qty) * Number(p.cost), 0) }
+  }, [shown])
+
   function resetForm() {
     setEditingId(null)
     setName('')
@@ -98,6 +106,8 @@ export default function Inventory() {
     setVariantGroup('')
     setVariantLabel('')
     setKeywords('')
+    setOrderedQty('')
+    setPaid(false)
   }
 
   function startEdit(p) {
@@ -110,6 +120,8 @@ export default function Inventory() {
     setVariantGroup(p.variant_group || '')
     setVariantLabel(p.variant_label || '')
     setKeywords((p.keywords || []).join(', '))
+    setOrderedQty(p.ordered_qty != null ? String(p.ordered_qty) : '')
+    setPaid(!!p.paid)
     setError('')
     setScanNote('')
     formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -132,6 +144,8 @@ export default function Inventory() {
       variant_group: variantGroup.trim() || null,
       variant_label: variantLabel.trim() || null,
       keywords: keywords.split(',').map((k) => k.trim()).filter(Boolean),
+      ordered_qty: orderedQty === '' ? null : Number(orderedQty),
+      paid,
     }
     const { error } = editingId
       ? await supabase
@@ -147,6 +161,21 @@ export default function Inventory() {
     resetForm()
     setScanNote('')
     loadProducts()
+  }
+
+  // Paid flips straight from the row - marking off a vendor bill shouldn't
+  // mean opening the edit form. Updated in place so the list doesn't jump.
+  async function togglePaid(p) {
+    const next = !p.paid
+    setProducts((list) => list.map((row) => (row.id === p.id ? { ...row, paid: next } : row)))
+    const { error } = await supabase
+      .from('products')
+      .update({ paid: next, updated_at: new Date().toISOString() })
+      .eq('id', p.id)
+    if (error) {
+      setError(error.message)
+      setProducts((list) => list.map((row) => (row.id === p.id ? { ...row, paid: p.paid } : row)))
+    }
   }
 
   async function handleArchive(id) {
@@ -238,6 +267,8 @@ export default function Inventory() {
               <th>Vendor</th>
               <th>Category</th>
               <th>Group / size</th>
+              <th className="num">Ordered</th>
+              <th>Paid</th>
               <th className="num">Wholesale</th>
               <th className="num">Selling price</th>
               <th className="num">Markup</th>
@@ -253,6 +284,21 @@ export default function Inventory() {
                   <td>{p.vendor || '—'}</td>
                   <td>{p.category || '—'}</td>
                   <td>{p.variant_group ? `${p.variant_group}${p.variant_label ? ' (' + p.variant_label + ')' : ''}` : '—'}</td>
+                  <td className="num">{p.ordered_qty != null ? p.ordered_qty : '—'}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={'paid-pill' + (p.paid ? ' is-paid' : '')}
+                      onClick={() => togglePaid(p)}
+                      aria-pressed={p.paid}
+                    >
+                      {p.paid
+                        ? 'Paid'
+                        : p.ordered_qty != null && p.cost != null
+                          ? `Owe ${formatMoney(Number(p.ordered_qty) * Number(p.cost))}`
+                          : 'Not paid'}
+                    </button>
+                  </td>
                   <td className="num">{p.cost != null ? formatMoney(p.cost) : '—'}</td>
                   <td className="num">{formatMoney(p.price)}</td>
                   <td className={'num' + (m && m.each < 0 ? ' negative' : '')}>
@@ -276,7 +322,7 @@ export default function Inventory() {
             })}
             {products.length === 0 && (
               <tr>
-                <td colSpan={8} className="empty-state">
+                <td colSpan={10} className="empty-state">
                   Nothing yet — scan or add your first product below.
                 </td>
               </tr>
@@ -284,6 +330,13 @@ export default function Inventory() {
           </tbody>
         </table>
         </div>
+      )}
+
+      {products && owed.count > 0 && (
+        <p className="form-notice">
+          Still to pay: {formatMoney(owed.total)} across {owed.count} item{owed.count === 1 ? '' : 's'} on order.
+          Tap a Paid button to mark one off.
+        </p>
       )}
 
       <form className="inline-form" onSubmit={handleSubmit} ref={formRef}>
@@ -324,6 +377,23 @@ export default function Inventory() {
           <label>
             Category (optional)
             <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="e.g. Baked goods, Honey, Eggs" />
+          </label>
+        </div>
+        <div className="form-row">
+          <label>
+            Ordered (optional)
+            <input
+              type="number"
+              step="1"
+              min="0"
+              value={orderedQty}
+              onChange={(e) => setOrderedQty(e.target.value)}
+              placeholder="How many you have on order"
+            />
+          </label>
+          <label className="check-label">
+            <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} />
+            Paid for this order
           </label>
         </div>
         <div className="form-row">
