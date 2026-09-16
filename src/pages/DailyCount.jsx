@@ -298,6 +298,10 @@ export default function DailyCount() {
       setError('Choose at least one item.')
       return
     }
+    // Saving reloads the day from the database, which would throw away a
+    // row that has numbers in it but no item chosen yet - easy to hit now
+    // that Save sits in every row. Those rows are put back afterwards.
+    const pending = (lines ?? []).filter((l) => !l.product_name && (l.ordered !== '' || l.sold !== ''))
     setBusy(true)
     const { error } = await supabase.rpc('save_daily_count', {
       p_entity: entityId,
@@ -327,6 +331,7 @@ export default function DailyCount() {
     if (accountId && recordCost && totals.cost > 0) posted.push(`${formatMoney(totals.cost)} paid for the order`)
     const accountName = accounts.find((a) => a.id === accountId)?.name
     await loadDay(date)
+    if (pending.length) setLines((ls) => [...(ls ?? []), ...pending])
     loadHistory()
     loadYtd()
     setNotice(
