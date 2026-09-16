@@ -295,7 +295,14 @@ export default function DailyCount() {
     setError('')
     setNotice('')
     if (!filled.length) {
-      setError('Choose at least one item.')
+      // Numbers typed into a row whose item was never chosen is the quiet
+      // way a whole day comes to nothing - say which half is missing.
+      const hasNumbers = (lines ?? []).some((l) => l.ordered !== '' || l.sold !== '')
+      setError(
+        hasNumbers
+          ? 'Pick an item on the row you filled in — or choose "Type in an item…" and give it a name — then save.'
+          : 'Add an item before saving.'
+      )
       return
     }
     // Saving reloads the day from the database, which would throw away a
