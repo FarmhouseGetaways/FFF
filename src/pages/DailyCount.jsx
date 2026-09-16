@@ -582,7 +582,7 @@ export default function DailyCount() {
                             type="button"
                             className="header-btn header-btn--sm header-btn--primary"
                             onClick={handleSave}
-                            disabled={busy}
+                            disabled={busy || !dirty}
                           >
                             {busy ? 'Saving…' : 'Save'}
                           </button>
@@ -676,8 +676,10 @@ export default function DailyCount() {
               </>
             )}
             <div className="form-row">
-              <button type="submit" onClick={handleSave} disabled={busy}>
-                {busy ? 'Saving…' : saved ? 'Save changes' : 'Close out the day'}
+              {/* Nothing to save until something changes - a live Save on an
+                  untouched day invites a click that does nothing. */}
+              <button type="submit" onClick={handleSave} disabled={busy || !dirty}>
+                {busy ? 'Saving…' : saved ? (dirty ? 'Save changes' : 'Saved') : 'Close out the day'}
               </button>
               {saved && (
                 <button type="button" className="header-btn header-btn--danger" onClick={handleDelete} disabled={busy}>
