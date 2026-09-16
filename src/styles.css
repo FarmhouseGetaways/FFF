@@ -2232,3 +2232,55 @@ button[type='submit']:disabled,
 .data-table .row-actions {
   flex-wrap: nowrap;
 }
+
+/* Trends (16 Sep 2026). Each block is a card the width of the page, so the
+   three tables read as separate questions rather than one long sheet. */
+.trend-block {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.25rem 1.4rem 1.4rem;
+  margin: 0 0 2rem;
+}
+.trend-block h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--green-dark);
+}
+.trend-block .page-subtitle {
+  margin: 0.35rem 0 1rem;
+}
+.trend-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.trend-tabs {
+  display: flex;
+  gap: 0.35rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+.trend-tab {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.trend-tab.is-on {
+  background: var(--green);
+  color: white;
+}
+.trend-block .summary-grid {
+  margin-bottom: 1rem;
+}

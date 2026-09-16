@@ -47,6 +47,9 @@ export default function EntityLayout() {
       { to: 'inventory', label: 'Inventory' },
       // What was ordered against what sold, closed out each day (14 Sep 2026).
       { to: 'daily-count', label: 'Daily count' },
+      // What those counts add up to over time - sell-through, and margin
+      // per vendor (16 Sep 2026).
+      { to: 'trends', label: 'Trends' },
       // The checkout stand. It is a separate site, so this is a real link
       // out rather than a route - but it belongs in this list, because from
       // the owner's side the stand is part of the business, not a different
