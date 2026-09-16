@@ -126,6 +126,10 @@ export default function DailyCount() {
     return [...groups.entries()].sort(([a], [b]) => (a ? 0 : 1) - (b ? 0 : 1) || a.localeCompare(b))
   }, [products])
 
+  // With an empty catalog there is nothing to pick from, so a fresh line
+  // starts as a typed-in one rather than a dropdown that can't be used.
+  const newLine = () => ({ ...blankLine(), typed: (products ?? []).length === 0 })
+
   async function loadHistory() {
     const { data, error } = await supabase
       .from('daily_closeouts')
@@ -165,7 +169,7 @@ export default function DailyCount() {
     if (req !== dayRequest.current) return
     if (error) {
       setError(error.message)
-      setLines([blankLine()])
+      setLines([newLine()])
       return
     }
 
@@ -182,8 +186,14 @@ export default function DailyCount() {
       const sorted = [...data.lines].sort((a, b) => a.sort_order - b.sort_order)
       setLines(
         sorted.length
-          ? sorted.map((l) => ({ ...l, key: nextKey++, ordered: String(Number(l.ordered)), sold: String(Number(l.sold)) }))
-          : [blankLine()]
+          ? sorted.map((l) => ({
+              ...l,
+              key: nextKey++,
+              typed: !l.product_id,
+              ordered: String(Number(l.ordered)),
+              sold: String(Number(l.sold)),
+            }))
+          : [newLine()]
       )
       return
     }
@@ -224,7 +234,7 @@ export default function DailyCount() {
         })
       )
     } else {
-      setLines([blankLine()])
+      setLines([newLine()])
     }
   }
 
@@ -255,22 +265,26 @@ export default function DailyCount() {
   }
 
   function chooseProduct(key, productId) {
+    if (productId === '__typed')
+      return updateLine(key, { typed: true, product_id: null, product_name: '', vendor: null, price: 0, cost: null })
     const p = productById.get(productId)
-    if (!p) return updateLine(key, { product_id: null, product_name: '', vendor: null, price: 0, cost: null })
-    updateLine(key, { product_id: p.id, product_name: p.name, vendor: p.vendor, price: p.price, cost: p.cost })
+    if (!p) return updateLine(key, { typed: false, product_id: null, product_name: '', vendor: null, price: 0, cost: null })
+    updateLine(key, { typed: false, product_id: p.id, product_name: p.name, vendor: p.vendor, price: p.price, cost: p.cost })
   }
 
   function removeLine(key) {
     setLines((ls) => {
       const rest = ls.filter((l) => l.key !== key)
-      return rest.length ? rest : [blankLine()]
+      return rest.length ? rest : [newLine()]
     })
     setDirty(true)
     setNotice('')
   }
 
   function addLine() {
-    setLines((ls) => [...ls, blankLine()])
+    // With nothing in the catalog there is nothing to pick from, so a new
+    // line starts ready to be typed into.
+    setLines((ls) => [...ls, newLine()])
   }
 
   const filled = (lines ?? []).filter((l) => l.product_name)
@@ -432,6 +446,25 @@ export default function DailyCount() {
                   return (
                     <tr key={l.key}>
                       <td>
+                        {l.typed ? (
+                          <div className="count-typed">
+                            <input
+                              value={l.product_name}
+                              onChange={(e) => updateLine(l.key, { product_name: e.target.value })}
+                              placeholder="What is it?"
+                              aria-label="Item"
+                            />
+                            {products.length > 0 && (
+                              <button
+                                type="button"
+                                className="link-btn"
+                                onClick={() => updateLine(l.key, { typed: false, product_name: '', price: 0, cost: null })}
+                              >
+                                Pick from my list
+                              </button>
+                            )}
+                          </div>
+                        ) : (
                         <select
                           value={l.product_id || ''}
                           onChange={(e) => chooseProduct(l.key, e.target.value)}
@@ -458,10 +491,50 @@ export default function DailyCount() {
                               </optgroup>
                             )
                           )}
+                          {/* A count shouldn't need the catalog filled in
+                              first - anything at the stand can be typed. */}
+                          <option value="__typed">Type in an item…</option>
                         </select>
+                        )}
                       </td>
-                      <td className="num">{l.product_name ? (l.cost != null ? formatMoney(l.cost) : '—') : ''}</td>
-                      <td className="num">{l.product_name ? formatMoney(l.price) : ''}</td>
+                      <td className="num">
+                        {l.typed ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            inputMode="decimal"
+                            value={l.cost ?? ''}
+                            onChange={(e) => updateLine(l.key, { cost: e.target.value === '' ? null : Number(e.target.value) })}
+                            aria-label="Wholesale price"
+                          />
+                        ) : l.product_name ? (
+                          l.cost != null ? (
+                            formatMoney(l.cost)
+                          ) : (
+                            '—'
+                          )
+                        ) : (
+                          ''
+                        )}
+                      </td>
+                      <td className="num">
+                        {l.typed ? (
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            inputMode="decimal"
+                            value={l.price || ''}
+                            onChange={(e) => updateLine(l.key, { price: e.target.value === '' ? 0 : Number(e.target.value) })}
+                            aria-label="Selling price"
+                          />
+                        ) : l.product_name ? (
+                          formatMoney(l.price)
+                        ) : (
+                          ''
+                        )}
+                      </td>
                       <td className="num">
                         <input
                           type="number"
@@ -487,15 +560,29 @@ export default function DailyCount() {
                       <td className={'num' + (left < 0 ? ' negative' : '')}>{l.product_name ? left : ''}</td>
                       <td className="num">{l.product_name ? formatMoney(t.sales) : ''}</td>
                       <td className={'num' + (t.profit < 0 ? ' negative' : '')}>{l.product_name ? formatMoney(t.profit) : ''}</td>
+                      {/* Save sits next to the numbers being typed, before
+                          Remove (Cory, 16 Sep 2026). It saves the whole day,
+                          same as the button at the bottom - there is one
+                          count per day, not one per line. */}
                       <td>
-                        <button
-                          type="button"
-                          className="header-btn header-btn--sm header-btn--danger"
-                          onClick={() => removeLine(l.key)}
-                          aria-label="Remove item"
-                        >
-                          Remove
-                        </button>
+                        <div className="row-actions">
+                          <button
+                            type="button"
+                            className="header-btn header-btn--sm header-btn--primary"
+                            onClick={handleSave}
+                            disabled={busy}
+                          >
+                            {busy ? 'Saving…' : 'Save'}
+                          </button>
+                          <button
+                            type="button"
+                            className="header-btn header-btn--sm header-btn--danger"
+                            onClick={() => removeLine(l.key)}
+                            aria-label="Remove item"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -517,6 +604,11 @@ export default function DailyCount() {
               + Add item
             </button>
           </div>
+
+          {/* Saving can now happen from a row, so what came of it has to be
+              visible here and not only down by the close-out form. */}
+          {notice && <p className="form-notice">{notice}</p>}
+          {error && <p className="form-error">{error}</p>}
 
           {noWholesale.length > 0 && (
             <p className="form-info">
@@ -581,8 +673,8 @@ export default function DailyCount() {
                 </button>
               )}
             </div>
-            {notice && <p className="form-notice count-message">{notice}</p>}
-            {error && <p className="form-error count-message">{error}</p>}
+            {/* The same messages show under the table, next to the row's own
+                Save - one copy each, whichever button was used. */}
           </div>
 
           <h2 className="count-heading count-heading--history">Year to date</h2>

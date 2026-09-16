@@ -2344,3 +2344,27 @@ button[type='submit']:disabled,
 .cost-split-part--operating {
   background: var(--gold-dark);
 }
+
+/* A row's own Save reads as the affirmative action next to Remove. */
+.header-btn--primary {
+  color: white;
+  background: var(--green);
+  border-color: var(--green);
+}
+@media (hover: hover) {
+  .header-btn--primary:hover {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: white;
+  }
+}
+
+/* An item typed in rather than picked from the catalog. */
+.count-typed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.count-typed input {
+  min-width: 9rem;
+}
