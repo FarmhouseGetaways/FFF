@@ -23,7 +23,7 @@ export default function EntityLayout() {
     let active = true
     supabase
       .from('entities')
-      .select('id, name, entity_type')
+      .select('id, name, entity_type, logo_url')
       .eq('id', entityId)
       .single()
       .then(({ data }) => {
@@ -79,6 +79,10 @@ export default function EntityLayout() {
           <Logo size={20} />
           Home
         </Link>
+        {/* The logo rides with the name in the sidebar, which is on every
+            screen - Cory, 16 Sep 2026: "so there is no question where
+            someone is at". */}
+        {entity?.logo_url && <img className="sidebar-logo" src={entity.logo_url} alt="" />}
         <h2 className="sidebar-title">{entity?.name ?? '…'}</h2>
         <nav>
           {navGroups.map((group, i) => (

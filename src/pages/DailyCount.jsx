@@ -572,29 +572,19 @@ export default function DailyCount() {
                       <td className={'num' + (left < 0 ? ' negative' : '')}>{l.product_name ? left : ''}</td>
                       <td className="num">{l.product_name ? formatMoney(t.sales) : ''}</td>
                       <td className={'num' + (t.profit < 0 ? ' negative' : '')}>{l.product_name ? formatMoney(t.profit) : ''}</td>
-                      {/* Save sits next to the numbers being typed, before
-                          Remove (Cory, 16 Sep 2026). It saves the whole day,
-                          same as the button at the bottom - there is one
-                          count per day, not one per line. */}
+                      {/* No Save on the row: a day is saved as one count, so
+                          a button per line would promise something the
+                          database doesn't do (Cory, 16 Sep 2026). The one
+                          Save below follows you down the page instead. */}
                       <td>
-                        <div className="row-actions">
-                          <button
-                            type="button"
-                            className="header-btn header-btn--sm header-btn--primary"
-                            onClick={handleSave}
-                            disabled={busy || !dirty}
-                          >
-                            {busy ? 'Saving…' : 'Save'}
-                          </button>
-                          <button
-                            type="button"
-                            className="header-btn header-btn--sm header-btn--danger"
-                            onClick={() => removeLine(l.key)}
-                            aria-label="Remove item"
-                          >
-                            Remove
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          className="header-btn header-btn--sm header-btn--danger"
+                          onClick={() => removeLine(l.key)}
+                          aria-label="Remove item"
+                        >
+                          Remove
+                        </button>
                       </td>
                     </tr>
                   )
@@ -611,9 +601,18 @@ export default function DailyCount() {
             </table>
           </div>
 
-          <div className="page-actions count-add">
+          {/* One Save for the whole day, pinned to the bottom of the screen
+              while you scroll the table, so it is always in reach and its
+              state always says whether what's on screen is on file. */}
+          <div className="count-save-bar">
             <button type="button" className="header-btn" onClick={addLine}>
               + Add item
+            </button>
+            <span className="count-save-state">
+              {dirty ? 'Unsaved changes' : saved ? 'Saved' : 'Nothing saved for this day yet'}
+            </span>
+            <button type="button" onClick={handleSave} disabled={busy || !dirty}>
+              {busy ? 'Saving…' : saved ? 'Save changes' : 'Close out the day'}
             </button>
           </div>
 
@@ -630,7 +629,7 @@ export default function DailyCount() {
           )}
 
           <div className="inline-form">
-            <h2>Close out {prettyDate(date)}</h2>
+            <h2>Where this day&apos;s money goes</h2>
             {accounts.length === 0 ? (
               // The count is worth keeping whether or not there's anywhere
               // to post it - it used to refuse to save at all (Cory, 16 Sep
@@ -675,20 +674,15 @@ export default function DailyCount() {
                 </label>
               </>
             )}
-            <div className="form-row">
-              {/* Nothing to save until something changes - a live Save on an
-                  untouched day invites a click that does nothing. */}
-              <button type="submit" onClick={handleSave} disabled={busy || !dirty}>
-                {busy ? 'Saving…' : saved ? (dirty ? 'Save changes' : 'Saved') : 'Close out the day'}
-              </button>
-              {saved && (
+            {/* Saving lives with the numbers, above. What's left here is the
+                choice of where the money lands, and removing the day. */}
+            {saved && (
+              <div className="form-row">
                 <button type="button" className="header-btn header-btn--danger" onClick={handleDelete} disabled={busy}>
                   Delete this day
                 </button>
-              )}
-            </div>
-            {/* The same messages show under the table, next to the row's own
-                Save - one copy each, whichever button was used. */}
+              </div>
+            )}
           </div>
 
           <h2 className="count-heading count-heading--history">Year to date</h2>

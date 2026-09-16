@@ -160,7 +160,7 @@ export default function EntityPicker() {
       const { data, error } = await Promise.race([
         supabase
           .from('entities')
-          .select('id, name, entity_type, is_archived, sort_order')
+          .select('id, name, entity_type, is_archived, sort_order, logo_url')
           .order('created_at', { ascending: true }),
         timeout,
       ])
@@ -315,6 +315,7 @@ export default function EntityPicker() {
             )}
             {activeEntities?.map((e) => (
               <Link key={e.id} to={`/entities/${e.id}`} className="sidebar-link sidebar-link--entity">
+                {e.logo_url && <img className="entity-logo entity-logo--sm" src={e.logo_url} alt="" />}
                 {e.name}
               </Link>
             ))}
@@ -548,6 +549,9 @@ export default function EntityPicker() {
                         <span className="business-name">{entity.name}</span>
                       ) : (
                         <Link to={`/entities/${entity.id}`} className="business-name-link" draggable={false}>
+                          {entity.logo_url && (
+                            <img className="entity-logo entity-logo--sm" src={entity.logo_url} alt="" />
+                          )}
                           {entity.name}
                         </Link>
                       )}

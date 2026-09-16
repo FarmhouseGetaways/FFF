@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useOutletContext } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import EntityTypePicker from '../components/EntityTypePicker.jsx'
@@ -112,10 +112,34 @@ function OrderPosForm({ entityId }) {
   )
 }
 
+// A logo is shown at 40-96px across the app, so a 4MB photo off a phone is
+// megabytes nobody sees. Redrawn through a canvas before it goes up; if the
+// browser can't decode it (an SVG, mostly), the original file is uploaded.
+const MAX_SIDE = 512
+async function shrink(file) {
+  try {
+    const bitmap = await createImageBitmap(file)
+    const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height))
+    if (scale === 1 && file.size < 200_000) return file
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(bitmap.width * scale)
+    canvas.height = Math.round(bitmap.height * scale)
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+    return blob ?? file
+  } catch {
+    return file
+  }
+}
+
 export default function EntitySettings() {
   const { entityId, onEntityUpdated } = useOutletContext()
   const [name, setName] = useState('')
   const [entityType, setEntityType] = useState('property')
+  const [logoUrl, setLogoUrl] = useState(null)
+  const [logoBusy, setLogoBusy] = useState(false)
+  const [logoError, setLogoError] = useState('')
+  const logoInput = useRef(null)
   const [loaded, setLoaded] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -125,13 +149,14 @@ export default function EntitySettings() {
     let active = true
     supabase
       .from('entities')
-      .select('name, entity_type')
+      .select('name, entity_type, logo_url')
       .eq('id', entityId)
       .single()
       .then(({ data }) => {
         if (!active || !data) return
         setName(data.name)
         setEntityType(data.entity_type)
+        setLogoUrl(data.logo_url)
         setLoaded(true)
       })
     return () => {
@@ -154,8 +179,69 @@ export default function EntitySettings() {
       setError(error.message)
       return
     }
-    onEntityUpdated?.({ id: entityId, name: name.trim(), entity_type: entityType })
+    onEntityUpdated?.({ id: entityId, name: name.trim(), entity_type: entityType, logo_url: logoUrl })
     setSaved(true)
+  }
+
+  async function handleLogo(e) {
+    const file = e.target.files?.[0]
+    if (logoInput.current) logoInput.current.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setLogoError('That needs to be an image file.')
+      return
+    }
+    if (file.size > 10_000_000) {
+      setLogoError('That image is too big — 10MB is the limit.')
+      return
+    }
+    setLogoBusy(true)
+    setLogoError('')
+    const blob = await shrink(file)
+    const ext = blob.type === 'image/png' ? 'png' : (file.name.split('.').pop() || 'png').toLowerCase()
+    // A new filename each time: the old URL is cached hard by the CDN, and
+    // a logo that takes a day to change is a logo that looks broken.
+    const path = `${entityId}/logo-${Date.now()}.${ext}`
+    const up = await supabase.storage.from('entity-logos').upload(path, blob, {
+      contentType: blob.type || file.type,
+      upsert: true,
+    })
+    if (up.error) {
+      setLogoBusy(false)
+      setLogoError(up.error.message)
+      return
+    }
+    const { data: pub } = supabase.storage.from('entity-logos').getPublicUrl(path)
+    const { error } = await supabase.from('entities').update({ logo_url: pub.publicUrl }).eq('id', entityId)
+    if (error) {
+      setLogoBusy(false)
+      setLogoError(error.message)
+      return
+    }
+    setLogoUrl(pub.publicUrl)
+    onEntityUpdated?.({ id: entityId, name: name.trim(), entity_type: entityType, logo_url: pub.publicUrl })
+    // Whatever was there before is now unreachable - don't leave it paid for.
+    const { data: existing } = await supabase.storage.from('entity-logos').list(entityId)
+    const stale = (existing ?? []).map((f) => `${entityId}/${f.name}`).filter((p) => p !== path)
+    if (stale.length) await supabase.storage.from('entity-logos').remove(stale)
+    setLogoBusy(false)
+  }
+
+  async function handleRemoveLogo() {
+    setLogoBusy(true)
+    setLogoError('')
+    const { error } = await supabase.from('entities').update({ logo_url: null }).eq('id', entityId)
+    if (error) {
+      setLogoBusy(false)
+      setLogoError(error.message)
+      return
+    }
+    const { data: existing } = await supabase.storage.from('entity-logos').list(entityId)
+    const all = (existing ?? []).map((f) => `${entityId}/${f.name}`)
+    if (all.length) await supabase.storage.from('entity-logos').remove(all)
+    setLogoUrl(null)
+    onEntityUpdated?.({ id: entityId, name: name.trim(), entity_type: entityType, logo_url: null })
+    setLogoBusy(false)
   }
 
   if (!loaded) return <div className="page-loading">Loading…</div>
@@ -182,6 +268,43 @@ export default function EntitySettings() {
         {error && <p className="form-error">{error}</p>}
         {saved && <p className="form-info">Saved.</p>}
       </form>
+
+      <section className="settings-section">
+        <h2>Logo</h2>
+        <p className="page-subtitle">
+          Shown beside this business&apos;s name everywhere in the app, so there&apos;s never a question
+          which one you&apos;re looking at.
+        </p>
+        <div className="logo-setting">
+          <div className="logo-preview">
+            {logoUrl ? <img src={logoUrl} alt={`${name} logo`} /> : <span>No logo yet</span>}
+          </div>
+          <div className="logo-actions">
+            <label className="header-btn">
+              {logoBusy ? 'Working…' : logoUrl ? 'Replace logo' : 'Upload a logo'}
+              <input
+                ref={logoInput}
+                type="file"
+                accept="image/*"
+                onChange={handleLogo}
+                disabled={logoBusy}
+                className="visually-hidden-input"
+              />
+            </label>
+            {logoUrl && (
+              <button
+                type="button"
+                className="header-btn header-btn--danger"
+                onClick={handleRemoveLogo}
+                disabled={logoBusy}
+              >
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+        {logoError && <p className="form-error">{logoError}</p>}
+      </section>
 
       <section className="settings-section">
         <h2>Notifications</h2>

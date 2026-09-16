@@ -2368,3 +2368,90 @@ button[type='submit']:disabled,
 .count-typed input {
   min-width: 9rem;
 }
+
+/* One Save for the whole day, pinned to the bottom of the screen while the
+   table is being filled in. A count is saved as one thing, so there is one
+   button, and it follows you rather than sitting where you can't see it. */
+.count-save-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.count-save-state {
+  margin-left: auto;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* A business's own logo (16 Sep 2026). Shown in the sidebar on every screen
+   of that business, and beside its name in the list of businesses, so the
+   page always says whose books these are. */
+.sidebar-logo {
+  display: block;
+  width: 100%;
+  max-width: 132px;
+  max-height: 72px;
+  object-fit: contain;
+  object-position: left center;
+  margin: 0 0 0.6rem;
+}
+.entity-logo {
+  object-fit: contain;
+  border-radius: 6px;
+  background: white;
+  flex: none;
+}
+.entity-logo--sm {
+  width: 22px;
+  height: 22px;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+.business-name-link .entity-logo--sm,
+.sidebar-link--entity .entity-logo--sm {
+  display: inline-block;
+}
+
+.logo-setting {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+.logo-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 148px;
+  height: 92px;
+  padding: 0.5rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.logo-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.logo-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
