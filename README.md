@@ -23,6 +23,19 @@ See [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql). Su
   and either a `category` (normal income/expense) or a `transfer_group_id` (moving
   money between two of your own accounts, which nets to zero and doesn't touch P&L).
 
+- `products` — what the kiosk sells: vendor, wholesale `cost`, selling `price`, and
+  (0012) `ordered_qty` / `paid` for what is on order from a vendor and whether that
+  bill has been settled.
+- `daily_closeouts` / `daily_count_lines` — one day's count: what was put out against
+  what sold, with each line keeping its own price and wholesale snapshot. Saved
+  through `save_daily_count`. If the entity has no `financial_account`, the count
+  still saves and simply posts nothing to the ledger (0013).
+
+Pages reading those: **The Numbers** (`/daily-count`) enters a day and totals the
+year; **Trends** (`/trends`) is margin per vendor, sell-through and leftovers over a
+range; **Cost Snapshot** (`/cost-snapshot`) sets vendor cost from the counts against
+operating cost from the ledger.
+
 Account balance = opening balance + sum of its transactions. P&L = transactions
 grouped by category over a date range. Balance Sheet = account balances split into
 assets vs. liabilities, with Owner's Equity calculated as Assets − Liabilities.

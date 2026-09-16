@@ -328,8 +328,8 @@ export default function Trends() {
         <>
           {!hasCounts && (
             <p className="form-info">
-              No days were closed out between {from} and {to}, so there is nothing to chart yet. Fill in a{' '}
-              <Link to="../daily-count">daily count</Link> at the end of a day and it shows up here. The catalog
+              No days were closed out between {from} and {to}, so there is nothing to chart yet. Close out a day on{' '}
+              <Link to="../daily-count">The Numbers</Link> and it shows up here. The catalog
               numbers at the bottom of this page work right away.
             </p>
           )}

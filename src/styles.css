@@ -2318,3 +2318,29 @@ button[type='submit']:disabled,
   height: 1.05rem;
   accent-color: var(--green);
 }
+
+/* Cost Snapshot: one bar, two parts - stock against running the place. */
+.cost-split {
+  display: flex;
+  height: 2.6rem;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 0.25rem 0 1rem;
+}
+.cost-split-part {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  min-width: 0;
+}
+.cost-split-part--vendor {
+  background: var(--green);
+}
+.cost-split-part--operating {
+  background: var(--gold-dark);
+}

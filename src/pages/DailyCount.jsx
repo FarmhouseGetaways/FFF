@@ -74,6 +74,7 @@ export default function DailyCount() {
   const [recordCost, setRecordCost] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [history, setHistory] = useState(null)
+  const [ytd, setYtd] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -134,6 +135,20 @@ export default function DailyCount() {
       .limit(30)
     if (error) setError(error.message)
     else setHistory(data)
+  }
+
+  // Everything counted since 1 January, for the running total at the bottom
+  // of the page (Cory, 16 Sep 2026).
+  async function loadYtd() {
+    const jan1 = `${new Date().getFullYear()}-01-01`
+    const { data, error } = await supabase
+      .from('daily_closeouts')
+      .select('close_date, lines:daily_count_lines(ordered, sold, price, cost)')
+      .eq('entity_id', entityId)
+      .gte('close_date', jan1)
+    if (error) return
+    const lines = data.flatMap((d) => d.lines)
+    setYtd({ days: data.length, ...sumLines(lines) })
   }
 
   async function loadDay(forDate) {
@@ -223,6 +238,7 @@ export default function DailyCount() {
 
   useEffect(() => {
     loadHistory()
+    loadYtd()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entityId])
 
@@ -268,10 +284,6 @@ export default function DailyCount() {
       setError('Choose at least one item.')
       return
     }
-    if (!accountId && (totals.sales > 0 || (recordCost && totals.cost > 0))) {
-      setError('Choose the account the money goes into.')
-      return
-    }
     setBusy(true)
     const { error } = await supabase.rpc('save_daily_count', {
       p_entity: entityId,
@@ -297,15 +309,18 @@ export default function DailyCount() {
     if (accountId) storageSet(accountKey, accountId)
     storageSet(costKey, recordCost ? '1' : '0')
     const posted = []
-    if (totals.sales > 0) posted.push(`${formatMoney(totals.sales)} in sales`)
-    if (recordCost && totals.cost > 0) posted.push(`${formatMoney(totals.cost)} paid for the order`)
+    if (accountId && totals.sales > 0) posted.push(`${formatMoney(totals.sales)} in sales`)
+    if (accountId && recordCost && totals.cost > 0) posted.push(`${formatMoney(totals.cost)} paid for the order`)
     const accountName = accounts.find((a) => a.id === accountId)?.name
     await loadDay(date)
     loadHistory()
+    loadYtd()
     setNotice(
       posted.length
         ? `Closed out ${prettyDate(date)}. ${posted.join(' and ')} recorded in Transactions under ${accountName}.`
-        : `Closed out ${prettyDate(date)}.`
+        : accounts.length === 0 && totals.sales > 0
+          ? `Closed out ${prettyDate(date)}. Saved here only — add an account and these sales will go into your books too.`
+          : `Closed out ${prettyDate(date)}.`
     )
   }
 
@@ -321,6 +336,7 @@ export default function DailyCount() {
     }
     await loadDay(date)
     loadHistory()
+    loadYtd()
     setNotice(`Deleted the count for ${prettyDate(date)}.`)
   }
 
@@ -340,7 +356,7 @@ export default function DailyCount() {
 
   return (
     <div className="page page--wide">
-      <h1>Daily count</h1>
+      <h1>The Numbers</h1>
       <p className="page-subtitle">
         Put in what you ordered, count what sold at close, and see the day&apos;s profit.
       </p>
@@ -512,8 +528,12 @@ export default function DailyCount() {
           <div className="inline-form">
             <h2>Close out {prettyDate(date)}</h2>
             {accounts.length === 0 ? (
-              <p className="form-error">
-                Add an account first — the day&apos;s sales go into it. <Link to="../accounts">Accounts</Link>
+              // The count is worth keeping whether or not there's anywhere
+              // to post it - it used to refuse to save at all (Cory, 16 Sep
+              // 2026: "Not saving entries"), which threw the day away.
+              <p className="form-info">
+                Your numbers save here either way. Add an account and the day&apos;s sales will also go into your
+                books. <Link to="../accounts">Accounts</Link>
               </p>
             ) : (
               <>
@@ -549,20 +569,44 @@ export default function DailyCount() {
                     <small>Leave off if you enter vendor bills in Transactions.</small>
                   </span>
                 </label>
-                <div className="form-row">
-                  <button type="submit" onClick={handleSave} disabled={busy}>
-                    {busy ? 'Saving…' : saved ? 'Save changes' : 'Close out the day'}
-                  </button>
-                  {saved && (
-                    <button type="button" className="header-btn header-btn--danger" onClick={handleDelete} disabled={busy}>
-                      Delete this day
-                    </button>
-                  )}
-                </div>
               </>
             )}
+            <div className="form-row">
+              <button type="submit" onClick={handleSave} disabled={busy}>
+                {busy ? 'Saving…' : saved ? 'Save changes' : 'Close out the day'}
+              </button>
+              {saved && (
+                <button type="button" className="header-btn header-btn--danger" onClick={handleDelete} disabled={busy}>
+                  Delete this day
+                </button>
+              )}
+            </div>
             {notice && <p className="form-notice count-message">{notice}</p>}
             {error && <p className="form-error count-message">{error}</p>}
+          </div>
+
+          <h2 className="count-heading count-heading--history">Year to date</h2>
+          <p className="page-subtitle">
+            Every day you have closed out since 1 January {new Date().getFullYear()}.
+          </p>
+          <div className="summary-grid summary-grid--three">
+            <div className="summary-card summary-card--in">
+              <span className="summary-label">Sales</span>
+              <strong className="summary-value">{formatMoney(ytd?.sales ?? 0)}</strong>
+              <span className="summary-note">
+                Across {ytd?.days ?? 0} day{(ytd?.days ?? 0) === 1 ? '' : 's'} counted.
+              </span>
+            </div>
+            <div className="summary-card summary-card--out">
+              <span className="summary-label">Cost of what you ordered</span>
+              <strong className="summary-value">{formatMoney(ytd?.cost ?? 0)}</strong>
+              <span className="summary-note">Wholesale cost of everything put out.</span>
+            </div>
+            <div className={'summary-card summary-card--' + ((ytd?.profit ?? 0) >= 0 ? 'in' : 'out')}>
+              <span className="summary-label">Profit</span>
+              <strong className="summary-value">{formatMoney(ytd?.profit ?? 0)}</strong>
+              <span className="summary-note">Sales minus what the stock cost you.</span>
+            </div>
           </div>
 
           <h2 className="count-heading count-heading--history">Recent days</h2>

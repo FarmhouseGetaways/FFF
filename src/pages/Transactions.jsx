@@ -10,7 +10,7 @@ const SOURCE_LABELS = {
   csv_import: 'CSV import',
   venmo_csv: 'Venmo CSV',
   plaid: 'Bank sync',
-  daily_count: 'Daily count',
+  daily_count: 'The Numbers',
 }
 
 async function uploadAttachment(entityId, file) {

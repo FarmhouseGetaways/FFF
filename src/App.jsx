@@ -16,6 +16,7 @@ import Money from './pages/Money.jsx'
 import Inventory from './pages/Inventory.jsx'
 import DailyCount from './pages/DailyCount.jsx'
 import Trends from './pages/Trends.jsx'
+import CostSnapshot from './pages/CostSnapshot.jsx'
 import EntitySettings from './pages/EntitySettings.jsx'
 import ImportCsv from './pages/ImportCsv.jsx'
 
@@ -119,6 +120,7 @@ export default function App() {
         <Route path="inventory" element={<Inventory />} />
         <Route path="daily-count" element={<DailyCount />} />
         <Route path="trends" element={<Trends />} />
+        <Route path="cost-snapshot" element={<CostSnapshot />} />
         {/* Old separate statement pages - kept as redirects so a bookmark or open tab still lands somewhere real. */}
         <Route path="profit-loss" element={<Navigate to="../money" replace />} />
         <Route path="balance-sheet" element={<Navigate to="../money" replace />} />

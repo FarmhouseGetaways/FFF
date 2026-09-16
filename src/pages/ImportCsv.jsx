@@ -186,6 +186,9 @@ export default function ImportCsv() {
         Upload a bank or Venmo CSV export. Columns and categories are auto-detected — review before
         importing.
       </p>
+      {/* Cory, 16 Sep 2026 - the one setup mistake that makes an import
+          impossible to untangle later. */}
+      <p className="form-info">Use a dedicated account for payouts and payments.</p>
 
       <div className="inline-form">
         <div className="form-row">
