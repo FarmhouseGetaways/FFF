@@ -16,7 +16,7 @@ import { formatMoney, todayISO } from '../lib/money'
 // cost of everything ordered, sold or not.
 
 let nextKey = 1
-const blankLine = () => ({ key: nextKey++, product_id: null, product_name: '', vendor: null, price: 0, cost: null, ordered: '', sold: '' })
+const blankLine = () => ({ key: nextKey++, product_id: null, product_name: '', vendor: null, price: 0, cost: null, ordered: '', sold: '', paid: false })
 
 function shiftDate(iso, days) {
   const [y, m, d] = iso.split('-').map(Number)
@@ -162,7 +162,7 @@ export default function DailyCount() {
     setDirty(false)
     const { data, error } = await supabase
       .from('daily_closeouts')
-      .select('close_date, financial_account_id, record_order_cost, lines:daily_count_lines(product_id, product_name, vendor, ordered, sold, price, cost, sort_order)')
+      .select('close_date, financial_account_id, record_order_cost, lines:daily_count_lines(product_id, product_name, vendor, ordered, sold, price, cost, paid, sort_order)')
       .eq('entity_id', entityId)
       .eq('close_date', forDate)
       .maybeSingle()
@@ -230,6 +230,7 @@ export default function DailyCount() {
             cost: p ? p.cost : l.cost,
             ordered: '',
             sold: '',
+            paid: false,
           }
         })
       )
@@ -269,6 +270,8 @@ export default function DailyCount() {
       return updateLine(key, { typed: true, product_id: null, product_name: '', vendor: null, price: 0, cost: null })
     const p = productById.get(productId)
     if (!p) return updateLine(key, { typed: false, product_id: null, product_name: '', vendor: null, price: 0, cost: null })
+    // The vendor comes across with the product, and stays editable: the
+    // same thing is often ordered from whoever has it that week.
     updateLine(key, { typed: false, product_id: p.id, product_name: p.name, vendor: p.vendor, price: p.price, cost: p.cost })
   }
 
@@ -289,6 +292,16 @@ export default function DailyCount() {
 
   const filled = (lines ?? []).filter((l) => l.product_name)
   const totals = sumLines(filled)
+  // What today's order still owes its vendors, at wholesale.
+  const owed = filled.reduce((s, l) => (l.paid ? s : s + num(l.ordered) * num(l.cost)), 0)
+  // Vendors you've used before, for the per-line vendor box. Suggestions
+  // only - a new name typed in there is kept as typed.
+  const vendorNames = [
+    ...new Set([
+      ...(products ?? []).map((p) => p.vendor),
+      ...(lines ?? []).map((l) => l.vendor),
+    ].filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b))
   const noWholesale = filled.filter((l) => l.cost == null && num(l.ordered) > 0).map((l) => l.product_name)
 
   async function handleSave() {
@@ -321,6 +334,7 @@ export default function DailyCount() {
         vendor: l.vendor,
         ordered: num(l.ordered),
         sold: num(l.sold),
+        paid: !!l.paid,
         price: num(l.price),
         cost: l.cost == null ? null : Number(l.cost),
         sort_order: i,
@@ -436,10 +450,16 @@ export default function DailyCount() {
           )}
 
           <div className="table-scroll">
+            <datalist id="count-vendors">
+              {vendorNames.map((v) => (
+                <option key={v} value={v} />
+              ))}
+            </datalist>
             <table className="data-table count-table">
               <thead>
                 <tr>
                   <th>Item</th>
+                  <th>Vendor</th>
                   <th className="num">Wholesale</th>
                   <th className="num">Price</th>
                   <th className="num">Ordered</th>
@@ -447,6 +467,7 @@ export default function DailyCount() {
                   <th className="num">Left over</th>
                   <th className="num">Sales</th>
                   <th className="num">Profit</th>
+                  <th>Paid</th>
                   <th />
                 </tr>
               </thead>
@@ -508,6 +529,19 @@ export default function DailyCount() {
                           <option value="__typed">Type in an item…</option>
                         </select>
                         )}
+                      </td>
+                      {/* Who this lot came from, per day rather than per
+                          product: the same thing gets ordered from whoever
+                          has it that week (Cory, 16 Sep 2026). */}
+                      <td>
+                        <input
+                          className="count-vendor"
+                          list="count-vendors"
+                          value={l.vendor ?? ''}
+                          onChange={(e) => updateLine(l.key, { vendor: e.target.value || null })}
+                          placeholder="Who from?"
+                          aria-label="Vendor"
+                        />
                       </td>
                       <td className="num">
                         {l.typed ? (
@@ -572,6 +606,27 @@ export default function DailyCount() {
                       <td className={'num' + (left < 0 ? ' negative' : '')}>{l.product_name ? left : ''}</td>
                       <td className="num">{l.product_name ? formatMoney(t.sales) : ''}</td>
                       <td className={'num' + (t.profit < 0 ? ' negative' : '')}>{l.product_name ? formatMoney(t.profit) : ''}</td>
+                      {/* Paid is about this order from this vendor on this
+                          day, so it lives here rather than on the product
+                          (Cory, 16 Sep 2026). */}
+                      <td>
+                        {num(l.ordered) > 0 || l.paid ? (
+                          <button
+                            type="button"
+                            className={'paid-pill' + (l.paid ? ' is-paid' : '')}
+                            onClick={() => updateLine(l.key, { paid: !l.paid })}
+                            aria-pressed={!!l.paid}
+                          >
+                            {l.paid
+                              ? 'Paid'
+                              : l.cost != null
+                                ? `Owe ${formatMoney(num(l.ordered) * num(l.cost))}`
+                                : 'Not paid'}
+                          </button>
+                        ) : (
+                          ''
+                        )}
+                      </td>
                       {/* No Save on the row: a day is saved as one count, so
                           a button per line would promise something the
                           database doesn't do (Cory, 16 Sep 2026). The one
@@ -592,10 +647,12 @@ export default function DailyCount() {
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={6}>Day total</td>
+                  <td colSpan={7}>Day total</td>
                   <td className="num">{formatMoney(totals.sales)}</td>
                   <td className={'num' + (totals.profit < 0 ? ' negative' : '')}>{formatMoney(totals.profit)}</td>
-                  <td />
+                  <td colSpan={2} className="count-owed">
+                    {owed > 0 ? `${formatMoney(owed)} still to pay` : filled.length ? 'All paid' : ''}
+                  </td>
                 </tr>
               </tfoot>
             </table>

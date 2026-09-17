@@ -2455,3 +2455,14 @@ button[type='submit']:disabled,
   flex-wrap: wrap;
   align-items: center;
 }
+
+/* Who this lot came from, typed on the line rather than fixed to the
+   product - the same item comes from whoever has it that week. */
+.count-vendor {
+  min-width: 8.5rem;
+}
+.count-owed {
+  font-weight: 700;
+  color: var(--red);
+  text-align: right;
+}
