@@ -2117,14 +2117,21 @@ button[type='submit']:disabled,
   padding-bottom: 0.5rem;
   white-space: nowrap;
 }
+/* Ten columns now that the vendor and what's owed are on the line, so the
+   fields are only as wide as what goes in them. */
 .count-table select {
-  min-width: 13rem;
-  max-width: 20rem;
+  min-width: 10.5rem;
+  max-width: 14rem;
 }
 .count-table input[type='number'] {
-  width: 5.25rem;
+  width: 4.25rem;
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+.count-table td,
+.count-table th {
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
 }
 
 .page-actions.count-add {
@@ -2459,7 +2466,8 @@ button[type='submit']:disabled,
 /* Who this lot came from, typed on the line rather than fixed to the
    product - the same item comes from whoever has it that week. */
 .count-vendor {
-  min-width: 8.5rem;
+  width: 8.5rem;
+  min-width: 0;
 }
 .count-owed {
   font-weight: 700;
