@@ -292,8 +292,11 @@ export default function DailyCount() {
 
   const filled = (lines ?? []).filter((l) => l.product_name)
   const totals = sumLines(filled)
-  // What today's order still owes its vendors, at wholesale.
+  // What today's order still owes its vendors, at wholesale. A line with no
+  // wholesale price owes $0, so count those separately - "all paid" would be
+  // a lie about a line nobody has marked.
   const owed = filled.reduce((s, l) => (l.paid ? s : s + num(l.ordered) * num(l.cost)), 0)
+  const unpaidLines = filled.filter((l) => !l.paid && num(l.ordered) > 0).length
   // Vendors you've used before, for the per-line vendor box. Suggestions
   // only - a new name typed in there is kept as typed.
   const vendorNames = [
@@ -651,7 +654,13 @@ export default function DailyCount() {
                   <td className="num">{formatMoney(totals.sales)}</td>
                   <td className={'num' + (totals.profit < 0 ? ' negative' : '')}>{formatMoney(totals.profit)}</td>
                   <td colSpan={2} className="count-owed">
-                    {owed > 0 ? `${formatMoney(owed)} still to pay` : filled.length ? 'All paid' : ''}
+                    {owed > 0
+                      ? `${formatMoney(owed)} still to pay`
+                      : unpaidLines > 0
+                        ? `${unpaidLines} not marked paid`
+                        : filled.length
+                          ? 'All paid'
+                          : ''}
                   </td>
                 </tr>
               </tfoot>
