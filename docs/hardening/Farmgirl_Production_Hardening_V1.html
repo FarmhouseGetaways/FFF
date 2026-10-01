@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Production Hardening Addendum</title>
+<style>
+  :root{
+    --ink:#16201b;
+    --ink-soft:#4a5751;
+    --rule:#c8d3cc;
+    --accent:#2f6b47;
+    --accent-soft:#eaf2ec;
+    --warn:#8a4b1f;
+    --paper:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Charter","Bitstream Charter","Georgia","Times New Roman",serif;
+    font-size:10.8pt;
+    line-height:1.5;
+  }
+  .sheet{max-width:7.1in;margin:0 auto;padding:0 0 0.4in}
+
+  /* ---- masthead ---- */
+  .masthead{border-bottom:2.5px solid var(--accent);padding-bottom:14px;margin-bottom:26px}
+  .eyebrow{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:8pt;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin:0 0 6px;
+  }
+  h1{font-size:23pt;line-height:1.12;margin:0 0 8px;letter-spacing:-.01em}
+  .standfirst{font-size:11pt;color:var(--ink-soft);margin:0;max-width:5.6in}
+  .meta{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:8.5pt;color:var(--ink-soft);margin-top:12px;
+  }
+  .meta span{margin-right:18px}
+
+  /* ---- structure ---- */
+  h2{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:12pt;letter-spacing:.01em;margin:30px 0 4px;
+    padding-bottom:5px;border-bottom:1px solid var(--rule);
+    page-break-after:avoid;
+  }
+  h2 .qty{float:right;font-size:8.5pt;font-weight:500;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;padding-top:3px}
+  h3{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;font-size:10.5pt;margin:20px 0 4px;page-break-after:avoid}
+  p{margin:0 0 9px}
+  ul{margin:0 0 10px;padding-left:19px}
+  li{margin-bottom:4px}
+  code{font-family:"Consolas","SF Mono",monospace;font-size:9.1pt;background:var(--accent-soft);padding:1px 4px;border-radius:3px}
+  strong{font-weight:700}
+  .soft{color:var(--ink-soft)}
+
+  /* ---- item cards ---- */
+  .item{
+    border-left:3px solid var(--accent);
+    background:#fbfdfb;
+    padding:12px 16px 11px;
+    margin:0 0 15px;
+    page-break-inside:avoid;
+  }
+  .item.done{border-left-color:#3f7d55}
+  .item.blocked{border-left-color:#b08a3a}
+  .item-head{display:flex;align-items:baseline;gap:9px;margin-bottom:6px}
+  .num{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-weight:700;font-size:13pt;color:var(--accent);flex:none;line-height:1;
+  }
+  .item-title{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:11pt;flex:1;line-height:1.25}
+  .tags{flex:none;display:flex;gap:6px;align-items:baseline}
+  .tag{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:7.5pt;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    border:1px solid var(--rule);border-radius:999px;padding:2px 8px;color:var(--ink-soft);white-space:nowrap;
+  }
+  .tag.free{border-color:#a9c9b5;background:#eef6f1;color:#2f6b47}
+  .tag.paid{border-color:#d9c08a;background:#fbf4e4;color:#8a6a1f}
+  .tag.shipped{border-color:#8fbfa0;background:#e6f3ea;color:#256d3f}
+  .tag.wait{border-color:#d9c08a;background:#fbf4e4;color:#8a6a1f}
+  .item p{margin:0 0 7px}
+  .item p:last-child{margin-bottom:0}
+  .label{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:8pt;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+  }
+
+  /* ---- tables ---- */
+  table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:9.6pt;page-break-inside:avoid}
+  th{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    font-size:8pt;letter-spacing:.08em;text-transform:uppercase;text-align:left;
+    border-bottom:1.5px solid var(--ink);padding:5px 9px 5px 0;color:var(--ink-soft);
+  }
+  td{padding:6px 9px 6px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.num-col{text-align:right;font-variant-numeric:tabular-nums;padding-right:0}
+  tr.total td{border-bottom:none;border-top:1.5px solid var(--ink);font-weight:700}
+
+  /* ---- callout ---- */
+  .callout{
+    background:var(--accent-soft);border-radius:4px;padding:12px 16px;margin:0 0 16px;
+    page-break-inside:avoid;
+  }
+  .callout .label{color:var(--accent);display:block;margin-bottom:4px}
+  .callout p:last-child{margin-bottom:0}
+
+  .verified{background:#f4f9f5;border:1px solid #cfe3d6;border-radius:4px;padding:12px 16px;margin-bottom:16px;page-break-inside:avoid}
+
+  @page{size:letter;margin:0.75in 0.7in 0.7in}
+  @media print{ body{font-size:10.5pt} .sheet{max-width:none} }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <p class="eyebrow">Farmgirl Finance &middot; Design Document Addendum</p>
+    <h1>Production Hardening</h1>
+    <p class="standfirst">What has to be true before the first kiosk leaves the workshop &mdash; ten items agreed 30&nbsp;September 2026, nine of them free.</p>
+    <p class="meta">
+      <span><strong>Scope</strong> farmgirl-books &middot; mbm-checkout</span>
+      <span><strong>Status</strong> approved, in progress</span>
+      <span><strong>Rev</strong> V1</span>
+    </p>
+  </header>
+
+  <h2>Why this addendum exists</h2>
+  <p>On 29 September the Supabase project paused itself. Free-tier projects pause after seven days without activity, and with the stand unplugged and nobody signing in, the clock ran out. Farmgirl Finance was completely unusable for both Carissa and The Coop &mdash; and <strong>farmgirl.ai kept returning HTTP&nbsp;200 the whole time</strong>, because the front end is a static bundle on Netlify that was serving perfectly while the database behind it was switched off. The outage was discovered from a vendor email, not from anything we built.</p>
+  <p>That prompted a wider question: the product is about to hold several businesses' financial records and take money at unattended stands. This document records what was checked, what was found, and the ten items agreed to close the gap.</p>
+
+  <h2>What was audited and found sound<span class="qty">No action required</span></h2>
+  <div class="verified">
+    <p><strong>Row-level security is correct across all eleven tables.</strong> Every tenant-scoped table carries the same policy on both halves &mdash; <code>using</code> and <code>with check</code> &mdash; resolving through <code>entity_id in (select id from entities where owner_id = auth.uid())</code>. The common failure here is declaring <code>using</code> alone, which prevents reading another tenant's rows but still permits writing into them. It is absent. Storage buckets for attachments and logos are scoped identically by folder.</p>
+    <p><strong>Privilege escalation is closed deliberately.</strong> <code>revoke update (is_admin) on profiles from authenticated</code> stops a signed-in user flipping their own admin bit through the otherwise legitimate "update your own row" policy.</p>
+    <p><strong>All twelve service-role functions verify the caller before acting.</strong> These bypass RLS by design, so the isolation there is hand-written and was the suspected weak point. It is not. Each validates the bearer token against <code>/auth/v1/user</code> to obtain a trusted user id, then confirms entity ownership before using the service key. <code>pos-request</code> returns 403 "Not your business." <code>push-subscribe</code> takes the user id from the verified token and never from the request body. <code>admin-fleet</code> reads <code>is_admin</code> from the database, refuses before fetching anything, and retrieves counts rather than contents. The two endpoints that accept an id from the request are intentional: <code>public-products</code> is the kiosk catalog with cost, sku and stock columns excluded, and <code>push-send</code> is server-to-server behind a shared key that can only ever notify the owner of an entity the caller already knew.</p>
+    <p class="soft">Tenant isolation in the accounting app is the strongest part of the system. None of the ten items below concern it.</p>
+  </div>
+
+  <h2>Blocks handing a stand to a customer<span class="qty">Items 1&ndash;3</span></h2>
+
+  <div class="item done">
+    <div class="item-head">
+      <span class="num">1</span>
+      <span class="item-title">Hours &amp; contact was one record shared by every stand</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag shipped">Fixed</span></span>
+    </div>
+    <p><span class="label">The defect</span> &mdash; <code>kiosk-info.mjs</code> was the last store still writing to a bare blob key (<code>content</code>) with no tenant prefix. Every other store had been migrated to <code>t/&lt;stand&gt;/</code> during the multi-tenancy work; this one was missed. The Coop saving its opening hours would have overwritten Mini Barn Market's, and each stand would then have displayed the other's on the wall. This was the only confirmed, reproducible cross-tenant defect found anywhere in either codebase.</p>
+    <p><span class="label">The fix</span> &mdash; scoped exactly like <code>/api/screen</code> and <code>/api/montage</code>: an admin page reads back the stand its session writes to, a kiosk names its own stand in the URL, and an explicit <code>?stand=</code> still wins. <code>readWithFallback</code> means Mini Barn Market's existing bare record keeps resolving until its first save moves it, so nothing goes blank on deploy. The store was also switched to strong consistency, matching the fix already applied to screen and montage &mdash; without it the <code>/info</code> page re-reads stale text straight after saving and a successful save looks broken.</p>
+  </div>
+
+  <div class="item blocked">
+    <div class="item-head">
+      <span class="num">2</span>
+      <span class="item-title">A stand off our network cannot be reached at all</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag wait">Needs account</span></span>
+    </div>
+    <p><span class="label">The problem</span> &mdash; SSH to a kiosk works only from the same LAN. This is not theoretical: this week our own stand was unreachable from our own house for several days. A kiosk in another owner's barn, behind their router, is a box that cannot be updated, diagnosed or rescued &mdash; and the owner has no way to help. Every other item on this list assumes we can reach the hardware.</p>
+    <p><span class="label">The fix</span> &mdash; Tailscale, a private mesh network installed on each kiosk and on the workshop PC. Each machine joins our network regardless of whose router it sits behind, with no port forwarding and nothing exposed to the public internet. The free tier covers 100 devices and 3 users, which is far beyond any plausible fleet. It replaces nothing: LAN SSH keeps working as the fallback.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">3</span>
+      <span class="item-title">Provisioning a new stand is a sequence of manual steps</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag">Planned</span></span>
+    </div>
+    <p><span class="label">The problem</span> &mdash; bringing The Coop online meant hand-running SQL, choosing a stand slug, setting environment variables and configuring the box by hand. Every manual step is a step that can be skipped, and a half-provisioned tenant is the most likely way a stand ends up reading someone else's settings. It does not survive customer number five.</p>
+    <p><span class="label">The fix</span> &mdash; one provisioning action, built on the request path that already exists. <code>pos-request.mjs</code> already lets an owner request a stand and records it against their entity; <code>admin-fleet</code> already lists them. Fulfilment becomes a single admin endpoint that allocates the stand slug, writes the default config records under <code>t/&lt;slug&gt;/</code>, registers the device key, links the stand to the entity and returns the finished kiosk URL &mdash; succeeding completely or not at all. Onboarding then has one button and no checklist.</p>
+  </div>
+
+  <h2>Blocks holding paying customers' data<span class="qty">Items 4&ndash;5</span></h2>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">4</span>
+      <span class="item-title">A backup we control &mdash; including the one no plan covers</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag">Planned</span></span>
+    </div>
+    <div class="callout">
+      <span class="label">Does Supabase Pro solve this?</span>
+      <p>Partly, and not the important half. Pro adds daily Postgres backups retained for seven days &mdash; genuinely useful, and a real improvement on the free tier, which has <strong>no automatic backups at all</strong>. But those backups live inside the same Supabase account as the database they protect, so a billing lapse, a suspension or a lost login takes both. And Pro does nothing for <strong>Netlify Blobs, which has no backup facility on any plan</strong>. The kiosk's entire sales record lives there under <code>evt/&lt;date&gt;/</code>. For a product intended to be as solid as a Square terminal, the transaction log being the least protected thing we own is the wrong way round.</p>
+    </div>
+    <p><span class="label">The fix</span> &mdash; a nightly job that dumps Postgres and exports the blob stores to storage on our own account, with a retention window, and a restore rehearsed once so it is known to work rather than assumed. This doubles as the exit: it is the same operation as moving hosts, which turns "we could be on another database in minutes" from a belief into something verified every night.</p>
+  </div>
+
+  <div class="item blocked">
+    <div class="item-head">
+      <span class="num">5</span>
+      <span class="item-title">There is no environment to test in but production</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag wait">Needs account</span></span>
+    </div>
+    <p><span class="label">The problem</span> &mdash; this machine has no Node or npm, so nothing can be built or tested locally and a Netlify deploy is the only validation this project has. Every change on this list therefore ships unvalidated to a live application while a customer uses it. This is the root cause beneath several past defects, including a daily-count save bug that shipped twice.</p>
+    <p><span class="label">The fix</span> &mdash; a second Supabase project as staging and a Netlify deploy context pointed at it, so changes are exercised against real infrastructure before customers meet them.</p>
+    <p><span class="label">Two constraints to expect</span> &mdash; the free tier permits two active projects, so staging is the second and it fits exactly. And staging is idle by definition, so it will pause every week and send the same email that prompted this document. That is expected behaviour for a staging project, not a fault.</p>
+  </div>
+
+  <h2>Needed shortly after launch<span class="qty">Items 6&ndash;8</span></h2>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">6</span>
+      <span class="item-title">An uptime check that signs in and reads a row</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag">Planned</span></span>
+    </div>
+    <p>A check that merely requests the home page proves nothing here &mdash; farmgirl.ai answered 200 throughout an outage that made it entirely unusable. The check has to authenticate and read an actual record, then alert if it cannot. The same applies to the kiosk: a stand that has stopped sending heartbeats should raise an alert rather than wait to be noticed.</p>
+  </div>
+
+  <div class="item blocked">
+    <div class="item-head">
+      <span class="num">7</span>
+      <span class="item-title">Error reporting &mdash; there is none today</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag wait">Needs account</span></span>
+    </div>
+    <p>Nothing reports client-side or function errors. The Coop's save failure reached us because a person mentioned it, which is the only channel that currently exists. Sentry's free Developer plan covers this comfortably at our size; the paid Team plan starts around $26/month and would only become relevant at an error volume we are nowhere near. Exact quotas confirmed at signup.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">8</span>
+      <span class="item-title">Supabase Pro</span>
+      <span class="tags"><span class="tag paid">$25/mo</span><span class="tag">At launch</span></span>
+    </div>
+    <p>Removes automatic pausing entirely and adds daily backups retained seven days. Priced per organisation with the first project included and additional projects from $10, so one subscribing client covers the entire backend. Deferred until development ends, which is the right call while no kiosk is deployed &mdash; the trigger is the first customer data we cannot afford to lose, not a calendar date.</p>
+    <p class="soft">For context on what was not chosen: the Team plan at $599/month sells SOC&nbsp;2, ISO&nbsp;27001, SSO and priority SLAs. That is compliance procurement, not reliability, and nothing in this market asks for it.</p>
+  </div>
+
+  <h2>Before a card reader ships<span class="qty">Items 9&ndash;10</span></h2>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">9</span>
+      <span class="item-title">Confirm we are outside PCI scope</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag">Planned</span></span>
+    </div>
+    <p>One pass to confirm no logged or stored field can ever carry a card number, and that the reader hands back a token rather than a PAN. Staying out of scope is worth far more than filling in a questionnaire, and it is only true if nothing in the checkout log path can ever record one.</p>
+  </div>
+
+  <div class="item">
+    <div class="item-head">
+      <span class="num">10</span>
+      <span class="item-title">Terms, privacy, and a client export &amp; delete path</span>
+      <span class="tags"><span class="tag free">$0</span><span class="tag">Planned</span></span>
+    </div>
+    <p>We hold other businesses' financial records. That needs stated terms, a privacy policy, and a working path for a client to export everything they own and to have it deleted on request. Export is also a selling point rather than an obligation: it is what makes signing up feel reversible.</p>
+  </div>
+
+  <h2>Accounts to create<span class="qty">Google SSO on farmhousegetaways@gmail.com</span></h2>
+  <table>
+    <tr><th>Service</th><th>For</th><th>Sign-in</th><th class="num-col">Cost</th></tr>
+    <tr><td>Tailscale</td><td>Item 2 &mdash; reach any stand</td><td>Google SSO</td><td class="num-col">Free</td></tr>
+    <tr><td>Sentry</td><td>Item 7 &mdash; error reporting</td><td>Google SSO</td><td class="num-col">Free</td></tr>
+    <tr><td>Supabase staging project</td><td>Item 5 &mdash; existing account, second project</td><td>GitHub (already in use)</td><td class="num-col">Free</td></tr>
+  </table>
+
+  <h2>Cost</h2>
+  <table>
+    <tr><th>Item</th><th>Now</th><th class="num-col">At launch</th></tr>
+    <tr><td>Items 1, 3, 4, 6, 9, 10 &mdash; our own code</td><td>&mdash;</td><td class="num-col">$0</td></tr>
+    <tr><td>Item 2 &mdash; Tailscale, 100 devices</td><td>Free tier</td><td class="num-col">$0</td></tr>
+    <tr><td>Item 5 &mdash; staging project</td><td>Free tier</td><td class="num-col">$0</td></tr>
+    <tr><td>Item 7 &mdash; Sentry Developer</td><td>Free tier</td><td class="num-col">$0</td></tr>
+    <tr><td>Item 8 &mdash; Supabase Pro</td><td>Not yet</td><td class="num-col">$25/mo</td></tr>
+    <tr class="total"><td>Total</td><td>$0</td><td class="num-col">$25/mo</td></tr>
+  </table>
+  <p class="soft">One client subscription at $27/month covers the entire production backend, permanently.</p>
+
+  <h2>Sequencing</h2>
+  <p>Item 5 comes first in practice even though it is listed fifth: staging is what makes the other nine safe to ship, since without it each one is an unvalidated change to a live system. Items 2 and 7 follow as soon as the accounts exist. Items 1, 3, 4 and 6 are ours to write and will be batched &mdash; each production deploy costs 15 credits, so approved changes ship together rather than one at a time. Items 9 and 10 are gated on the card reader and on selling to a customer we do not know personally, in that order.</p>
+  <p>Item 8 is the only decision left open, and its trigger is the end of development rather than any date.</p>
+
+</div>
+</body>
+</html>
