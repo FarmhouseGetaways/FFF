@@ -148,7 +148,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-ivizhin-intro">
-        <div className="landing-ivizhin-lockup">
+        <a className="landing-ivizhin-lockup" href="https://ivizhin.com">
           <svg width="34" height="34" viewBox="0 0 120 120" aria-hidden="true">
             <g fill="none" stroke="#161826" strokeWidth="5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 34 L10 18 Q10 10 18 10 L34 10" />
@@ -160,12 +160,12 @@ export default function Landing() {
             <circle cx="60" cy="60" r="7.5" fill="#9184d9" />
           </svg>
           <span className="landing-ivizhin-word">ivizhin</span>
-        </div>
+        </a>
         <p className="landing-ivizhin-tagline">by Financial Freedom Farmgirl</p>
         <p className="landing-ivizhin-body">
           The camera-and-voice checkout running every Farmgirl Finance stand has a name of its own
           now — ivizhin. Same stand, same tech you&apos;re about to see below, just something to
-          call it.
+          call it. Everything else we build is at ivizhin.com.
         </p>
       </section>
 
