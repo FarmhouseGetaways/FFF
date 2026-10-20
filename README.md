@@ -42,6 +42,28 @@ Account balance = opening balance + sum of its transactions. P&L = transactions
 grouped by category over a date range. Balance Sheet = account balances split into
 assets vs. liabilities, with Owner's Equity calculated as Assets − Liabilities.
 
+## Every new table needs explicit grants
+
+From 30 Oct 2026, Supabase no longer auto-grants Data API access to new
+tables in `public`. A table without grants returns "permission denied" to
+supabase-js and the Netlify functions, even for `service_role`. Migration
+`0016_data_api_grants.sql` covers every table that exists today. Every
+migration that creates a table must also include:
+
+```sql
+create table public.my_table ( ... );
+alter table public.my_table enable row level security;
+-- policies ...
+grant select, insert, update, delete on table public.my_table to authenticated, service_role;
+-- grant ... to anon  -- ONLY if signed-out code really reads it; say why in a comment
+-- new RPCs:
+-- grant execute on function public.my_fn(argtypes) to authenticated;
+```
+
+Column-level `revoke` does nothing while a role still holds table-level
+privileges. To protect a column, grant column-level privileges instead
+(see `profiles` in 0016).
+
 ## Local setup
 
 1. Install [Node.js LTS](https://nodejs.org).
@@ -49,7 +71,8 @@ assets vs. liabilities, with Owner's Equity calculated as Assets − Liabilities
 3. Copy `.env.example` to `.env` and fill in your Supabase project's URL and anon key
    (Project Settings → API in the Supabase dashboard).
 4. In the Supabase dashboard, open the SQL editor and run the contents of
-   `supabase/migrations/0001_init.sql` once against your project.
+   every file in `supabase/migrations/` once, in filename order
+   (0001 → latest), against your project.
 5. `npm run dev`
 
 ## Payments (Stripe)
